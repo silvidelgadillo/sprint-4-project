@@ -80,3 +80,5 @@ Code the `/feedback` endpoint so the users can report using the service UI when 
 ## Part 4 - Running on the GPU
 
 The current Docker setup and Dockerfiles provided allow us to run the model only on CPU. We could get a big improvement in terms of speed if we run our Deep Learning models on the GPU. Adapt the project code so we can make use of NVIDIA hardware.
+
+Test
