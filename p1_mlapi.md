@@ -1,4 +1,4 @@
-# Sprint 6 final project
+# Sprint 4 project
 
 ## Part 1 - Building the basic service
 

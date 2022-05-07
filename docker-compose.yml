@@ -20,9 +20,11 @@ services:
       - ./uploads:/src/static/uploads
 
   redis:
+    container_name: ml_redis_queue
     image: redis:6.2.6
 
   model:
+    container_name: ml_service
     image: ml_service
     build:
       context: ./model
