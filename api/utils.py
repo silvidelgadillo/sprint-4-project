@@ -1,5 +1,8 @@
 import os
+import imghdr
+import hashlib as hs
 
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def allowed_file(filename):
     """
@@ -16,10 +19,8 @@ def allowed_file(filename):
     bool
         True if the file is an image, False otherwise.
     """
-    # Current implementation will allow any kind of file.
-    # TODO
-    return True
-
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def get_file_hash(file):
     """
@@ -37,6 +38,6 @@ def get_file_hash(file):
     str
         New filename based in md5 file hash.
     """
-    # Current implementation will return the original file name.
-    # TODO
-    return os.path.basename(file.filename)
+    hs_file = hs.md5(file.filename.encode('utf-8'))
+    hs_file = hs_file.hexdigest()
+    return os.path.basename(hs_file)
