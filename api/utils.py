@@ -20,7 +20,7 @@ def allowed_file(filename):
     PERMITED_EXT = {".png", ".jpg", ".jpeg", ".gif"}
     _, ext = os.path.splitext(filename)
     ext = ext.lower()
-    valid = ext in permited_ext
+    valid = ext in PERMITED_EXT
 
     return valid
 
