@@ -44,7 +44,8 @@ def get_file_hash(file):
     # TODO
     
     hash = hashlib.md5(file.read()).hexdigest()
-    name_hashed = f"{hash}.{file.filename.split('.')[1]}"
+    _, ext = os.path.splitext(file.filename)
+    name_hashed = f"{hash}{ext.lower()}"
     # https://stackoverflow.com/questions/42569942/calculate-md5-from-werkzeug-datastructures-filestorage-but-saving-the-object-as
     file.seek(0)
     return name_hashed
