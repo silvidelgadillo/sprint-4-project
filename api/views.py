@@ -1,4 +1,7 @@
 import utils
+import settings
+import os
+import middleware
 
 from flask import (
     Blueprint,
@@ -37,9 +40,11 @@ def upload_image():
     if file.filename == "":
         flash("No image selected for uploading")
         return redirect(request.url)
-
     # File received and it's an image, we must show it and get predictions
     if file and utils.allowed_file(file.filename):
+        unique_file_name = utils.get_file_hash(file)
+        file.save(os.path.join(settings.UPLOAD_FOLDER, unique_file_name))
+        middleware.model_predict(file)
         # In order to correctly display the image in the UI and get model
         # predictions you should implement the following:
         #   1. Get an unique file name using utils.get_file_hash() function
