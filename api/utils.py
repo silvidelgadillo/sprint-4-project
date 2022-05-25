@@ -1,5 +1,5 @@
 import os
-
+import hashlib
 
 def allowed_file(filename):
     """
@@ -17,8 +17,11 @@ def allowed_file(filename):
         True if the file is an image, False otherwise.
     """
     # Current implementation will allow any kind of file.
-    # TODO
-    return True
+    ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif"}
+    _, ext = os.path.splitext(filename)
+    ext = ext.lower()
+    valid_file = ext in ALLOWED_EXTENSIONS
+    return valid_file
 
 
 def get_file_hash(file):
@@ -39,4 +42,9 @@ def get_file_hash(file):
     """
     # Current implementation will return the original file name.
     # TODO
-    return os.path.basename(file.filename)
+    
+    hash = hashlib.md5(file.read()).hexdigest()
+    name_hashed = f"{hash}.{file.filename.split('.')[1]}"
+    # https://stackoverflow.com/questions/42569942/calculate-md5-from-werkzeug-datastructures-filestorage-but-saving-the-object-as
+    file.seek(0)
+    return name_hashed
