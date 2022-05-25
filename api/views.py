@@ -1,5 +1,6 @@
 import utils
 import middleware
+import settings
 
 from flask import (
     Blueprint,
@@ -51,7 +52,7 @@ def upload_image():
         #   4. Update `context` dict with the corresponding values
 
         hash_imgname = utils.get_file_hash(file)
-        save_path = f"./static/uploads/{hash_imgname}"
+        save_path = f"{settings.UPLOAD_FOLDER}{hash_imgname}"
         file.stream.seek(0)
         file.save(save_path)
 
@@ -66,7 +67,7 @@ def upload_image():
         return render_template(
             "index.html", filename=hash_imgname, context=context
         )
-        
+
     # File received and but it isn't an image
     else:
         flash("Allowed image types are -> png, jpg, jpeg, gif")
