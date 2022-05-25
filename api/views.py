@@ -1,4 +1,5 @@
 import utils
+import os
 
 from flask import (
     Blueprint,
@@ -39,7 +40,7 @@ def upload_image():
         return redirect(request.url)
 
     # File received and it's an image, we must show it and get predictions
-    if file and utils.allowed_file(file.filename):
+    if file and utils.allowed_file(file.filename):                          #implementar primero
         # In order to correctly display the image in the UI and get model
         # predictions you should implement the following:
         #   1. Get an unique file name using utils.get_file_hash() function
@@ -49,6 +50,8 @@ def upload_image():
         #            service using Redis.
         #   4. Update `context` dict with the corresponding values
         # TODO
+        namefile = utils.get_file_hash(file)
+        #
         context = {
             "prediction": None,
             "score": None,

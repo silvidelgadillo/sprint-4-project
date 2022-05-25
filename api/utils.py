@@ -1,42 +1,28 @@
+from ast import Return
 import os
+import hashlib
 
 
 def allowed_file(filename):
-    """
-    Checks if the format for the file received is acceptable. For this
-    particular case, we must accept only image files.
 
-    Parameters
-    ----------
-    filename : str
-        Filename from werkzeug.datastructures.FileStorage file.
+    '''Función para la validar la extencion del archivo'''
+    
+    ALLOWED_EXTENSIONS = {".png",".jpg",".JPG",".JPEG",".jpeg",".gif",".GIF",".PNG"}
+    _, ext = os.path.splitext(filename)
+    ext = ext.lower()
+    valid_file = ext in ALLOWED_EXTENSIONS
 
-    Returns
-    -------
-    bool
-        True if the file is an image, False otherwise.
-    """
-    # Current implementation will allow any kind of file.
-    # TODO
-    return True
+    return  valid_file
 
 
 def get_file_hash(file):
-    """
-    Returns a new filename based on the file content using MD5 hashing.
-    It uses hashlib.md5() function from Python standard library to get
-    the hash.
 
-    Parameters
-    ----------
-    file : werkzeug.datastructures.FileStorage
-        File sent by user.
+    '''Función para devolver hash + extencion como string'''
 
-    Returns
-    -------
-    str
-        New filename based in md5 file hash.
-    """
-    # Current implementation will return the original file name.
-    # TODO
-    return os.path.basename(file.filename)
+    hash_file = hashlib.md5(file.read()).hexdigest()
+    _, ext = os.path.splitext(file.filename)  
+    ext = ext.lower()
+    file_new_name = f'{hash_file}{ext}'
+    file.seek(0)
+   
+    return  file_new_name

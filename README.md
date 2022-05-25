@@ -65,5 +65,5 @@ Same as api, run:
 
 ```bash
 $ cd model/
-$ docker build -t model_test --progress=plain --target test .
+$ docker build -t model_test --progress=plain --target test . #para hacer el testeo
 ```
