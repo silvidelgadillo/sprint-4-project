@@ -38,6 +38,9 @@ def get_file_hash(file):
     str
         New filename based in md5 file hash.
     """
-    hs_file = hs.md5(file.filename.encode('utf-8'))
+    hs_file = hs.md5(file.read())
     hs_file = hs_file.hexdigest()
-    return os.path.basename(hs_file)
+    new_file_name = str(hs_file)+'.'+imghdr.what(file)
+    # In order to be able to read the file again. Otherwise, it will stay in last point in memory.
+    file.seek(0)
+    return new_file_name

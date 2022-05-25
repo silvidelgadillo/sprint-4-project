@@ -45,15 +45,7 @@ def upload_image():
         unique_file_name = utils.get_file_hash(file)
         file.save(os.path.join(settings.UPLOAD_FOLDER, unique_file_name))
         middleware.model_predict(file)
-        # In order to correctly display the image in the UI and get model
-        # predictions you should implement the following:
-        #   1. Get an unique file name using utils.get_file_hash() function
-        #   2. Store the image to disk using the new name
-        #   3. Send the file to be processed by the `model` service
-        #      Hint: Use middleware.model_predict() for sending jobs to model
-        #            service using Redis.
         #   4. Update `context` dict with the corresponding values
-        # TODO
         context = {
             "prediction": None,
             "score": None,
