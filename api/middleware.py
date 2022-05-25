@@ -1,6 +1,8 @@
 import time
 import redis
 import settings
+import uuid
+import json
 
 db = redis.Redis(
     host=settings.REDIS_IP,
@@ -10,52 +12,20 @@ db = redis.Redis(
 assert db.ping()
 
 def model_predict(image_name):
-    """
-    Receives an image name and queues the job into Redis.
-    Will loop until getting the answer from our ML service.
+    job_id = uuid.uuid4()
+    job_data = {
+        'id': job_id,
+        'image_name': image_name
+    }
 
-    Parameters
-    ----------
-    image_name : str
-        Name for the image uploaded by the user.
+    db.rpush(settings.REDIS_QUEUE, json.dumps(job_data))
 
-    Returns
-    -------
-    prediction, score : tuple(str, float)
-        Model predicted class as a string and the corresponding confidence
-        score as a number.
-    """
-    # Assign an unique ID for this job and add it to the queue.
-    # We need to assing this ID because we must be able to keep track
-    # of this particular job across all the services
-    # TODO
-    job_id = None
-
-    # Create a dict with the job data we will send through Redis having the
-    # following shape:
-    # {
-    #    "id": str,
-    #    "image_name": str,
-    # }
-    # TODO
-    job_data = None
-
-    # Send the job to the model service using Redis
-    # Hint: Using Redis `rpush()` function should be enough to accomplish this.
-    # TODO
-
-    # Loop until we received the response from our ML model
+    # Loop until we receive the response from our ML model
     while True:
-        # Attempt to get model predictions using job_id
-        # Hint: Investigate how can we get a value using a key from Redis
-        # TODO
-        output = None
-
-        # Don't forget to delete the job from Redis after we get the results!
-        # Then exit the loop
-        # TODO
-
-        # Sleep some time waiting for model results
         time.sleep(settings.API_SLEEP)
+        if db.get(job_id):
+            output_ = json.loads(db.get(job_id))
+            db.delete(job_id)
+            break
 
-    return None, None
+    return tuple(output_['prediction'], output_['score'])

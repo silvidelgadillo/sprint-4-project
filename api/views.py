@@ -44,19 +44,19 @@ def upload_image():
     if file and utils.allowed_file(file.filename):
         unique_file_name = utils.get_file_hash(file)
         file.save(os.path.join(settings.UPLOAD_FOLDER, unique_file_name))
-        middleware.model_predict(file)
-        #   4. Update `context` dict with the corresponding values
+
         context = {
             "prediction": None,
             "score": None,
             "filename": None,
         }
+        results = middleware.model_predict(file)
+        context.update({"prediction": results[0],
+                        "score": results[1],
+                        "filename": file.filename})
 
-        # Update `render_template()` parameters as needed
-        # TODO
-        return render_template(
-            "index.html", filename=None, context=None
-        )
+        return render_template("index.html", filename=context['filename'], context=context)
+
     # File received and but it isn't an image
     else:
         flash("Allowed image types are -> png, jpg, jpeg, gif")
