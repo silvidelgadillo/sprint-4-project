@@ -1,17 +1,16 @@
 import time
-
+import tensorflow as tf
+from tensorflow import keras
+from keras.applications.resnet import ResNet50
 import settings
+import json
 
+model = ResNet50(weights='imagenet')
+db = settings.REDIS_DB_ID
 
-# TODO
-# Connect to Redis and assign to variable `db``
-# Make use of settings.py module to get Redis settings like host, port, etc.
-db = None
-
-# TODO
-# Load your ML model and assign to variable `model`
-model = None
-
+queue_name, msg = db.brpop(settings.REDIS_QUEUE)
+msg = json.loads(msg)
+image_name = msg['image_name']
 
 def predict(image_name):
     """
@@ -30,9 +29,16 @@ def predict(image_name):
         score as a number.
     """
     # TODO
+    return 'Cat', 0.9999
 
-    return None, None
+pred_class, pred_score = predict(image_name)
 
+output_msg = {
+    'prediction':pred_class,
+    'score':pred_score
+}
+
+db.set(msg['id'], json.dumps(output_msg))
 
 def classify_process():
     """

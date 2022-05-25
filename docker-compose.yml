@@ -18,9 +18,13 @@ services:
     volumes:
       - ./feedback:/src/feedback
       - ./uploads:/src/static/uploads
+#      - ./api:/src
 
   redis:
     image: redis:6.2.6
+    container_name: sprint-4-redis-1
+    ports:
+      - "6379:6379"
 
   model:
     image: ml_service
