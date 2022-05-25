@@ -1,4 +1,5 @@
 import utils
+import middleware
 
 from flask import (
     Blueprint,
@@ -48,18 +49,24 @@ def upload_image():
         #      Hint: Use middleware.model_predict() for sending jobs to model
         #            service using Redis.
         #   4. Update `context` dict with the corresponding values
-        # TODO
+
+        hash_imgname = utils.get_file_hash(file)
+        save_path = f"./static/uploads/{hash_imgname}"
+        file.stream.seek(0)
+        file.save(save_path)
+
+        prediction, score = middleware.model_predict(hash_imgname)
+
         context = {
-            "prediction": None,
-            "score": None,
-            "filename": None,
+            "prediction": prediction,
+            "score": score,
+            "filename": hash_imgname,
         }
 
-        # Update `render_template()` parameters as needed
-        # TODO
         return render_template(
-            "index.html", filename=None, context=None
+            "index.html", filename=hash_imgname, context=context
         )
+        
     # File received and but it isn't an image
     else:
         flash("Allowed image types are -> png, jpg, jpeg, gif")
