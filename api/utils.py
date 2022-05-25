@@ -20,7 +20,7 @@ def allowed_file(filename):
     # TODO
     try:
         images_ext = {'.gif', '.jpeg', '.jpg', '.png'}
-        _, img_check = os.path.splitext(filename)
+        _, img_check = os.path.splitext(filename)    #como me devuelve un tupple ignoro la primer variable con _,
         img_check = img_check.lower()
 
     except IOError:
@@ -46,10 +46,10 @@ def get_file_hash(file):
     """
     # Current implementation will return the original file name.
     # TODO
-    filename=  os.path.basename(file.filename)
-    split_file = os.path.splitext(filename)
+    # filename = os.path.basename(file.filename)
+    _, split_file = os.path.splitext(file.filename)
     data = file.read()
     md5hash = hashlib.md5(data).hexdigest()
-    file.seek(0)
+    file.seek(0)                #vuelvo el puntero para poder leerlo despues
 
-    return str(md5hash) + str(split_file[1])
+    return str(md5hash) + str(split_file)
