@@ -17,7 +17,7 @@ def allowed_file(filename):
         True if the file is an image, False otherwise.
     """
 
-    permited_ext = {".png", ".jpg", ".jpeg", ".gif"}
+    PERMITED_EXT = {".png", ".jpg", ".jpeg", ".gif"}
     _, ext = os.path.splitext(filename)
     ext = ext.lower()
     valid = ext in permited_ext
