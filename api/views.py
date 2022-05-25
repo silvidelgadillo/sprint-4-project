@@ -1,4 +1,8 @@
 import utils
+import os
+import settings
+from werkzeug.utils import secure_filename
+import middleware
 
 from flask import (
     Blueprint,
@@ -49,16 +53,24 @@ def upload_image():
         #            service using Redis.
         #   4. Update `context` dict with the corresponding values
         # TODO
+        hashed_filename=utils.get_file_hash(file)
+        file.filename = hashed_filename
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(settings.UPLOAD_FOLDER,filename))
+
+        predict , score = middleware.model_predict(file.filename)
+
+
         context = {
-            "prediction": None,
-            "score": None,
-            "filename": None,
+            "prediction": predict,
+            "score": score,
+            "filename": file.filename,
         }
 
         # Update `render_template()` parameters as needed
         # TODO
         return render_template(
-            "index.html", filename=None, context=None
+            "index.html", filename=file.filename, context=context
         )
     # File received and but it isn't an image
     else:
