@@ -31,7 +31,7 @@ def predict(image_name):
     """
     # TODO
 
-    return None, None
+    return "Cat", 0.9999
 
 
 def classify_process():
