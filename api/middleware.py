@@ -44,17 +44,18 @@ def model_predict(image_name):
 
 
     # Loop until we received the response from our ML model
-    # while True:
-    #     # Attempt to get model predictions using job_id
-    #     # Hint: Investigate how can we get a value using a key from Redis
-    #     # TODO
-    #     output = None
+    while True:
+        pred_data_str = db.get(job_data["id"])
 
-    #     # Don't forget to delete the job from Redis after we get the results!
-    #     # Then exit the loop
-    #     # TODO
+        if pred_data_str:
+            db.delete(job_data["id"])
+            break
+        
+        time.sleep(settings.API_SLEEP)
+    
+    pred_data = json.loads(pred_data_str)
 
-    #     # Sleep some time waiting for model results
-    #     time.sleep(settings.API_SLEEP)
+    pred_class = pred_data["prediction"]
+    pred_score = pred_data["score"]
 
-    return "Cat", 0.98
+    return pred_class, pred_score
