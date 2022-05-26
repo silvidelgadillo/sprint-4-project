@@ -9,13 +9,11 @@ def allowed_file(filename):
 
     Parameters
     ----------
-    filename : str
-        Filename from werkzeug.datastructures.FileStorage file.
+    filename : str -> Filename from werkzeug.datastructures.FileStorage file.
 
     Returns
     -------
-    bool
-        True if the file is an image, False otherwise.
+    bool -> True if the file is an image, False otherwise.
     """
 
     ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif"}
@@ -33,13 +31,11 @@ def get_file_hash(file):
 
     Parameters
     ----------
-    file : werkzeug.datastructures.FileStorage
-        File sent by user.
+    file : werkzeug.datastructures.FileStorage -> File sent by user.
 
     Returns
     -------
-    str
-        New filename based in md5 file hash.
+    str -> New filename based in md5 file hash.
     """
 
     with open(file.filename, 'rb') as f:

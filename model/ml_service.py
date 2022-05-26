@@ -31,7 +31,9 @@ def predict(image_name):
     """
     # TODO
 
-    return None, None
+    # Down the original line for the return. '"cat", 0.9' was used as a test 
+    # return None, None
+    return "cat", 0.9
 
 
 def classify_process():
