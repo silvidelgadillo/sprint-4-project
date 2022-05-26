@@ -1,4 +1,5 @@
 import utils
+import os
 
 from flask import (
     Blueprint,
@@ -42,13 +43,27 @@ def upload_image():
     if file and utils.allowed_file(file.filename):
         # In order to correctly display the image in the UI and get model
         # predictions you should implement the following:
-        #   1. Get an unique file name using utils.get_file_hash() function
-        #   2. Store the image to disk using the new name
-        #   3. Send the file to be processed by the `model` service
-        #      Hint: Use middleware.model_predict() for sending jobs to model
-        #            service using Redis.
+        
         #   4. Update `context` dict with the corresponding values
-        # TODO
+        
+        #   1. Get an unique file name
+        #filename = utils.get_file_hash(file)
+        
+        #   2. Store the image to disk using the new name
+        #from werkzeug.utils import secure_filename
+        #filename = secure_filename(file.filename)
+        
+        #assign a path to store on disk
+        #usar como nombre el hash y ponerlo en la carpeta uploads.
+        #./uploads
+        #filepath = os.path.join('C:/Users/agust/AI_Dev/sprint-4-project-images', filename);
+        #save the file
+        #file.save(filepath)
+        
+        #3. Send the file to be processed by the `model` service
+        #open the file read only
+        #file = open(file, "r")
+        
         context = {
             "prediction": None,
             "score": None,
