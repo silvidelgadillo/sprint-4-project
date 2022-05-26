@@ -51,20 +51,27 @@ def upload_image():
         
         #   2. Store the image to disk using the new name
         file.save(os.path.join(settings.UPLOAD_FOLDER, unique_filename))
-        
-        #   3. Send the file to be processed by the `model` service
+
         context = {
             "prediction": None,
             "score": None,
             "filename": None,
         }
+
+        #   3. Send the file to be processed by the `model` service
+        pred_result = middleware.model_predict(file)
         
         #   4. Update `context` dict with the corresponding values
-        
+        context.update({
+            "prediction": pred_result[0],
+            "score": pred_result[1],
+            "filename": file.filename,
+        })
+
         # Update `render_template()` parameters as needed       
 
         return render_template(
-            "index.html", filename=None, context=None
+            "index.html", filename=context['filename'], context=context
         )
     # File received and but it isn't an image
     else:

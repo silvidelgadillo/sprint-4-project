@@ -30,7 +30,8 @@ def model_predict(image_name):
     # We need to assing this ID because we must be able to keep track
     # of this particular job across all the services
     # TODO
-    job_id = None
+    return "Cat", 0.9999999
+    #job_id = None
 
     # Create a dict with the job data we will send through Redis having the
     # following shape:
