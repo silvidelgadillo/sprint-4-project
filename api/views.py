@@ -1,5 +1,4 @@
 import utils
-
 from flask import (
     Blueprint,
     flash,
@@ -17,6 +16,7 @@ def index():
     """
     Index endpoint, renders our HTML code.
     """
+
     return render_template("index.html")
 
 
@@ -27,6 +27,7 @@ def upload_image():
     When it receives an image from the UI, it also calls our ML model to
     get and display the predictions.
     """
+
     # No file received, show basic UI
     if "file" not in request.files:
         flash("No file part")
@@ -49,10 +50,15 @@ def upload_image():
         #            service using Redis.
         #   4. Update `context` dict with the corresponding values
         # TODO
+
+        file_n = utils.get_file_hash(file)
+
+        save image to disk -> name 'file_n'
+
         context = {
             "prediction": None,
             "score": None,
-            "filename": None,
+            "filename": file_n,
         }
 
         # Update `render_template()` parameters as needed
