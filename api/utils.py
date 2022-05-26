@@ -1,6 +1,6 @@
 from   curses             import flash
 from   functools          import partial
-from nis import cat
+
 import os
 import hashlib
 from   tkinter.messagebox import WARNING

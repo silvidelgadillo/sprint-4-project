@@ -1,4 +1,7 @@
 import utils
+import settings
+import os
+import imghdr
 
 from flask import (
     Blueprint,
@@ -19,14 +22,16 @@ def index():
     """
     return render_template("index.html")
 
-
-@router.route("/", methods=["POST"])
+#endopoint to upload de image we want to identify 
+@router.route("/", methods=["POST"]) 
 def upload_image():
     """
     Function used in our frontend so we can upload and show an image.
     When it receives an image from the UI, it also calls our ML model to
     get and display the predictions.
     """
+    # UI --> user interface
+
     # No file received, show basic UI
     if "file" not in request.files:
         flash("No file part")
@@ -49,6 +54,21 @@ def upload_image():
         #            service using Redis.
         #   4. Update `context` dict with the corresponding values
         # TODO
+        #ine
+        
+        # 1. Get an unique file name using utils.get_file_hash() function
+        # usamos hash para que no se repita el nombre del archivo
+        new_name = utils.get_file_hash(file.filename) 
+        
+        # 2. Store the image to disk using the new name
+        file.save(os.path.join(settings.UPLOAD_FOLDER, new_name))
+        
+        #3. Send the file to be processed by the `model` service
+        #      Hint: Use middleware.model_predict() for sending jobs to model
+        #            service using Redis.
+        
+         
+        #fin ine
         context = {
             "prediction": None,
             "score": None,
