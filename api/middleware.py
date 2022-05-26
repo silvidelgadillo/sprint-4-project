@@ -1,15 +1,16 @@
 import time
 import redis
 import settings
+import uuid
 
 # TODO
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
 db = redis.Redis(
-    host=settings.REDIS_IP,
-    port=settings.REDIS_PORT, 
-    db=settings.REDIS_DB_ID)
-print(db.ping())
+    host = settings.REDIS_IP,
+    port = settings.REDIS_PORT, 
+    db = settings.REDIS_DB_ID
+    )
 
 def model_predict(image_name):
     """
@@ -31,20 +32,18 @@ def model_predict(image_name):
     # We need to assing this ID because we must be able to keep track
     # of this particular job across all the services
     # TODO
-    job_id = None
+    job_id = str(uuid.uuid4())
+    
+    job_data = {
+        "id": job_id,
+        "image_name": image_name,
+    }
 
-    # Create a dict with the job data we will send through Redis having the
-    # following shape:
-    # {
-    #    "id": str,
-    #    "image_name": str,
-    # }
-    # TODO
-    job_data = None
+    db.rpush(
+        settings.REDIS_QUEUE,
+        job_data
+    )
 
-    # Send the job to the model service using Redis
-    # Hint: Using Redis `rpush()` function should be enough to accomplish this.
-    # TODO
 
     # Loop until we received the response from our ML model
     # while True:

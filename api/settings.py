@@ -13,7 +13,7 @@ os.makedirs(os.path.basename(FEEDBACK_FILEPATH), exist_ok=True)
 
 # REDIS settings
 # Queue name
-REDIS_QUEUE = None
+REDIS_QUEUE = "job_queue"
 # Port
 REDIS_PORT = 6379
 # DB Id
