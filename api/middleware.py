@@ -1,4 +1,4 @@
-import time
+import json
 import redis
 import settings
 import uuid
@@ -28,10 +28,7 @@ def model_predict(image_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-    # Assign an unique ID for this job and add it to the queue.
-    # We need to assing this ID because we must be able to keep track
-    # of this particular job across all the services
-    # TODO
+
     job_id = str(uuid.uuid4())
     
     job_data = {
@@ -39,9 +36,11 @@ def model_predict(image_name):
         "image_name": image_name,
     }
 
+    job_data_str = json.dumps(job_data)
+
     db.rpush(
         settings.REDIS_QUEUE,
-        job_data
+        job_data_str
     )
 
 
