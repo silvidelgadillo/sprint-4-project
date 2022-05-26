@@ -9,10 +9,10 @@ db = redis.Redis(
     port=settings.REDIS_PORT,
     db=settings.REDIS_DB_ID
 )
-assert db.ping()
+# assert db.ping()
 
 def model_predict(image_name):
-    job_id = uuid.uuid4()
+    job_id = str(uuid.uuid4())
     job_data = {
         'id': job_id,
         'image_name': image_name
@@ -28,4 +28,4 @@ def model_predict(image_name):
             db.delete(job_id)
             break
 
-    return tuple(output_['prediction'], output_['score'])
+    return tuple([output_['prediction'], output_['score']])

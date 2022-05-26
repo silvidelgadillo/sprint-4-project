@@ -1,12 +1,17 @@
 import time
-import tensorflow as tf
-from tensorflow import keras
-from keras.applications.resnet import ResNet50
+# import tensorflow as tf
+# from tensorflow import keras
+# from keras.applications.resnet import ResNet50
 import settings
 import json
+import redis
 
-model = ResNet50(weights='imagenet')
-db = settings.REDIS_DB_ID
+# model = ResNet50(weights='imagenet')
+db = redis.Redis(
+    host=settings.REDIS_IP,
+    port=settings.REDIS_PORT,
+    db=settings.REDIS_DB_ID
+)
 
 queue_name, msg = db.brpop(settings.REDIS_QUEUE)
 msg = json.loads(msg)

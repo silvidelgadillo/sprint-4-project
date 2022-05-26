@@ -43,19 +43,21 @@ def upload_image():
     # File received and it's an image, we must show it and get predictions
     if file and utils.allowed_file(file.filename):
         unique_file_name = utils.get_file_hash(file)
-        file.save(os.path.join(settings.UPLOAD_FOLDER, unique_file_name))
+        path = os.path.join(settings.UPLOAD_FOLDER, unique_file_name)
+        if not os.path.exists(path):
+            file.save(path)
 
         context = {
             "prediction": None,
             "score": None,
             "filename": None,
         }
-        results = middleware.model_predict(file)
+        results = middleware.model_predict(unique_file_name)
         context.update({"prediction": results[0],
                         "score": results[1],
-                        "filename": file.filename})
+                        "filename": unique_file_name})
 
-        return render_template("index.html", filename=context['filename'], context=context)
+        return render_template("index.html", filename=unique_file_name, context=context)
 
     # File received and but it isn't an image
     else:
