@@ -34,8 +34,8 @@ def predict(image_name):
 pred_class, pred_score = predict(image_name)
 
 output_msg = {
-    'prediction':pred_class,
-    'score':pred_score
+    'prediction': pred_class,
+    'score': pred_score
 }
 
 db.set(msg['id'], json.dumps(output_msg))
