@@ -1,6 +1,7 @@
 import utils
 import middleware
 import settings
+from os import path
 
 from flask import (
     Blueprint,
@@ -52,9 +53,11 @@ def upload_image():
         #   4. Update `context` dict with the corresponding values
 
         hash_imgname = utils.get_file_hash(file)
-        save_path = f"{settings.UPLOAD_FOLDER}{hash_imgname}"
-        file.stream.seek(0)
-        file.save(save_path)
+        img_savepath = f"{settings.UPLOAD_FOLDER}{hash_imgname}"
+        
+        if not path.exists(img_savepath):  # Check if the file already exist
+            file.stream.seek(0)
+            file.save(img_savepath)
 
         prediction, score = middleware.model_predict(hash_imgname)
 
