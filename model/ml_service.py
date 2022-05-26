@@ -1,37 +1,33 @@
 import time
-# import tensorflow as tf
-# from tensorflow import keras
-# from keras.applications.resnet import ResNet50
+import tensorflow
+import numpy as np 
+from tensorflow.keras.applications.resnet50 import ResNet50, decode_predictions, preprocess_input 
+from tensorflow.keras.preprocessing import image
 import settings
 import json
 import redis
+import os
 
-# model = ResNet50(weights='imagenet')
+
 db = redis.Redis(
     host=settings.REDIS_IP,
     port=settings.REDIS_PORT,
     db=settings.REDIS_DB_ID
 )
 
+model = ResNet50(weights='imagenet')
 
 def predict(image_name):
-    """
-    Load image from the corresponding folder based on the image name
-    received, then, run our ML model to get predictions.
+    img_path = os.path.join(settings.UPLOAD_FOLDER, image_name)
+    img = image.load_img(img_path, target_size=(224, 224))
+    processed_img = image.img_to_array(img)
+    processed_img = np.expand_dims(processed_img, axis=0)
+    processed_img = preprocess_input(processed_img)
 
-    Parameters
-    ----------
-    image_name : str
-        Image filename.
+    predictions = model.predict(processed_img)
+    results = decode_predictions(predictions, top=1)[0][0]
 
-    Returns
-    -------
-    class_name, pred_probability : tuple(str, float)
-        Model predicted class as a string and the corresponding confidence
-        score as a number.
-    """
-    # TODO
-    return 'Cat', 0.9999
+    return tuple([str(results[1]), float(results[2])])
 
 
 def classify_process():
