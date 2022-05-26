@@ -61,17 +61,23 @@ def model_predict(image_name):
     )
 
     # Loop until we received the response from our ML model
-    while False:
+    while True:
         # Attempt to get model predictions using job_id
         # Hint: Investigate how can we get a value using a key from Redis
         # TODO
-        output = None
+        output = db.get(job_data["id"])
+        output= json.loads(output)
 
         # Don't forget to delete the job from Redis after we get the results!
         # Then exit the loop
         # TODO
+        db.delete(job_data["id"])
 
+        #queue_value = db.get(job_data["id"])
+
+        if db.exists(job_data["id"]) == 0:
+            break
         # Sleep some time waiting for model results
         time.sleep(settings.API_SLEEP)
-
+    #return output['prediction'] , output['score']
     return "Cat", 0.9999

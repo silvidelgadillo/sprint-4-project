@@ -55,22 +55,23 @@ def upload_image():
         # TODO
         hashed_filename=utils.get_file_hash(file)
         file.filename = hashed_filename
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(settings.UPLOAD_FOLDER,filename))
+        filename_secure = secure_filename(file.filename)
+        file.save(os.path.join(settings.UPLOAD_FOLDER,filename_secure))
 
         predict , score = middleware.model_predict(file.filename)
 
-
+        #flash(predict)
+        #flash(score)
         context = {
-            "prediction": predict,
+            "prediction":predict,
             "score": score,
-            "filename": file.filename,
+            "filename": hashed_filename,
         }
 
         # Update `render_template()` parameters as needed
         # TODO
         return render_template(
-            "index.html", filename=file.filename, context=context
+            "index.html", filename=hashed_filename, context=context
         )
     # File received and but it isn't an image
     else:

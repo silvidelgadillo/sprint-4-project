@@ -13,13 +13,13 @@ os.makedirs(os.path.basename(FEEDBACK_FILEPATH), exist_ok=True)
 
 # REDIS settings
 # Queue name
-REDIS_QUEUE = 'api_queue'
+REDIS_QUEUE = 'app_queue'
 # Port
 REDIS_PORT = 6379
 # DB Id
 REDIS_DB_ID = 1
 # Host IP
-REDIS_IP = '0.0.0.0'
+REDIS_IP = 'redis'
 # Sleep parameters which manages the
 # interval between requests to our redis queue
 API_SLEEP = 0.05
