@@ -6,6 +6,7 @@ import settings
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
 
+
 db = redis.Redis(
     port = settings.REDIS_PORT,
     host = settings.REDIS_IP,
