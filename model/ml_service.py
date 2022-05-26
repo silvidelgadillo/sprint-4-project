@@ -41,8 +41,8 @@ def classify_process():
         pred_class, pred_score = predict(image_name)
 
         output_msg = {
-            'prediction': pred_class, 
-            'score': pred_score
+            'prediction': pred_class.upper(), 
+            'score': round(pred_score, 2)
             }
 
         db.set(msg['id'], json.dumps(output_msg))
