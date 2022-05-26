@@ -45,18 +45,22 @@ def upload_image():
     if file and utils.allowed_file(file.filename):
         # In order to correctly display the image in the UI and get model
         # predictions you should implement the following:
+        
         #   1. Get an unique file name
         unique_filename = utils.get_file_hash(file)
+        
         #   2. Store the image to disk using the new name
         file.save(os.path.join(settings.UPLOAD_FOLDER, unique_filename))
+        
         #   3. Send the file to be processed by the `model` service
         context = {
             "prediction": None,
             "score": None,
             "filename": None,
         }
+        
         #   4. Update `context` dict with the corresponding values
-  
+        
         # Update `render_template()` parameters as needed       
 
         return render_template(

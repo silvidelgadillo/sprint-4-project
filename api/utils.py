@@ -16,7 +16,7 @@ def allowed_file(filename):
     bool
         True if the file is an image, False otherwise.
     """
-    #allowed extensions
+    #allowed extensions detailed on views.py
     ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif"}
     #split input filename and check if it's allowed
     _, ext = os.path.splitext(filename)
