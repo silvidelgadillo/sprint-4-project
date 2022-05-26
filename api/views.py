@@ -1,5 +1,7 @@
 import utils
-
+import middleware
+import os
+import settings
 from flask import (
     Blueprint,
     flash,
@@ -49,16 +51,25 @@ def upload_image():
         #            service using Redis.
         #   4. Update `context` dict with the corresponding values
         # TODO
+
+        #Get hash_name
+        hash_name = utils.get_file_hash(file)
+        #Store the file renamed with hash_name
+        image_path = os.path.join(settings.UPLOAD_FOLDER, hash_name)
+        if not os.path.exists(image_path):
+            file.save(image_path)
+
+        prediction, score = middleware.model_predict(hash_name)
         context = {
-            "prediction": None,
-            "score": None,
-            "filename": None,
+            "prediction": prediction,
+            "score": score,
+            "filename": hash_name,
         }
 
         # Update `render_template()` parameters as needed
         # TODO
         return render_template(
-            "index.html", filename=None, context=None
+            "index.html", filename=hash_name, context=context
         )
     # File received and but it isn't an image
     else:
@@ -111,6 +122,7 @@ def predict():
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
     # TODO
+    # viene aca file = request.files["file"]
     rpse = {"success": False, "prediction": None, "score": None}
 
 
