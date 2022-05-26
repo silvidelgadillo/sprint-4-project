@@ -33,7 +33,7 @@ def predict(image_name):
     """
     # TODO
 
-    return None, None
+    return "Cat", 0.999
 
 
 def classify_process():
@@ -80,5 +80,5 @@ def classify_process():
 
 if __name__ == "__main__":
     # Now launch process
-    print("Launching ML service...")
+    print("Launching ML service...") 
     classify_process()
