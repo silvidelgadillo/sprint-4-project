@@ -1,12 +1,23 @@
+# aca el modelo agarra la informacion de redis para procesarla
+
 import time
-
+import redis
+#from api.settings import REDIS_QUEUE
 import settings
-
+import json
 
 # TODO
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
-db = None
+db = redis.Redis(       
+    host = settings.REDIS_IP, 
+    port = settings.REDIS_PORT, 
+    db   = settings.REDIS_DB_ID
+)
+
+# Connect to Redis
+assert db.ping, "I couldnt connect"
+
 
 # TODO
 # Load your ML model and assign to variable `model`
@@ -31,7 +42,7 @@ def predict(image_name):
     """
     # TODO
 
-    return None, None
+    return 'Dog', 0.9
 
 
 def classify_process():
@@ -60,6 +71,19 @@ def classify_process():
         # Hint: You should be able to successfully implement the communication
         #       code with Redis making use of functions `brpop()` and `set()`.
         # TODO
+        # buscar la info
+        _, data_json       = db.brpop(settings.REDIS_QUEUE) #brpop llama al primero de la fila, ojo trae dos variables
+        
+        # proceso inverso de string a diccionario:
+        data_dictionary    = json.loads(data_json) # aca tenemos job_id y el nombre
+
+        # llamamos al modelo:
+        class_name, score = predict(data_dictionary['image_name'])
+
+        # esto lo tenemos que mandar a traves de middleware a redis:
+        prediction_dictionary = {"prediction": class_name , "score": score }
+        
+        db.set(data_dictionary['id'], json.dumps(prediction_dictionary)) 
 
         # Don't forget to sleep for a bit at the end
         time.sleep(settings.SERVER_SLEEP)

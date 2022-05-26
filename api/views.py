@@ -2,18 +2,18 @@ import utils
 import settings
 import os
 import imghdr
+import middleware
 
 from flask import (
-    Blueprint,
-    flash,
-    redirect,
-    render_template,
-    request,
-    url_for,
+    Blueprint,          # blueprint es una forma de dividir el codigo.
+    flash,              # es el print de flask.
+    redirect,           # para llevar el usuario de una pagina a otra.
+    render_template,    # para poder escribir html.
+    request,            # se para en el puerto y se obtiene la informacion que puede obtener de cada ruta (cada endpoint)
+    url_for,            # Esta operación recibe como parámetro el nombre del método y nos devuelve la ruta.
 )
 
 router = Blueprint("app_router", __name__, template_folder="templates")
-
 
 @router.route("/", methods=["GET"])
 def index():
@@ -27,15 +27,18 @@ def index():
 def upload_image():
     """
     Function used in our frontend so we can upload and show an image.
-    When it receives an image from the UI, it also calls our ML model to
+    When it receives an image from the UI, 
+    it also calls our ML model to
     get and display the predictions.
+    
     """
+    
     # UI --> user interface
-
     # No file received, show basic UI
+
     if "file" not in request.files:
         flash("No file part")
-        return redirect(request.url)
+        return redirect(request.url) # if there is no file --> se queda en el mismo lugar?
 
     # File received but no filename is provided, show basic UI
     file = request.files["file"]
@@ -45,40 +48,32 @@ def upload_image():
 
     # File received and it's an image, we must show it and get predictions
     if file and utils.allowed_file(file.filename):
-        # In order to correctly display the image in the UI and get model
-        # predictions you should implement the following:
-        #   1. Get an unique file name using utils.get_file_hash() function
-        #   2. Store the image to disk using the new name
+       
+        # 1. Get an unique file name using utils.get_file_hash() function
+        # usamos hash para que no se repita el nombre del archivo
+        new_name = utils.get_file_hash(file) 
+        
+        # 2. Store the image to disk using the new name
+        if os.path.lexist(new_name.path) == False:
+            file.save(os.path.join(file, new_name))
+
         #   3. Send the file to be processed by the `model` service
         #      Hint: Use middleware.model_predict() for sending jobs to model
         #            service using Redis.
-        #   4. Update `context` dict with the corresponding values
-        # TODO
-        #ine
+        predict, score = middleware.model_predict(new_name)
+
+        #4. Update `context` dict with the corresponding values                     
         
-        # 1. Get an unique file name using utils.get_file_hash() function
-        # usamos hash para que no se repita el nombre del archivo
-        new_name = utils.get_file_hash(file.filename) 
-        
-        # 2. Store the image to disk using the new name
-        file.save(os.path.join(settings.UPLOAD_FOLDER, new_name))
-        
-        #3. Send the file to be processed by the `model` service
-        #      Hint: Use middleware.model_predict() for sending jobs to model
-        #            service using Redis.
-        
-         
-        #fin ine
         context = {
-            "prediction": None,
-            "score": None,
-            "filename": None,
+            "prediction": predict,
+            "score": score,
+            "filename": new_name,
         }
 
         # Update `render_template()` parameters as needed
         # TODO
         return render_template(
-            "index.html", filename=None, context=None
+            "index.html", filename = new_name, context = context
         )
     # File received and but it isn't an image
     else:

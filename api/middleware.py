@@ -1,12 +1,24 @@
-import time
-
-import settings
+import  time
+import  redis
+from    api.utils import get_file_hash
+import  settings
+import  uuid         # this is to generate a Universal Unique Identifier
+import  json
 
 # TODO
 # Connect to Redis and assign to variable `db``
-# Make use of settings.py module to get Redis settings like host, port, etc.
-db = None
 
+# Make use of settings.py module to get Redis settings like host, port, etc.
+db = redis.Redis(       
+    host = settings.REDIS_IP, 
+    port = settings.REDIS_PORT, 
+    db   = settings.REDIS_DB_ID
+)
+
+# Connect to Redis
+assert db.ping(), "I couldnt connect"
+
+# db = None
 
 def model_predict(image_name):
     """
@@ -28,7 +40,10 @@ def model_predict(image_name):
     # We need to assing this ID because we must be able to keep track
     # of this particular job across all the services
     # TODO
-    job_id = None
+
+    # Assign an unique ID for this job:
+    job_id = str(uuid.uuid4())
+    
 
     # Create a dict with the job data we will send through Redis having the
     # following shape:
@@ -37,19 +52,32 @@ def model_predict(image_name):
     #    "image_name": str,
     # }
     # TODO
-    job_data = None
 
+    job_data = {
+        "id": job_id,
+        "image_name": image_name,
+    }
+           
     # Send the job to the model service using Redis
     # Hint: Using Redis `rpush()` function should be enough to accomplish this.
     # TODO
-
+    # con rpush ya entra al modelo
+    db.rpush(settings.REDIS_QUEUE, json.dumps(job_data)) # lo transformamos json porque redis solo acepta strings
+    
     # Loop until we received the response from our ML model
     while True:
         # Attempt to get model predictions using job_id
         # Hint: Investigate how can we get a value using a key from Redis
         # TODO
-        output = None
-
+        if (db.exists(job_id)): #si existe este id
+            # con get obtengo el resultado del modelo
+            output            = db.get(job_id)
+            output_dictionary = json.loads(output) # este diccionario tiene tipo de clase y score
+            clase             = output_dictionary['class_name']
+            score             = output_dictionary['score']
+            db.delete(job_id)
+            break 
+        
         # Don't forget to delete the job from Redis after we get the results!
         # Then exit the loop
         # TODO
@@ -57,4 +85,4 @@ def model_predict(image_name):
         # Sleep some time waiting for model results
         time.sleep(settings.API_SLEEP)
 
-    return None, None
+    return clase, score
