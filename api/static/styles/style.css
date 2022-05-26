@@ -37,14 +37,17 @@ a{
 /* Main Styling */
 /* ================================================================== */
 
-div{
+section{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
     padding: 1rem 2rem;
     background-image: linear-gradient(to bottom right,#3d89b5 20%, #245571, #0f3348, #392d4f);
     color: white;
     border-radius: 10%;
     box-shadow: 0.15rem 0.15rem 0.6rem cyan;   
     width: 30%;
-    transform: translate(35vw, 15vh);
+    transform: translate(35vw, 5vh);
     padding-bottom: 6rem;
 }
 
@@ -74,4 +77,19 @@ button, input:hover{
     color: white; 
     transition: 0.6s ease-in-out; 
     background-image: none;
+}
+
+img{
+    max-height: 50rem;
+    max-width: 25rem;
+    padding: 1rem;
+    transform: translate(5vw, 0vh);
+}
+
+label{
+    color: aliceblue;
+    font-size: 1.5rem;
+    font-weight: bold;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    transform: translate(1.5vw, 10vh);
 }
