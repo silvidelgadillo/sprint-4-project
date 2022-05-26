@@ -66,7 +66,6 @@ def upload_image():
         }
 
         # Update `render_template()` parameters as needed
-        # TODO
         return render_template(
             "index.html", filename=file_name, context=context
         )

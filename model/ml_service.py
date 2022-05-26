@@ -65,7 +65,7 @@ def classify_process():
         # Hint: You should be able to successfully implement the communication
         #       code with Redis making use of functions `brpop()` and `set()`.
 
-        queue_name, job_data_json  = db.brpop("app_queue")
+        _, job_data_json  = db.brpop(settings.REDIS_QUEUE)
 
         job_data = json.loads(job_data_json)
 

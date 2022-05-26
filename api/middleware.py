@@ -52,14 +52,12 @@ def model_predict(image_name):
     # Send the job to the model service using Redis
     # Hint: Using Redis `rpush()` function should be enough to accomplish this.
 
-    db.rpush('app_queue', json.dumps(job_data))
+    db.rpush(settings.REDIS_QUEUE, json.dumps(job_data))
 
     # Loop until we received the response from our ML model
     while True:
         # Attempt to get model predictions using job_id
         # Hint: Investigate how can we get a value using a key from Redis
-        
-        #output = db.get(job_id)
 
         if(db.exists(job_id)):
             output = db.get(job_id)
@@ -68,7 +66,6 @@ def model_predict(image_name):
             class_name = prediction['class_name']
             db.delete(job_id)
             break
-
 
         # Sleep some time waiting for model results
         time.sleep(settings.API_SLEEP)

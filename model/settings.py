@@ -6,7 +6,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # REDIS
 # Queue name
-REDIS_QUEUE = 'job'
+REDIS_QUEUE = "app_queue"
 # Port
 REDIS_PORT = 6379
 # DB Id
