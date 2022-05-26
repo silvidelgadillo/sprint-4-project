@@ -1,5 +1,7 @@
 import utils
 import os
+import settings
+import middleware
 
 from flask import (
     Blueprint,
@@ -43,35 +45,20 @@ def upload_image():
     if file and utils.allowed_file(file.filename):
         # In order to correctly display the image in the UI and get model
         # predictions you should implement the following:
-        
-        #   4. Update `context` dict with the corresponding values
-        
         #   1. Get an unique file name
-        #filename = utils.get_file_hash(file)
-        
+        unique_filename = utils.get_file_hash(file)
         #   2. Store the image to disk using the new name
-        #from werkzeug.utils import secure_filename
-        #filename = secure_filename(file.filename)
-        
-        #assign a path to store on disk
-        #usar como nombre el hash y ponerlo en la carpeta uploads.
-        #./uploads
-        #filepath = os.path.join('C:/Users/agust/AI_Dev/sprint-4-project-images', filename);
-        #save the file
-        #file.save(filepath)
-        
-        #3. Send the file to be processed by the `model` service
-        #open the file read only
-        #file = open(file, "r")
-        
+        file.save(os.path.join(settings.UPLOAD_FOLDER, unique_filename))
+        #   3. Send the file to be processed by the `model` service
         context = {
             "prediction": None,
             "score": None,
             "filename": None,
         }
+        #   4. Update `context` dict with the corresponding values
+  
+        # Update `render_template()` parameters as needed       
 
-        # Update `render_template()` parameters as needed
-        # TODO
         return render_template(
             "index.html", filename=None, context=None
         )
