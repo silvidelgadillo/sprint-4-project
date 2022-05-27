@@ -1,4 +1,7 @@
+import os
 import utils
+import settings
+import middleware
 from flask import (
     Blueprint,
     flash,
@@ -43,18 +46,22 @@ def upload_image():
     if file and utils.allowed_file(file.filename):
         # In order to correctly display the image in the UI and get model
         # predictions you should implement the following:
+
         #   1. Get an unique file name using utils.get_file_hash() function
+        file_n = utils.get_file_hash(file)
+
         #   2. Store the image to disk using the new name
+        file_path = settings.UPLOAD_FOLDER + file_n
+        if not os.path.exists(file_path):
+            file.save(file_path)
+            file.close()
+
         #   3. Send the file to be processed by the `model` service
         #      Hint: Use middleware.model_predict() for sending jobs to model
         #            service using Redis.
+        # a = middleware.model_predict(file_n)
+
         #   4. Update `context` dict with the corresponding values
-        # TODO
-
-        file_n = utils.get_file_hash(file)
-
-        save image to disk -> name 'file_n'
-
         context = {
             "prediction": None,
             "score": None,

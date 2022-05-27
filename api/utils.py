@@ -38,13 +38,11 @@ def get_file_hash(file):
     str -> New filename based in md5 file hash.
     """
 
-    with open(file.filename, 'rb') as f:
-        hash_data = hashlib.md5(f.read()).hexdigest()
-    
+    hash_data = hashlib.md5(file.read()).hexdigest()
     file.seek(0)
 
     ext = os.path.splitext(file.filename)[1].lower()
-    
+
     hash_name = hash_data + ext
 
     return hash_name
