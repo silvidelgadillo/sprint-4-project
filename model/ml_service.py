@@ -58,21 +58,6 @@ def classify_process():
     the results.
     """
     while True:
-        # Inside this loop you should add the code to:
-        #   1. Take a new job from Redis
-        #   2. Run your ML model on the given data
-        #   3. Store model prediction in a dict with the following shape:
-        #      {
-        #         "prediction": str,
-        #         "score": float,
-        #      }
-        #   4. Store the results on Redis using the original job ID as the key
-        #      so the API can match the results it gets to the original job
-        #      sent
-        # Hint: You should be able to successfully implement the communication
-        #       code with Redis making use of functions `brpop()` and `set()`.
-        # TODO
-
         _, job_data_str = db.brpop(settings.REDIS_QUEUE)
         job_data = json.loads(job_data_str)
 
@@ -82,7 +67,7 @@ def classify_process():
 
         pred_data = {
             "prediction": pred_class,
-            "score": pred_score
+            "score": round(pred_score, 4)
         }
 
         pred_data_str = json.dumps(pred_data)
