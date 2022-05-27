@@ -36,14 +36,11 @@ def predict(image_name):
         score as a number.
     """
     # Loading image and preprocess
-    try:
-        img = image.load_img(f"{settings.UPLOAD_FOLDER}{image_name}", target_size=(224, 224))
-        img = image.img_to_array(img)
-        img = np.expand_dims(img, axis=0)
-        img = resnet50.preprocess_input(img)
-    except:
-        print("Error while loading image")
-        return None
+    
+    img = image.load_img(f"{settings.UPLOAD_FOLDER}{image_name}", target_size=(224, 224))
+    img = image.img_to_array(img)
+    img = np.expand_dims(img, axis=0)
+    img = resnet50.preprocess_input(img)
 
     # Get predictions
     preds = model.predict(img)
@@ -79,7 +76,9 @@ def classify_process():
         _, job_data_str = db.brpop(settings.REDIS_QUEUE)
         job_data = json.loads(job_data_str)
 
-        pred_class, pred_score = predict(job_data["image_name"])
+        pred = predict(job_data["image_name"])
+
+        pred_class, pred_score = pred
 
         pred_data = {
             "prediction": pred_class,
@@ -90,7 +89,6 @@ def classify_process():
 
         db.set(job_data["id"], pred_data_str)
 
-        
         time.sleep(settings.SERVER_SLEEP)
 
 
