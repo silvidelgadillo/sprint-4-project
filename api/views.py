@@ -122,6 +122,8 @@ def predict():
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
     # TODO
+
+    
     rpse = {"success": False, "prediction": None, "score": None}
 
 
