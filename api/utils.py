@@ -17,12 +17,11 @@ def allowed_file(filename):
         True if the file is an image, False otherwise.
     """
 
-    PERMITED_EXT = {".png", ".jpg", ".jpeg", ".gif"}
+    ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif"}
     _, ext = os.path.splitext(filename)
-    ext = ext.lower()
-    valid = ext in PERMITED_EXT
+    ext = ext.lower() 
 
-    return valid
+    return ext in ALLOWED_EXTENSIONS
 
 
 def get_file_hash(file):
