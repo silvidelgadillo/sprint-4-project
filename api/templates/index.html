@@ -20,7 +20,7 @@
         <div class="row">
             <div class="col-25">
             <label for="subject">Predicted class: {{ context['prediction'] }} </label><br>
-            <label for="subject">Score: {{ context['score'] }} </label>
+            <label for="subject">Score [%]: {{ context['score'] }} </label>
             </div>
         </div>
         <form id="form" method="POST" action="/feedback">

@@ -49,7 +49,6 @@ def model_predict(image_name):
     "image_name": image_name,
     }
 
-
     # Send the job to the model service using Redis
     # Hint: Using Redis `rpush()` function should be enough to accomplish this.
     # TODO
@@ -66,19 +65,15 @@ def model_predict(image_name):
         # Hint: Investigate how can we get a value using a key from Redis
         # TODO
         output = db.get(job_data["id"])
-        output= json.loads(output)
-
-        # Don't forget to delete the job from Redis after we get the results!
-        # Then exit the loop
-        # TODO
-        db.delete(job_data["id"])
-
-        #queue_value = db.get(job_data["id"])
-
-        if db.exists(job_data["id"]) == 0:
-            break
+        #wait the response
+        if not output is None:
+            output= json.loads(output)
+            # Don't forget to delete the job from Redis after we get the results!
+            # Then exit the loop
+            # TODO
+            db.delete(job_data["id"])
+            break            
         # Sleep some time waiting for model results
         time.sleep(settings.API_SLEEP)
         
-    #return output['prediction'] , output['score']
-    return "Cat", 0.9999
+    return output['prediction'] , output['score']

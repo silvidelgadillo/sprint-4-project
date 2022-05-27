@@ -59,12 +59,12 @@ def upload_image():
         
         if not os.path.exists(os.path.join(settings.UPLOAD_FOLDER,filename_secure)):
             file.save(os.path.join(settings.UPLOAD_FOLDER,filename_secure))
-
+        
         predict , score = middleware.model_predict(file.filename)
 
         context = {
             "prediction":predict,
-            "score": score,
+            "score": score*100,
             "filename": hashed_filename,
         }
 
@@ -126,9 +126,9 @@ def predict():
     # TODO
 
     # File received and it's an image, we must show it and get predictions
-    file = os.path.join(settings.UPLOAD_FOLDER,filename_secure)
-    if file and utils.allowed_file(file.filename):
-        do
+    #file = os.path.join(settings.UPLOAD_FOLDER,filename_secure)
+    #if file and utils.allowed_file(file.filename):
+        
 
 
     rpse = {"success": False, "prediction": None, "score": None}
