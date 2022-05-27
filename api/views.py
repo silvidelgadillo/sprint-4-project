@@ -43,15 +43,7 @@ def upload_image():
 
     # File received and it's an image, we must show it and get predictions
     if file and utils.allowed_file(file.filename):
-        # In order to correctly display the image in the UI and get model
-        # predictions you should implement the following:
-        #   1. Get an unique file name using utils.get_file_hash() function
-        #   2. Store the image to disk using the new name
-        #   3. Send the file to be processed by the `model` service
-        #      Hint: Use middleware.model_predict() for sending jobs to model
-        #            service using Redis.
-        #   4. Update `context` dict with the corresponding values
-
+        
         hash_imgname = utils.get_file_hash(file)
         img_savepath = f"{settings.UPLOAD_FOLDER}{hash_imgname}"
         
@@ -122,6 +114,42 @@ def predict():
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
     # TODO
+
+    # No file received, show basic UI
+    if "file" not in request.files:
+        pass
+
+    # File received but no filename is provided
+    file = request.files["file"]
+    if file.filename == "":
+        pass
+
+    # File received and it's an image
+    if file and utils.allowed_file(file.filename):
+        
+        hash_imgname = utils.get_file_hash(file)
+        img_savepath = f"{settings.UPLOAD_FOLDER}{hash_imgname}"
+        
+        if not path.exists(img_savepath):  # Check if the file already exist
+            file.stream.seek(0)
+            file.save(img_savepath)
+
+        prediction, score = middleware.model_predict(hash_imgname)
+
+        context = {
+            "prediction": prediction,
+            "score": score,
+            "filename": hash_imgname,
+        }
+
+        return render_template(
+            "index.html", filename=hash_imgname, context=context
+        )
+
+    # File received and but it isn't an image
+    else:
+        flash("Allowed image types are -> png, jpg, jpeg, gif")
+        return redirect(request.url)
 
     
     rpse = {"success": False, "prediction": None, "score": None}
