@@ -2,6 +2,7 @@ import utils
 import settings
 import os
 import middleware
+import csv
 
 from flask import (
     Blueprint,
@@ -14,7 +15,7 @@ from flask import (
 
 router = Blueprint("app_router", __name__, template_folder="templates")
 
-
+# GET method in order to render template for first time.
 @router.route("/", methods=["GET"])
 def index():
     """
@@ -40,6 +41,7 @@ def upload_image():
     if file.filename == "":
         flash("No image selected for uploading")
         return redirect(request.url)
+
     # File received and it's an image, we must show it and get predictions
     if file and utils.allowed_file(file.filename):
         unique_file_name = utils.get_file_hash(file)
@@ -115,30 +117,22 @@ def predict():
 
 @router.route("/feedback", methods=["GET", "POST"])
 def feedback():
-    """
-    Store feedback from users about wrong predictions on a text file.
 
-    Parameters
-    ----------
-    report : request.form
-        Feedback given by the user with the following JSON format:
-            {
-                "filename": str,
-                "prediction": str,
-                "score": float
-            }
-
-        - "filename" corresponds to the image used stored in the uploads
-          folder.
-        - "prediction" is the model predicted class as string reported as
-          incorrect.
-        - "score" model confidence score for the predicted class as float.
-    """
     # Get reported predictions from `report` key
     report = request.form.get("report")
-
-    # Store the reported data to a file on the corresponding path
-    # already provided in settings.py module
-    # TODO
-
+    
+    path = os.path.join(settings.FEEDBACK_FILEPATH, 'feedback.csv')
+    if not os.path.exists(path):
+        with open(path, 'w', newline='') as file:
+            writer = csv.writer(file, delimiter= ',')
+            writer.writerow(['Filename', 'Prediction', 'Score'])
+            writer.writerow(report)
+            file.close()
+        flash('Thank you for your feedback!')
+    else:
+        with open(path, 'a') as file:
+            file.write(report)
+            file.close()
+        flash('Thank you for your feedback!')
+        
     return render_template("index.html")

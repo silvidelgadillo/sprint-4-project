@@ -15,7 +15,7 @@ db = redis.Redis(
     db=settings.REDIS_DB_ID
 )
 
-model = ResNet50(weights='imagenet')
+model = ResNet50(include_top=True, weights='imagenet')
 
 def predict(image_name):
     img_path = os.path.join(settings.UPLOAD_FOLDER, image_name)
