@@ -49,16 +49,19 @@ def upload_image():
         #            service using Redis.
         #   4. Update `context` dict with the corresponding values
         # TODO
+        name_hash = utils.get_file_hash(file)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], name_hash))
+        prediction, score = middleware.model_predict(name_hash)
         context = {
-            "prediction": None,
-            "score": None,
-            "filename": None,
+            "prediction": prediction,
+            "score": score,
+            "filename": name_hash,
         }
 
         # Update `render_template()` parameters as needed
         # TODO
         return render_template(
-            "index.html", filename=None, context=None
+            "index.html", filename=name_hash, context=context
         )
     # File received and but it isn't an image
     else:
