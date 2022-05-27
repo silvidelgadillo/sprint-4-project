@@ -79,33 +79,31 @@ def classify_process():
     received, then, run our ML model to get predictions.
     """
     while True:
-        # Inside this loop you should add the code to:
         #   1. Take a new job from Redis
-        #   2. Run your ML model on the given data
-        #   3. Store model prediction in a dict with the following shape:
-        #      {
-        #         "prediction": str,
-        #         "score": float,
-        #      }
-        #   4. Store the results on Redis using the original job ID as the key
-        #      so the API can match the results it gets to the original job
-        #      sent
-        # Hint: You should be able to successfully implement the communication
-        #       code with Redis making use of functions `brpop()` and `set()`.
-        # TODO
+
         # job_data es un un dict con 'id" and 'image_name'
         # buscar la info
-        _, data_json       = db.brpop(settings.REDIS_QUEUE) #brpop llama al primero de la fila, ojo trae dos variables
+        # brpop llama al primero de la fila, ojo trae dos variables
+        _, data_json       =  db.brpop(settings.REDIS_QUEUE) 
         
         # proceso inverso de string a diccionario:
         data_dictionary    = json.loads(data_json) # aca tenemos job_id y el nombre
 
-        # llamamos al modelo:
+        # we call to the predict function and Store model prediction in a dict:
+        #      {
+        #         "prediction": str,
+        #         "score": float,
+        #      }
+        
+        #   2. Run your ML model on the given data
         class_name, score = predict(data_dictionary['image_name'])
 
         # esto lo tenemos que mandar a traves de middleware a redis:
         prediction_dictionary = {"prediction": class_name , "score": score }
         
+        #   4. Store the results on Redis using the original job ID as the key
+        #      so the API can match the results it gets to the original job
+        #      sent
         db.set(data_dictionary['id'], json.dumps(prediction_dictionary)) 
 
         # Don't forget to sleep for a bit at the end
