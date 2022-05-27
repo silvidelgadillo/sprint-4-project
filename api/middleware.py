@@ -61,12 +61,14 @@ def model_predict(image_name):
     )
     
     # Loop until we received the response from our ML model
+
     while True:
         # Attempt to get model predictions using job_id
-        # Hint: Investigate how can we get a value using a key from Redis
+        # Hint: Investigate how can we get a value using a key from Redis
 
-        if db.get(job_id):
-            output = json.loads(db.get(job_id))
+        if db.exists(job_id):
+            output = db.get(job_id)
+            output = json.loads(output)
             prediction = output["prediction"]
             score = output["score"]
             

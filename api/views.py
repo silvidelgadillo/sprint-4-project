@@ -59,19 +59,25 @@ def upload_image():
         #   3. Send the file to be processed by the `model` service
         #      Hint: Use middleware.model_predict() for sending jobs to model
         #            service using Redis.
-        # a = middleware.model_predict(file_n)
+        prediction = middleware.model_predict(file_n)
 
         #   4. Update `context` dict with the corresponding values
+        # context = {
+        #     "prediction": prediction[0],
+        #     "score": prediction[1],
+        #     "filename": file_n,
+        # }
+        
         context = {
-            "prediction": None,
-            "score": None,
+            "prediction": "Hola",
+            "score": "Fer",
             "filename": file_n,
         }
-
+       
         # Update `render_template()` parameters as needed
         # TODO
         return render_template(
-            "index.html", filename=None, context=None
+            "index.html", filename=file_n, context=context
         )
     # File received and but it isn't an image
     else:
