@@ -1,12 +1,17 @@
 import time
-
 import settings
+import json
+import redis
 
 
 # TODO
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
-db = None
+db = redis.Redis(
+    host=settings.REDIS_IP, 
+    port=settings.REDIS_PORT, 
+    db=settings.REDIS_DB_ID
+)
 
 # TODO
 # Load your ML model and assign to variable `model`
@@ -29,9 +34,8 @@ def predict(image_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-    # TODO
-
-    return None, None
+    #
+    return 'Fox', 0.93   #TMP
 
 
 def classify_process():
@@ -59,7 +63,21 @@ def classify_process():
         #      sent
         # Hint: You should be able to successfully implement the communication
         #       code with Redis making use of functions `brpop()` and `set()`.
-        # TODO
+        #
+
+        queue_name, msg = db.brpop(settings.REDIS_QUEUE)
+
+        msg = json.loads(msg)
+
+        prediction_c, prediction_s = predict(msg['image_name'])
+
+        received_msg = {
+                     "prediction": prediction_c,
+                     "score"     : prediction_s   
+        }
+
+        db.set(msg["id"], json.dumps(received_msg))
+        #db.set("0", "It's a dog!")
 
         # Don't forget to sleep for a bit at the end
         time.sleep(settings.SERVER_SLEEP)

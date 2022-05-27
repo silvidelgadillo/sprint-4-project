@@ -1,4 +1,9 @@
 import utils
+import settings
+from werkzeug.utils import secure_filename
+import os
+import middleware
+
 
 from flask import (
     Blueprint,
@@ -48,17 +53,24 @@ def upload_image():
         #      Hint: Use middleware.model_predict() for sending jobs to model
         #            service using Redis.
         #   4. Update `context` dict with the corresponding values
-        # TODO
+        #
+        #Saving Image on disk with a hashed name
+        file.filename   = utils.get_file_hash(file)
+        image_full_path = os.path.join(settings.UPLOAD_FOLDER, secure_filename(file.filename))
+        if os.path.exists(image_full_path) == False: #To avoid overwritte the image on disk
+            file.save(image_full_path)
+
+        prediction_r, score_r = middleware.model_predict(file.filename)  
+
         context = {
-            "prediction": None,
-            "score": None,
-            "filename": None,
+            "prediction": prediction_r,
+            "score": score_r,
+            "filename": file.filename
         }
 
         # Update `render_template()` parameters as needed
-        # TODO
         return render_template(
-            "index.html", filename=None, context=None
+            "index.html", filename=file.filename, context=context
         )
     # File received and but it isn't an image
     else:

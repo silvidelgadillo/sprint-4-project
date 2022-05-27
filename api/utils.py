@@ -1,4 +1,5 @@
 import os
+import hashlib
 
 
 def allowed_file(filename):
@@ -16,9 +17,7 @@ def allowed_file(filename):
     bool
         True if the file is an image, False otherwise.
     """
-    # Current implementation will allow any kind of file.
-    # TODO
-    return True
+    return filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))
 
 
 def get_file_hash(file):
@@ -37,6 +36,10 @@ def get_file_hash(file):
     str
         New filename based in md5 file hash.
     """
-    # Current implementation will return the original file name.
-    # TODO
-    return os.path.basename(file.filename)
+    content  = file.read()                        #get content of file
+    ext      = os.path.splitext(file.filename)[1] #get extension of file
+    hash_obj = hashlib.md5()
+    hash_obj.update(content)
+    file.seek(0)                                  #to return pointer to the init of the file    
+    new_filename = hash_obj.hexdigest()+ext
+    return new_filename
