@@ -1,24 +1,22 @@
 import  time
 import  redis
-from    api.utils import get_file_hash
 import  settings
 import  uuid         # this is to generate a Universal Unique Identifier
-import  json
+import  json         # esto es para usar los comandos que transforman json
 
 # TODO
-# Connect to Redis and assign to variable `db``
 
-# Make use of settings.py module to get Redis settings like host, port, etc.
 db = redis.Redis(       
     host = settings.REDIS_IP, 
     port = settings.REDIS_PORT, 
-    db   = settings.REDIS_DB_ID
+    db   = settings.REDIS_DB_ID,
 )
 
 # Connect to Redis
-assert db.ping(), "I couldnt connect"
+#if condition returns False, AssertionError is raised:
+db.ping()
+# assert db.ping(), "I couldnt connect"
 
-# db = None
 
 def model_predict(image_name):
     """
@@ -36,23 +34,10 @@ def model_predict(image_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-    # Assign an unique ID for this job and add it to the queue.
-    # We need to assing this ID because we must be able to keep track
-    # of this particular job across all the services
-    # TODO
-
+    
     # Assign an unique ID for this job:
     job_id = str(uuid.uuid4())
     
-
-    # Create a dict with the job data we will send through Redis having the
-    # following shape:
-    # {
-    #    "id": str,
-    #    "image_name": str,
-    # }
-    # TODO
-
     job_data = {
         "id": job_id,
         "image_name": image_name,
@@ -60,7 +45,7 @@ def model_predict(image_name):
            
     # Send the job to the model service using Redis
     # Hint: Using Redis `rpush()` function should be enough to accomplish this.
-    # TODO
+    
     # con rpush ya entra al modelo
     db.rpush(settings.REDIS_QUEUE, json.dumps(job_data)) # lo transformamos json porque redis solo acepta strings
     
@@ -68,13 +53,13 @@ def model_predict(image_name):
     while True:
         # Attempt to get model predictions using job_id
         # Hint: Investigate how can we get a value using a key from Redis
-        # TODO
+        
         if (db.exists(job_id)): #si existe este id
             # con get obtengo el resultado del modelo
             output            = db.get(job_id)
-            output_dictionary = json.loads(output) # este diccionario tiene tipo de clase y score
-            clase             = output_dictionary['class_name']
-            score             = output_dictionary['score']
+            output            = json.loads(output) # este diccionario tiene tipo de clase y score
+            clase             = output['class_name']
+            score             = output['score']
             db.delete(job_id)
             break 
         

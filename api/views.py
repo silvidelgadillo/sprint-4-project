@@ -1,7 +1,6 @@
 import utils
 import settings
 import os
-import imghdr
 import middleware
 
 from flask import (
@@ -54,9 +53,9 @@ def upload_image():
         new_name = utils.get_file_hash(file) 
         
         # 2. Store the image to disk using the new name
-        if os.path.lexist(new_name.path) == False:
-            file.save(os.path.join(file, new_name))
-
+        #if os.path.lexist(new_name.path) == False:
+        #    file.save(os.path.join(file, new_name)
+        file.save(os.path.join(settings.UPLOAD_FOLDER, new_file))
         #   3. Send the file to be processed by the `model` service
         #      Hint: Use middleware.model_predict() for sending jobs to model
         #            service using Redis.

@@ -2,17 +2,22 @@
 
 import time
 import redis
-#from api.settings import REDIS_QUEUE
 import settings
 import json
 
-# TODO
+from tensorflow.keras.applications import resnet50
+from tensorflow.keras.preprocessing import image
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
 db = redis.Redis(       
     host = settings.REDIS_IP, 
     port = settings.REDIS_PORT, 
-    db   = settings.REDIS_DB_ID
+    db   = settings.REDIS_DB_ID,
 )
 
 # Connect to Redis
@@ -21,7 +26,8 @@ assert db.ping, "I couldnt connect"
 
 # TODO
 # Load your ML model and assign to variable `model`
-model = None
+
+model = resnet50.ResNet50(include_top=True, weights="imagenet")
 
 
 def predict(image_name):
@@ -41,8 +47,24 @@ def predict(image_name):
         score as a number.
     """
     # TODO
+    # le cambiamos el tamaño porque el modelo esta entrenado con imagenes cuadradas de 224x224:
+    img = image.load_img(image_name, target_size=(224, 224))
+    # creo una dimension nueva:
+    x = np.expand_dims(x, axis=0)
+    # preproceso:
+    x = resnet50.preprocess_input(x)
 
-    return 'Dog', 0.9
+    # Get predictions
+    preds = model.predict(x)
+
+    # esto da como resultado un pillow--> lo convierto en array:
+    x = image.img_to_array(img)
+
+    # el modelo esta entrenado para devolverte la probabilidad de 1000 clases. por eso devuelve una lista de 1x1000. 
+    # elijo la mas probable:
+    
+
+    return resnet50.decode_predictions(preds, top=1)
 
 
 def classify_process():
@@ -71,6 +93,7 @@ def classify_process():
         # Hint: You should be able to successfully implement the communication
         #       code with Redis making use of functions `brpop()` and `set()`.
         # TODO
+        # job_data es un un dict con 'id" and 'image_name'
         # buscar la info
         _, data_json       = db.brpop(settings.REDIS_QUEUE) #brpop llama al primero de la fila, ojo trae dos variables
         
