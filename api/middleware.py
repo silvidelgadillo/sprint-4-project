@@ -57,8 +57,10 @@ def model_predict(image_name):
         if (db.exists(job_id)): #si existe este id
             # con get obtengo el resultado del modelo
             output            = db.get(job_id)
-            output            = json.loads(output) # este diccionario tiene tipo de clase y score
-            clase             = output['class_name']
+            output            = json.loads(output) 
+            # este diccionario tiene tipo de clase y score
+            
+            clase             = output['class_name'] 
             score             = output['score']
             db.delete(job_id)
             break 
