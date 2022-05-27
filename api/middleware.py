@@ -1,5 +1,4 @@
 import time
-# from matplotlib import image
 import settings
 import redis
 import uuid
@@ -52,17 +51,24 @@ def model_predict(image_name):
     # Send the job to the model service using Redis
     # Hint: Using Redis `rpush()` function should be enough to accomplish this.
     # TODO
+    db.rpush(settings.REDIS_QUEUE, json.dumps(job_data))
 
     # Loop until we received the response from our ML model
     while True:
         # Attempt to get model predictions using job_id
         # Hint: Investigate how can we get a value using a key from Redis
         # TODO
-        output = None
+        if db.exists(job_id):
+            output = db.get(job_id)
+            output = json.loads(output)
+            predict = output["class"]
+            score = output["score"]
 
         # Don't forget to delete the job from Redis after we get the results!
         # Then exit the loop
-        # TODO
+            # TODO
+            db.delete(job_id)
+            break
 
         # Sleep some time waiting for model results
         time.sleep(settings.API_SLEEP)

@@ -1,4 +1,4 @@
-# from opcode import hasname
+from opcode import hasname
 import os
 import utils
 import settings
@@ -56,11 +56,11 @@ def upload_image():
         # TODO
 
         hash_name = utils.get_file_hash(file)
-        storage_path = settings.UPLOAD_FOLDER
-        if os.path.exists(storage_path/hash_name) == False:
+        file_path = os.path.join(settings.UPLOAD_FOLDER, hash_name)
+        if os.path.isfile(file_path) == False:
             hash_name = secure_filename(hash_name)
-            file.save(os.path.join(storage_path, hash_name))
-        predict, score = middleware.model_predict(storage_path/hash_name)
+            file.save(file_path)
+        predict, score = middleware.model_predict(file_path)
 
         context = {
             "prediction": predict,

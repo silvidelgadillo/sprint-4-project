@@ -31,4 +31,3 @@ services:
       - redis
     volumes:
       - ./uploads:/src/uploads
-      
