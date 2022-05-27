@@ -62,12 +62,14 @@ def model_predict(image_name):
             
             clase             = output['class_name'] 
             score             = output['score']
-            db.delete(job_id)
-            break 
+            # Don't forget to delete the job from Redis after we get the results!
         
-        # Don't forget to delete the job from Redis after we get the results!
-        # Then exit the loop
-        # TODO
+            db.delete(job_id)
+            # Then exit the loop
+        
+        break 
+        
+        
 
         # Sleep some time waiting for model results
         time.sleep(settings.API_SLEEP)
