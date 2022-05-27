@@ -56,12 +56,12 @@ def upload_image():
         hashed_filename=utils.get_file_hash(file)
         file.filename = hashed_filename
         filename_secure = secure_filename(file.filename)
-        file.save(os.path.join(settings.UPLOAD_FOLDER,filename_secure))
+        
+        if not os.path.exists(os.path.join(settings.UPLOAD_FOLDER,filename_secure)):
+            file.save(os.path.join(settings.UPLOAD_FOLDER,filename_secure))
 
         predict , score = middleware.model_predict(file.filename)
 
-        #flash(predict)
-        #flash(score)
         context = {
             "prediction":predict,
             "score": score,
@@ -124,6 +124,13 @@ def predict():
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
     # TODO
+
+    # File received and it's an image, we must show it and get predictions
+    file = os.path.join(settings.UPLOAD_FOLDER,filename_secure)
+    if file and utils.allowed_file(file.filename):
+        do
+
+
     rpse = {"success": False, "prediction": None, "score": None}
 
 

@@ -11,7 +11,7 @@ db = redis.Redis(
     port=settings.REDIS_PORT, 
     db=settings.REDIS_DB_ID
 )
-assert db.ping()
+#assert db.ping()
 
 # TODO
 # Load your ML model and assign to variable `model`

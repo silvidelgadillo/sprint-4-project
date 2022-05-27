@@ -12,7 +12,7 @@ db = redis.Redis(
     port=settings.REDIS_PORT, 
     db=settings.REDIS_DB_ID
 )
-assert db.ping() #si da false explota porq no hay conexion
+#assert db.ping() #si da false explota porq no hay conexion
 
 def model_predict(image_name):
     """
@@ -79,5 +79,6 @@ def model_predict(image_name):
             break
         # Sleep some time waiting for model results
         time.sleep(settings.API_SLEEP)
+        
     #return output['prediction'] , output['score']
     return "Cat", 0.9999
