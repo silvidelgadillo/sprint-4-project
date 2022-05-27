@@ -8,6 +8,7 @@ ENV PYTHONPATH=$PYTHONPATH:/src/
 ADD ./ /src/
 
 WORKDIR /src
+RUN python model_download.py
 
 FROM base as test
 RUN ["pytest", "-v", "/src/tests"]
