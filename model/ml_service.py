@@ -35,15 +35,21 @@ def predict(image_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-    img = image.load_img(f"{settings.UPLOAD_FOLDER}{image_name}", target_size=(224, 224))
-    img = image.img_to_array(img)
-    img = np.expand_dims(img, axis=0)
-    img = resnet50.preprocess_input(img)
+    # Loading image and preprocess
+    try:
+        img = image.load_img(f"{settings.UPLOAD_FOLDER}{image_name}", target_size=(224, 224))
+        img = image.img_to_array(img)
+        img = np.expand_dims(img, axis=0)
+        img = resnet50.preprocess_input(img)
+    except:
+        print("Error while loading image")
+        return None
 
+    # Get predictions
     preds = model.predict(img)
     _, class_name, pred_probability = resnet50.decode_predictions(preds, top=1)[0][0]
 
-    return class_name, pred_probability
+    return class_name, float(pred_probability)
 
 
 def classify_process():
