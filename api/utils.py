@@ -45,7 +45,8 @@ def get_file_hash(file):
     # Current implementation will return the original file name.
     # TODO
     hash_file = hashlib.md5(file.read()).hexdigest()
-    _, ext = os.path.splitext(file.filename)
+    _, ext = os.path.splitext(file.name)
     ext = ext.lower()
     hash_name = f'{hash_file}{ext}'
+    file.seek(0)
     return hash_name
