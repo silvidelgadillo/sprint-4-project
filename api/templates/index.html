@@ -38,7 +38,7 @@
                 <label for="subject">Score: {{ context['score'] }} </label>
                 </div>
             <form id="form" method="POST" action="/feedback">
-                <button type="submit">Report incorrect answer</button>
+                <button class='report' type="submit">Report incorrect answer</button>
                 <input name="report" style="visibility: hidden;" value="{'filename': '{{ filename }}', 'prediction': '{{ context['prediction'] }}', 'score': {{ context['score'] }} }"/>
             </form>
         {% endif %}
@@ -46,7 +46,7 @@
     <form method="post" action="/" enctype="multipart/form-data">
         <dl>
             <label class='stylefile' for="upfile">
-                <i class="fa-solid fa-file-arrow-up">Please, choose a file:</i>
+                <i class="fa-solid fa-file-arrow-up"> Please, choose a file:</i>
                 <input id='upfile' type="file" name="file" autocomplete="off" required>
             </label>
         </dl>
