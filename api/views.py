@@ -1,10 +1,10 @@
 import utils
-import middleware
 import settings
 import os
 import json
 import hashlib
 import re
+from middleware import model_predict
 
 
 from flask import (
@@ -18,7 +18,7 @@ from flask import (
 )
 
 router = Blueprint("app_router", __name__, template_folder="templates")
-#model_predict = middleware.model_predict
+
 
 @router.route("/", methods=["GET"])
 def index():
@@ -52,7 +52,7 @@ def upload_image():
         unique_file_name = utils.get_file_hash(file)
         file.save(os.path.join(settings.UPLOAD_FOLDER, unique_file_name))
 
-        model_prediction = middleware.model_predict(unique_file_name)
+        model_prediction = model_predict(unique_file_name)
 
         predicted_class = model_prediction[0] 
         predicted_class = re.sub('_', ' ', predicted_class)
@@ -120,7 +120,7 @@ def predict():
 
             unique_file_name_noui = utils.get_file_hash(file)
             file.save(settings.UPLOAD_FOLDER + unique_file_name_noui)
-            model_prediction_noui = middleware.model_predict(unique_file_name_noui)
+            model_prediction_noui = model_predict(unique_file_name_noui)
             
 
             rpse = {"success": True, "prediction": model_prediction_noui[0], "score": model_prediction_noui[1]}
