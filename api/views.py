@@ -106,16 +106,6 @@ def predict():
         - "prediction" model predicted class as string.
         - "score" model confidence score for the predicted class as float.
     """
-    # To correctly implement this endpoint you should:
-    #   1. Check a file was sent and that file is an image
-    #   2. Store the image to disk
-    #   3. Send the file to be processed by the `model` service
-    #      Hint: Use middleware.model_predict() for sending jobs to model
-    #            service using Redis.
-    #   4. Update and return `rpse` dict with the corresponding values
-    # If user sends an invalid request (e.g. no file provided) this endpoint
-    # should return `rpse` dict with default values HTTP 400 Bad Request code
-    # TODO
 
     error_rpse = {"success": False, "prediction": None, "score": None}
     error_rspe_str = json.dumps(error_rpse)
@@ -161,9 +151,6 @@ def predict():
     else:
         return error_response
 
-    
-    rpse = {"success": False, "prediction": None, "score": None}
-
 
 @router.route("/feedback", methods=["GET", "POST"])
 def feedback():
@@ -189,8 +176,9 @@ def feedback():
     # Get reported predictions from `report` key
     report = request.form.get("report")
 
-    # Store the reported data to a file on the corresponding path
-    # already provided in settings.py module
-    # TODO
+    feedback_json = json.dumps(report)
+
+    with open(f"{settings.FEEDBACK_FILEPATH}", "a") as f:
+        f.write(f"{feedback_json}\n")
 
     return render_template("index.html")
