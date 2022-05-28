@@ -14,8 +14,6 @@ db = redis.Redis(
     db = settings.REDIS_DB_ID
 )
 
-# TODO
-# Load your ML model and assign to variable `model`
 model = resnet50.ResNet50(include_top=True, weights="imagenet")
 
 

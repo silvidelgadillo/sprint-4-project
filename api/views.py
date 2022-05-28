@@ -1,6 +1,7 @@
 import utils
 import middleware
 import settings
+import json
 from os import path
 
 from flask import (
@@ -10,6 +11,7 @@ from flask import (
     render_template,
     request,
     url_for,
+    make_response
 )
 
 router = Blueprint("app_router", __name__, template_folder="templates")
@@ -115,14 +117,20 @@ def predict():
     # should return `rpse` dict with default values HTTP 400 Bad Request code
     # TODO
 
+    error_rpse = {"success": False, "prediction": None, "score": None}
+    error_rspe_str = json.dumps(error_rpse)
+    error_response = make_response(error_rspe_str)
+    error_response.status_code = 400
+
     # No file received, show basic UI
     if "file" not in request.files:
-        pass
+        return error_response
 
     # File received but no filename is provided
     file = request.files["file"]
     if file.filename == "":
-        pass
+        rpse = {"success": False, "prediction": None, "score": None}
+        return error_response
 
     # File received and it's an image
     if file and utils.allowed_file(file.filename):
@@ -136,20 +144,22 @@ def predict():
 
         prediction, score = middleware.model_predict(hash_imgname)
 
-        context = {
+        rpse = {
+            "success": True,
             "prediction": prediction,
-            "score": score,
-            "filename": hash_imgname,
+            "score": score 
         }
 
-        return render_template(
-            "index.html", filename=hash_imgname, context=context
-        )
+        rpse_str = json.dumps(rpse)
+
+        response = make_response(rpse_str)
+        response.status_code = 200
+
+        return response
 
     # File received and but it isn't an image
     else:
-        flash("Allowed image types are -> png, jpg, jpeg, gif")
-        return redirect(request.url)
+        return error_response
 
     
     rpse = {"success": False, "prediction": None, "score": None}
