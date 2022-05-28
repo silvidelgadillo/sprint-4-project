@@ -47,5 +47,6 @@ def get_file_hash(file):
     _, ext = splitext(file.filename)
     readable_hash = md5(file.read()).hexdigest() 
     hash_filename = f"{readable_hash}{ext}"
+    file.stream.seek(0)
 
     return hash_filename
