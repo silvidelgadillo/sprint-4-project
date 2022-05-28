@@ -176,9 +176,7 @@ def feedback():
     # Get reported predictions from `report` key
     report = request.form.get("report")
 
-    feedback_json = json.dumps(report)
-
     with open(f"{settings.FEEDBACK_FILEPATH}", "a") as f:
-        f.write(f"{feedback_json}\n")
+        f.write(f"{report}\n")
 
     return render_template("index.html")
