@@ -1,8 +1,16 @@
 import utils
+import middleware
+import settings
+import os
+import json
+import hashlib
+import re
+
 
 from flask import (
     Blueprint,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -10,7 +18,7 @@ from flask import (
 )
 
 router = Blueprint("app_router", __name__, template_folder="templates")
-
+#model_predict = middleware.model_predict
 
 @router.route("/", methods=["GET"])
 def index():
@@ -40,25 +48,27 @@ def upload_image():
 
     # File received and it's an image, we must show it and get predictions
     if file and utils.allowed_file(file.filename):
-        # In order to correctly display the image in the UI and get model
-        # predictions you should implement the following:
-        #   1. Get an unique file name using utils.get_file_hash() function
-        #   2. Store the image to disk using the new name
-        #   3. Send the file to be processed by the `model` service
-        #      Hint: Use middleware.model_predict() for sending jobs to model
-        #            service using Redis.
-        #   4. Update `context` dict with the corresponding values
-        # TODO
+
+        unique_file_name = utils.get_file_hash(file)
+        file.save(os.path.join(settings.UPLOAD_FOLDER, unique_file_name))
+
+        model_prediction = middleware.model_predict(unique_file_name)
+
+        predicted_class = model_prediction[0] 
+        predicted_class = re.sub('_', ' ', predicted_class)
+        predicted_class = predicted_class.title()
+
+        score = round(float(model_prediction[1]  * 100), 2)
+    
         context = {
-            "prediction": None,
-            "score": None,
-            "filename": None,
+            "prediction": predicted_class,
+            "score": score,
+            "filename": unique_file_name
         }
 
-        # Update `render_template()` parameters as needed
-        # TODO
+        # Updating render template
         return render_template(
-            "index.html", filename=None, context=None
+            "index.html", filename=unique_file_name, context= context
         )
     # File received and but it isn't an image
     else:
@@ -101,17 +111,27 @@ def predict():
         - "prediction" model predicted class as string.
         - "score" model confidence score for the predicted class as float.
     """
-    # To correctly implement this endpoint you should:
-    #   1. Check a file was sent and that file is an image
-    #   2. Store the image to disk
-    #   3. Send the file to be processed by the `model` service
-    #      Hint: Use middleware.model_predict() for sending jobs to model
-    #            service using Redis.
-    #   4. Update and return `rpse` dict with the corresponding values
-    # If user sends an invalid request (e.g. no file provided) this endpoint
-    # should return `rpse` dict with default values HTTP 400 Bad Request code
-    # TODO
+ 
+    if "file" in request.files: 
+        
+        file = request.files["file"]
+        
+        if file and utils.allowed_file(file.filename):
+
+            unique_file_name_noui = utils.get_file_hash(file)
+            file.save(settings.UPLOAD_FOLDER + unique_file_name_noui)
+            model_prediction_noui = middleware.model_predict(unique_file_name_noui)
+            
+
+            rpse = {"success": True, "prediction": model_prediction_noui[0], "score": model_prediction_noui[1]}
+
+            return jsonify(rpse)
+
+        
     rpse = {"success": False, "prediction": None, "score": None}
+    
+    return jsonify(rpse), 400
+
 
 
 @router.route("/feedback", methods=["GET", "POST"])
@@ -135,11 +155,11 @@ def feedback():
           incorrect.
         - "score" model confidence score for the predicted class as float.
     """
-    # Get reported predictions from `report` key
     report = request.form.get("report")
 
-    # Store the reported data to a file on the corresponding path
-    # already provided in settings.py module
-    # TODO
+    feedback_path = settings.FEEDBACK_FILEPATH
+    feedback_file  = open(feedback_path, "a+")
+    feedback_file.write(str(report) + '\n')
+    feedback_file.close()
 
     return render_template("index.html")

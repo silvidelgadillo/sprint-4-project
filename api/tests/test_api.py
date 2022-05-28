@@ -22,7 +22,7 @@ class TestIntegration(TestCase):
         self.assertEqual(data["prediction"], None)
         self.assertEqual(data["score"], None)
 
-    @patch('views.model_predict')
+    @patch('middleware.model_predict')
     def test_predict_ok(self, mock):
         # Mocks
         pred_class = "Eskimo_dog"

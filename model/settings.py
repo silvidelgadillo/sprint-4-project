@@ -6,13 +6,13 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # REDIS
 # Queue name
-REDIS_QUEUE = None
+REDIS_QUEUE = "job"
 # Port
-REDIS_PORT = None
+REDIS_PORT = 6379
 # DB Id
-REDIS_DB_ID = None
+REDIS_DB_ID = 1
 # Host IP
-REDIS_IP = None
+REDIS_IP = 'sprint-4-project_redis_1'
 # Sleep parameters which manages the
 # interval between requests to our redis queue
 SERVER_SLEEP = 0.05

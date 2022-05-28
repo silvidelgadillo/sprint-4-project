@@ -1,16 +1,24 @@
 import time
-
+import json
+import redis
 import settings
+import numpy as np
+from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input, decode_predictions
+from tensorflow.keras.preprocessing import image
 
 
-# TODO
-# Connect to Redis and assign to variable `db``
-# Make use of settings.py module to get Redis settings like host, port, etc.
-db = None
 
-# TODO
-# Load your ML model and assign to variable `model`
-model = None
+
+# Connecting to Redis and assign to variable `db`
+
+db = redis.Redis(
+    host= settings.REDIS_IP, 
+    port= settings.REDIS_PORT, 
+    db= settings.REDIS_DB_ID
+)
+
+
+model = ResNet50(weights='imagenet')
 
 
 def predict(image_name):
@@ -30,8 +38,18 @@ def predict(image_name):
         score as a number.
     """
     # TODO
+    img = image.load_img(settings.UPLOAD_FOLDER + image_name, target_size=(224, 224))
+    pic = image.img_to_array(img)
+    pic = np.expand_dims(pic, axis=0)
+    pic = preprocess_input(pic)
 
-    return None, None
+    predictions = model.predict(pic)
+    prediction = decode_predictions(predictions, top=1)[0]
+    predicted_class = prediction[0][1] 
+
+    score = round(float(prediction[0][2]), 4)
+
+    return tuple([predicted_class , score])
 
 
 def classify_process():
@@ -46,22 +64,17 @@ def classify_process():
     received, then, run our ML model to get predictions.
     """
     while True:
-        # Inside this loop you should add the code to:
-        #   1. Take a new job from Redis
-        #   2. Run your ML model on the given data
-        #   3. Store model prediction in a dict with the following shape:
-        #      {
-        #         "prediction": str,
-        #         "score": float,
-        #      }
-        #   4. Store the results on Redis using the original job ID as the key
-        #      so the API can match the results it gets to the original job
-        #      sent
-        # Hint: You should be able to successfully implement the communication
-        #       code with Redis making use of functions `brpop()` and `set()`.
-        # TODO
 
-        # Don't forget to sleep for a bit at the end
+        _, msg = db.brpop(settings.REDIS_QUEUE)
+        msg = json.loads(msg)
+        name_image = msg['image_name']
+        class_name, pred_probability = predict(name_image)
+        output_model = {
+            "prediction": class_name,
+            "score": pred_probability,
+            }
+        db.set(msg['id'], json.dumps(output_model))
+
         time.sleep(settings.SERVER_SLEEP)
 
 
