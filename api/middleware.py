@@ -9,7 +9,6 @@ db = redis.Redis(
     port=settings.REDIS_PORT,
     db=settings.REDIS_DB_ID
 )
-# assert db.ping()
 
 def model_predict(image_name):
     job_id = str(uuid.uuid4())

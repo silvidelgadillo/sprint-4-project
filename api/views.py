@@ -121,18 +121,18 @@ def feedback():
     # Get reported predictions from `report` key
     report = request.form.get("report")
     
-    path = os.path.join(settings.FEEDBACK_FILEPATH, 'feedback.csv')
-    if not os.path.exists(path):
-        with open(path, 'w', newline='') as file:
+    fb_path = os.path.join(settings.FEEDBACK_FILEPATH, '/feedback.csv')
+    if not os.path.exists(fb_path):
+        with open(fb_path, 'w', newline='') as file:
             writer = csv.writer(file, delimiter= ',')
             writer.writerow(['Filename', 'Prediction', 'Score'])
             writer.writerow(report)
-            file.close()
+        file.close()
         flash('Thank you for your feedback!')
     else:
-        with open(path, 'a') as file:
+        with open(fb_path, 'a') as file:
             file.write(report)
-            file.close()
+        file.close()
         flash('Thank you for your feedback!')
         
     return render_template("index.html")
