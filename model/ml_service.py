@@ -2,6 +2,7 @@ import time
 import json
 import redis
 import settings
+import os
 import numpy as np
 from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input, decode_predictions
 from tensorflow.keras.preprocessing import image
@@ -37,8 +38,8 @@ def predict(image_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-    # TODO
-    img = image.load_img(settings.UPLOAD_FOLDER + image_name, target_size=(224, 224))
+    img = image.load_img(os.path.join(settings.UPLOAD_FOLDER, image_name), target_size=(224, 224))
+    
     pic = image.img_to_array(img)
     pic = np.expand_dims(pic, axis=0)
     pic = preprocess_input(pic)
