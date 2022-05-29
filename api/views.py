@@ -133,9 +133,9 @@ def predict():
     # should return `rpse` dict with default values HTTP 400 Bad Request code
 
         rpse = {
-                "success": True, 
-                "prediction": predict, 
-                "score": score
+                "success":      True, 
+                "prediction":   predict, 
+                "score":        score
                 }
         
        
@@ -177,6 +177,16 @@ def feedback():
 
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
-    # TODO
+    # We will store user feedback on this file
+    #FEEDBACK_FILEPATH = "feedback/feedback"
+    
+    # path = os.path.basename(settings.FEEDBACK_FILEPATH)
 
+    try:
+        os.makedirs(os.path.basename(settings.FEEDBACK_FILEPATH), exist_ok=True)
+        print("The directory was created successfully" )
+    except OSError as error:
+        print("The directory can not be created")
+    
+    
     return render_template("index.html")
