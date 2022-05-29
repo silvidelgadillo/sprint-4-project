@@ -52,14 +52,14 @@ def get_file_hash(file):
     """
     
     # Current implementation will return the original file name.
-    # TODO
+   
     md5 = hashlib.md5(file.read()).hexdigest()
     
     ext = os.path.splitext(file.filename)[1].lower()
 
     # return --> md5.hexdigest() + ext  
     ret = f'{md5}{ext}'
-    
+    # its important to go back to the forst position to start reading the next file:
     file.seek(0)
     
     return ret

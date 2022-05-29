@@ -54,7 +54,7 @@ def upload_image():
         
         # 2. Store the image to disk using the new name
         if os.path.lexist(new_name.path) == False:
-            file.save(os.path.join(settings.UPLOAD_FOLDER, new_file))
+            file.save(os.path.join(settings.UPLOAD_FOLDER, new_name))
         #   3. Send the file to be processed by the `model` service
         #      Hint: Use middleware.model_predict() for sending jobs to model
         #            service using Redis.
@@ -121,7 +121,7 @@ def predict():
         new_name = utils.get_file_hash(file)
     #   2. Store the image to disk
         if os.path.lexist(new_name.path) == False:
-            file.save(os.path.join(settings.UPLOAD_FOLDER, new_file))
+            file.save(os.path.join(settings.UPLOAD_FOLDER, new_name))
     
     #   3. Send the file to be processed by the `model` service
     #      Hint: Use middleware.model_predict() for sending jobs to model
@@ -188,5 +188,5 @@ def feedback():
     except OSError as error:
         print("The directory can not be created")
     
-    
+
     return render_template("index.html")
