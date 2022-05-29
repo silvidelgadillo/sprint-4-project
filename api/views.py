@@ -53,9 +53,8 @@ def upload_image():
         new_name = utils.get_file_hash(file) 
         
         # 2. Store the image to disk using the new name
-        #if os.path.lexist(new_name.path) == False:
-        #    file.save(os.path.join(file, new_name)
-        file.save(os.path.join(settings.UPLOAD_FOLDER, new_file))
+        if os.path.lexist(new_name.path) == False:
+            file.save(os.path.join(settings.UPLOAD_FOLDER, new_file))
         #   3. Send the file to be processed by the `model` service
         #      Hint: Use middleware.model_predict() for sending jobs to model
         #            service using Redis.
@@ -115,17 +114,41 @@ def predict():
         - "prediction" model predicted class as string.
         - "score" model confidence score for the predicted class as float.
     """
-    # To correctly implement this endpoint you should:
-    #   1. Check a file was sent and that file is an image
+    #   1. Check a file was sent and that file is an image:
+    file = request.files["file"]
+    if file and utils.allowed_file(file.filename):
+       
+        new_name = utils.get_file_hash(file)
     #   2. Store the image to disk
+        if os.path.lexist(new_name.path) == False:
+            file.save(os.path.join(settings.UPLOAD_FOLDER, new_file))
+    
     #   3. Send the file to be processed by the `model` service
     #      Hint: Use middleware.model_predict() for sending jobs to model
-    #            service using Redis.
+    #            service using Redis.    
+        predict, score = middleware.model_predict(new_name)
+
     #   4. Update and return `rpse` dict with the corresponding values
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
-    # TODO
-    rpse = {"success": False, "prediction": None, "score": None}
+
+        rpse = {
+                "success": True, 
+                "prediction": predict, 
+                "score": score
+                }
+        
+       
+    # File received and but it isn't an image
+    else:
+        flash("Allowed image types are -> png, jpg, jpeg, gif")
+        rpse = {
+                "success":      'HTTP 400 Bad Request code', 
+                "prediction":   'HTTP 400 Bad Request code', 
+                "score":        'HTTP 400 Bad Request code'
+                }
+        return rpse
+    
 
 
 @router.route("/feedback", methods=["GET", "POST"])
