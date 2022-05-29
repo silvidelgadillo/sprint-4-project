@@ -1,8 +1,6 @@
-import re
 import utils
-import settings
 from middleware import model_predict
-import os
+import settings
 
 from flask import (
     Blueprint,
@@ -152,6 +150,10 @@ def feedback():
 
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
-    # TODO
+
+    if(report):
+        with open(settings.FEEDBACK_FILEPATH, "a") as feedback:
+            # Append feedback at the end of file
+            feedback.write(str(report) + "\n")
 
     return render_template("index.html")
