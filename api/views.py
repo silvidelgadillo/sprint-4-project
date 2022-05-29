@@ -1,5 +1,4 @@
 import utils
-import middleware
 from middleware import model_predict
 import settings
 import json
@@ -54,7 +53,7 @@ def upload_image():
             file.stream.seek(0)
             file.save(img_savepath)
 
-        prediction, score = middleware.model_predict(hash_imgname)
+        prediction, score = model_predict(hash_imgname)
 
         context = {
             "prediction": prediction,
@@ -133,7 +132,7 @@ def predict():
             file.stream.seek(0)
             file.save(img_savepath)
 
-        prediction, score = middleware.model_predict(hash_imgname)
+        prediction, score = model_predict(hash_imgname)
 
         rpse = {
             "success": True,
