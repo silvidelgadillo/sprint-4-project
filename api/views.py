@@ -1,6 +1,6 @@
 import utils
 import settings
-import middleware
+from middleware import model_predict
 import os
 
 from flask import (
@@ -10,6 +10,7 @@ from flask import (
     render_template,
     request,
     url_for,
+    jsonify
 )
 
 router = Blueprint("app_router", __name__, template_folder="templates")
@@ -51,13 +52,12 @@ def upload_image():
         #      Hint: Use middleware.model_predict() for sending jobs to model
         #            service using Redis.
         #   4. Update `context` dict with the corresponding values
-        # TODO 
 
         file_name = utils.get_file_hash(file)
 
         file.save(os.path.join(settings.UPLOAD_FOLDER, file_name))
 
-        class_name, score = middleware.model_predict(file_name)
+        class_name, score = model_predict(file_name)
 
         context = {
             "prediction": class_name,
@@ -119,8 +119,24 @@ def predict():
     #   4. Update and return `rpse` dict with the corresponding values
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
-    # TODO
+    # 
+    if "file" in request.files:
+
+        file = request.files["file"]
+
+        if file and utils.allowed_file(file.filename):
+
+            file_name = utils.get_file_hash(file)
+
+            file.save(os.path.join(settings.UPLOAD_FOLDER, file_name))
+
+            class_name, score = model_predict(file_name)
+            rpse = {"success": True, "prediction": class_name, "score": score}
+            return jsonify(rpse)
+
     rpse = {"success": False, "prediction": None, "score": None}
+    return jsonify(rpse), 400
+
 
 
 @router.route("/feedback", methods=["GET", "POST"])
