@@ -1,3 +1,4 @@
+import json
 import utils
 import settings
 import os
@@ -11,6 +12,7 @@ from flask import (
     render_template,
     request,
     url_for,
+    jsonify,
 )
 
 router = Blueprint("app_router", __name__, template_folder="templates")
@@ -79,60 +81,40 @@ def display_image(filename):
 
 @router.route("/predict", methods=["POST"])
 def predict():
-    """
-    Endpoint used to get predictions without need to access the UI.
+    file = request.files["file"]
 
-    Parameters
-    ----------
-    file : str
-        Input image we want to get predictions from.
+    if file and utils.allowed_file(file.filename):
+        unique_file_name = utils.get_file_hash(file)
+        path = os.path.join(settings.UPLOAD_FOLDER, unique_file_name)
+        if not os.path.exists(path):
+            file.save(path)
 
-    Returns
-    -------
-    flask.Response
-        JSON response from our API having the following format:
-            {
-                "success": bool,
-                "prediction": str,
-                "score": float,
-            }
+        results = middleware.model_predict(unique_file_name)
 
-        - "success" will be True if the input file is valid and we get a
-          prediction from our ML model.
-        - "prediction" model predicted class as string.
-        - "score" model confidence score for the predicted class as float.
-    """
-    # To correctly implement this endpoint you should:
-    #   1. Check a file was sent and that file is an image
-    #   2. Store the image to disk
-    #   3. Send the file to be processed by the `model` service
-    #      Hint: Use middleware.model_predict() for sending jobs to model
-    #            service using Redis.
-    #   4. Update and return `rpse` dict with the corresponding values
-    # If user sends an invalid request (e.g. no file provided) this endpoint
-    # should return `rpse` dict with default values HTTP 400 Bad Request code
-    # TODO
-    rpse = {"success": False, "prediction": None, "score": None}
+        rpse = {"success": True, "prediction": results[0], "score": results[1]}
+        return jsonify(rpse)
 
+    else:
+        rpse = {"success": False, "prediction": None, "score": None}
+        return jsonify(rpse), 400
 
 @router.route("/feedback", methods=["GET", "POST"])
 def feedback():
 
     # Get reported predictions from `report` key
     report = request.form.get("report")
-    
-    fb_path = os.path.join(settings.FEEDBACK_FILEPATH, '/feedback.csv')
+    # report = json.loads(report)
+    fb_path =  'feedback/feedback.csv'
+
     if not os.path.exists(fb_path):
         with open(fb_path, 'w', newline='') as file:
-            writer = csv.writer(file, delimiter= ',')
+            writer = csv.writer(file)
             writer.writerow(['Filename', 'Prediction', 'Score'])
-            writer.writerow(report)
-        file.close()
+            writer.writerow([report])
         flash('Thank you for your feedback!')
     else:
         with open(fb_path, 'a') as file:
-            file.write(report)
-        file.close()
+            file.write([report])
         flash('Thank you for your feedback!')
         
     return render_template("index.html")

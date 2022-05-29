@@ -39,7 +39,7 @@
                 </div>
             <form id="form" method="POST" action="/feedback">
                 <button class='report' type="submit">Report incorrect answer</button>
-                <input name="report" style="visibility: hidden;" value="{'filename': '{{ filename }}', 'prediction': '{{ context['prediction'] }}', 'score': {{ context['score'] }} }"/>
+                <input name="report" style="visibility: hidden;" value={{filename}},{{context['prediction']}},{{context['score']}}/>
             </form>
         {% endif %}
     {% endif %}
