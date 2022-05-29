@@ -27,7 +27,7 @@ def predict(image_name):
     predictions = model.predict(processed_img)
     results = decode_predictions(predictions, top=1)[0][0]
 
-    return tuple([str(results[1]), float(results[2])])
+    return tuple([str(results[1]), round(float(results[2]),4)])
 
 
 def classify_process():
