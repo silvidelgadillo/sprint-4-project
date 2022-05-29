@@ -2,9 +2,12 @@ import time
 import settings
 import json
 import redis
+#import tensorflow
+from tensorflow.keras.applications import resnet50
+from tensorflow.keras.preprocessing import image
+import numpy as np
 
 
-# TODO
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
 db = redis.Redis(
@@ -13,9 +16,8 @@ db = redis.Redis(
     db=settings.REDIS_DB_ID
 )
 
-# TODO
 # Load your ML model and assign to variable `model`
-model = None
+model = resnet50.ResNet50(include_top=True, weights="imagenet")
 
 
 def predict(image_name):
@@ -34,8 +36,29 @@ def predict(image_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-    #
-    return 'Fox', 0.93   #TMP
+
+    
+    image_path = settings.UPLOAD_FOLDER+image_name
+
+    img = image.load_img(image_path, target_size=(224, 224))
+
+    image_array = image.img_to_array(img)
+
+    x = np.expand_dims(image_array, axis=0)
+    x = resnet50.preprocess_input(x)
+
+    # Get predictions
+    preds = model.predict(x)
+
+    # Get the most probable prediction
+    most_prob_pred = resnet50.decode_predictions(preds, top=1)
+
+    #return most_prob_pred[0][0][1], most_prob_pred[0][0][2]
+    
+    predict_class = most_prob_pred[0][0][1]
+    predict_score = round(float(most_prob_pred[0][0][2]),3)    
+
+    return predict_class, predict_score
 
 
 def classify_process():
@@ -49,6 +72,7 @@ def classify_process():
     Load image from the corresponding folder based on the image name
     received, then, run our ML model to get predictions.
     """
+    
     while True:
         # Inside this loop you should add the code to:
         #   1. Take a new job from Redis
@@ -70,6 +94,7 @@ def classify_process():
         msg = json.loads(msg)
 
         prediction_c, prediction_s = predict(msg['image_name'])
+        #prediction_c, prediction_s = predict('dog.jpeg')
 
         received_msg = {
                      "prediction": prediction_c,
@@ -77,13 +102,13 @@ def classify_process():
         }
 
         db.set(msg["id"], json.dumps(received_msg))
-        #db.set("0", "It's a dog!")
 
         # Don't forget to sleep for a bit at the end
         time.sleep(settings.SERVER_SLEEP)
-
 
 if __name__ == "__main__":
     # Now launch process
     print("Launching ML service...")
     classify_process()
+    #a = predict('dog.jpeg')
+    #print(a)

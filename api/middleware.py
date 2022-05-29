@@ -74,6 +74,6 @@ def model_predict(image_name):
             output_dict = json.loads(output)
             db.delete(job_id)
             break    
-        break
+        #break
     #return 'Perro', 0.4
     return output_dict["prediction"], output_dict["score"]
