@@ -1,16 +1,40 @@
 import time
-
 import settings
+import redis
+import json
+#from tensorflow.keras.applications import resnet50
+#from tensorflow.keras.preprocessing import image
 
 
-# TODO
+# REDIS
+# Redis es un motor de base de datos en memoria, basado en el almacenamiento
+# en tablas de hashes pero que opcionalmente puede ser usada
+# como una base de datos durable o persistente
+
+# TABLA HASHES
+# tabla fragmentada es una estructura de datos que 
+# asocia llaves o claves con valores. permite el acceso a los 
+# elementos almacenados a partir de una clave generada
+
+
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
-db = None
+db = redis.Redis(
+    host = settings.REDIS_IP,
+    port = settings.REDIS_PORT,
+    db = settings.REDIS_DB_ID,
+    )
 
-# TODO
+# El uso de assert en Python nos permite realizar comprobaciones. 
+# Si la expresión contenida dentro del mismo es
+# False, se lanzará una excepción, concretamente AssertionError (o la indicada "")
+# assert db.ping, "unable to connect"
+ 
+
+
 # Load your ML model and assign to variable `model`
-model = None
+#model = resnet50.ResNet50(include_top=True, weights="imagenet")
+
 
 
 def predict(image_name):
@@ -29,10 +53,20 @@ def predict(image_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-    # TODO
-
-    return None, None
-
+    # TODO VERRRR ESTA MAL!! 
+    
+    image_name =  db.brpop(settings.UPLOAD_FOLDER["uploads/"])
+    #image_name = image.load_img(image_name, target_size=(224, 224))
+    image_array = image.img_to_array(image_name)
+    image_expand = np.expand_dims(image_array, axis=0)
+    image_preproce = model.preprocess_input(image_expand)
+    preds_resnet50 = model.predict(image_preproce)
+    preds_decode = model.decode_predictions(preds_resnet50, top=1)
+    class_name = preds_decode[1]
+    pred_probability = round(preds_decode[2], decimal=4)
+    
+    return class_name, pred_probability
+    
 
 def classify_process():
     """
@@ -59,13 +93,38 @@ def classify_process():
         #      sent
         # Hint: You should be able to successfully implement the communication
         #       code with Redis making use of functions `brpop()` and `set()`.
-        # TODO
-
+        
+        # traigo lo primero que esta en queue
+        print("hola")
+        _, data_json = db.brpop(settings.REDIS_QUEUE)
+        data_dict = json.loads(data_json) # convert JSON str to a dict of Python
+        prediction, score = predict(data_dict["image_name"])
+        predict_dict = {"prediction":prediction , "score":score}
+        db.set(data_dict["id"], json.dumps(predict_dict)) # serializa los objetos python a str
+        
         # Don't forget to sleep for a bit at the end
         time.sleep(settings.SERVER_SLEEP)
-
+        
 
 if __name__ == "__main__":
     # Now launch process
     print("Launching ML service...")
     classify_process()
+
+
+# REDIS COMMANDS
+# BRPOP:  extrae un elemento de queue de la primera lista que no está vacía,
+# y las claves dadas se verifican en el orden en que se dan.
+
+# SET: Set key to hold the string value. 
+# If key already holds a value, it is overwritten, regardless of its type.
+
+# RPUSH: Insert all the specified values at the tail of the list stored at key. 
+# If key does not exist, it is created as empty list before performing the push operation. 
+# When key holds a value that is not a list, an error is returned.
+# It is possible to push multiple elements using a single command call
+# just specifying multiple arguments at the end of the command. 
+# Elements are inserted one after the other to the tail of the list,
+# from the leftmost element to the rightmost element. 
+# So for instance the command RPUSH mylist a b c will result into a list 
+# containing a as first element, b as second element and c as third element
