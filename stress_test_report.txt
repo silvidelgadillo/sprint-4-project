@@ -1,0 +1,25 @@
+This is a report about stress test using different parameters.
+
+The computer specs are the following:
+Edition	Windows 10 Home
+Processor	Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz   2.81 GHz
+Installed RAM	8.00 GB (7.89 GB usable)
+System type	64-bit operating system, x64-based processor
+GPU             NVIDIA GeForce GTX 1050 Ti
+
+At all times, a spawn rate of 1 user per second is used. The amount of users will increase until there is a failure.
+
+Report:
+
+1 instance:
+1 user, no failure
+5 users, no failure
+10 users, 2% failure but continues running
+
+2 instances:
+1 user, no failure
+5 users, no failure
+10 users, 62% failure and service crashes for /predict
+
+3 instances:
+1 user, 67% failure and service crashes for /predict
