@@ -1,5 +1,6 @@
 import utils
 import middleware
+from middleware import model_predict
 import settings
 import json
 from os import path
@@ -47,7 +48,7 @@ def upload_image():
     if file and utils.allowed_file(file.filename):
         
         hash_imgname = utils.get_file_hash(file)
-        img_savepath = f"{settings.UPLOAD_FOLDER}{hash_imgname}"
+        img_savepath = path.join(settings.UPLOAD_FOLDER, hash_imgname)
         
         if not path.exists(img_savepath):  # Check if the file already exist
             file.stream.seek(0)
@@ -126,7 +127,7 @@ def predict():
     if file and utils.allowed_file(file.filename):
         
         hash_imgname = utils.get_file_hash(file)
-        img_savepath = f"{settings.UPLOAD_FOLDER}{hash_imgname}"
+        img_savepath = path.join(settings.UPLOAD_FOLDER, hash_imgname)
         
         if not path.exists(img_savepath):  # Check if the file already exist
             file.stream.seek(0)

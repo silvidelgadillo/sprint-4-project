@@ -1,6 +1,6 @@
 from tensorflow.keras.applications import resnet50
 from tensorflow.keras.preprocessing import image
-
+import os
 import numpy as np
 import json
 import time
@@ -34,8 +34,8 @@ def predict(image_name):
         score as a number.
     """
     # Loading image and preprocess
-    
-    img = image.load_img(f"{settings.UPLOAD_FOLDER}{image_name}", target_size=(224, 224))
+    img_path = os.path.join(settings.UPLOAD_FOLDER, image_name)
+    img = image.load_img(img_path, target_size=(224, 224))
     img = image.img_to_array(img)
     img = np.expand_dims(img, axis=0)
     img = resnet50.preprocess_input(img)
@@ -43,8 +43,9 @@ def predict(image_name):
     # Get predictions
     preds = model.predict(img)
     _, class_name, pred_probability = resnet50.decode_predictions(preds, top=1)[0][0]
+    pred_probability = round(float(pred_probability), 4)
 
-    return class_name, float(pred_probability)
+    return class_name, pred_probability
 
 
 def classify_process():
