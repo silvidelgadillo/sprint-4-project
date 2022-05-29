@@ -62,18 +62,12 @@ def upload_image():
         prediction = middleware.model_predict(file_n)
 
         #   4. Update `context` dict with the corresponding values
-        # context = {
-        #     "prediction": prediction[0],
-        #     "score": prediction[1],
-        #     "filename": file_n,
-        # }
-        
         context = {
-            "prediction": "Hola",
-            "score": "Fer",
+            "prediction": prediction[0],
+            "score": prediction[1],
             "filename": file_n,
         }
-       
+
         # Update `render_template()` parameters as needed
         # TODO
         return render_template(

@@ -35,7 +35,7 @@ def predict(image_name):
 
     # Down the original line for the return. '"cat", 0.9' was used as a test 
     # return None, None
-    return "Tadeo", 0.9999
+    return "Cat", 0.9
 
 
 def classify_process():
@@ -59,17 +59,14 @@ def classify_process():
         image_name = msg["image_name"]
 
         #   2. Run your ML model on the given data
-        prediction = predict(image_name)
+        prediction, score = predict(image_name)
 
         #   3. Store model prediction in a dict with the following shape:
         #      {
         #         "prediction": str,
         #         "score": float,
         #      }
-        pred_dict = dict()
-
-        pred_dict["prediction"] = prediction[0]
-        pred_dict["score"] = prediction[1]
+        pred_dict = {"prediction":prediction, "score":score}
 
         #   4. Store the results on Redis using the original job ID as the key
         #      so the API can match the results it gets to the original job
@@ -86,5 +83,5 @@ def classify_process():
 
 if __name__ == "__main__":
     # Now launch process
-    print("Launching ML service...")
+    print("Launching ML service...#############################################################################################")
     classify_process()

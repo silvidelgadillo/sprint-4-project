@@ -66,12 +66,12 @@ def model_predict(image_name):
         # Attempt to get model predictions using job_id
         # Hint: Investigate how can we get a value using a key from Redis
 
-        if db.exists(job_id):
+        if db.get(job_id):
             output = db.get(job_id)
             output = json.loads(output)
             prediction = output["prediction"]
             score = output["score"]
-            
+
             db.delete(job_id)
             break
 
