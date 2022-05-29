@@ -1,7 +1,12 @@
+from tensorflow.keras.applications import resnet50
+from tensorflow.keras.preprocessing import image
+
 import time
 import redis
 import json
 import settings
+import os
+import numpy as np
 
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
@@ -15,7 +20,7 @@ assert db.ping, "Unable to connect to redis"
 
 # TODO
 # Load your ML model and assign to variable `model`
-model = None
+model = resnet50.ResNet50(include_top=True, weights="imagenet")
 
 
 def predict(image_name):
@@ -34,9 +39,18 @@ def predict(image_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-    # TODO
+    img = image.load_img(os.path.join(settings.UPLOAD_FOLDER, image_name), target_size=(224, 224))
+    x = image.img_to_array(img)
+    x = np.expand_dims(x, axis=0)
+    x = resnet50.preprocess_input(x)
 
-    return "Eskimo_dog", 0.9346
+    # Get predictions
+    preds = model.predict(x)
+    preds_decode = resnet50.decode_predictions(preds, top=1)
+    class_name = preds_decode[0][0][1]
+    score = round(float(preds_decode[0][0][2]), 4)
+
+    return class_name, score
 
 
 def classify_process():
