@@ -1,6 +1,6 @@
 import os
 import hashlib
-
+import settings
 
 def allowed_file(filename):
     """
@@ -45,3 +45,27 @@ def get_file_hash(file):
     file.seek(0)
 
     return str(md5hash) + str(split_file[1])
+
+def process_file(request, file_request):
+
+    # No file received, show basic UI
+    if file_request not in request.files:
+        return {'error': "No file part", 
+                'redirect_home': True, 
+                'valid': False, 'file_name': False}
+
+    # File received but no filename is provided, show basic UI
+    file = request.files[file_request]
+    if file.filename == "":
+        return {'error': "No image selected for uploading", 
+                'redirect_home': True, 
+                'valid': False,
+                'file_name': False}
+    
+    if file and allowed_file(file.filename):
+        file_name = get_file_hash(file)
+        file.save(os.path.join(settings.UPLOAD_FOLDER, file_name))
+        return {'error': None, 'redirect_home': False, 'valid': True, 'file_name': file_name}
+    
+    return {'error': 'Allowed image types are -> png, jpg, jpeg, gif', 
+            'redirect_home': False, 'valid': False, 'file_name': False}

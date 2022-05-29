@@ -1,3 +1,4 @@
+import re
 import utils
 import settings
 from middleware import model_predict
@@ -31,19 +32,17 @@ def upload_image():
     When it receives an image from the UI, it also calls our ML model to
     get and display the predictions.
     """
-    # No file received, show basic UI
-    if "file" not in request.files:
-        flash("No file part")
-        return redirect(request.url)
+    # process file
+    result = utils.process_file(request, "file")
 
-    # File received but no filename is provided, show basic UI
-    file = request.files["file"]
-    if file.filename == "":
-        flash("No image selected for uploading")
-        return redirect(request.url)
+    file_name = result['file_name']
 
-    # File received and it's an image, we must show it and get predictions
-    if file and utils.allowed_file(file.filename):
+    if not result['valid']:
+        flash(result['error'])
+        context = None
+        if(result['redirect_home']):
+            return redirect(request.url)
+    else:
         # In order to correctly display the image in the UI and get model
         # predictions you should implement the following:
         #   1. Get an unique file name using utils.get_file_hash() function
@@ -53,10 +52,6 @@ def upload_image():
         #            service using Redis.
         #   4. Update `context` dict with the corresponding values
 
-        file_name = utils.get_file_hash(file)
-
-        file.save(os.path.join(settings.UPLOAD_FOLDER, file_name))
-
         class_name, score = model_predict(file_name)
 
         context = {
@@ -65,14 +60,10 @@ def upload_image():
             "filename": file_name,
         }
 
-        # Update `render_template()` parameters as needed
-        return render_template(
-            "index.html", filename=file_name, context=context
-        )
-    # File received and but it isn't an image
-    else:
-        flash("Allowed image types are -> png, jpg, jpeg, gif")
-        return redirect(request.url)
+    # Update `render_template()` parameters as needed
+    return render_template(
+        "index.html", filename=file_name, context=context
+    )
 
 
 @router.route("/display/<filename>")
@@ -120,23 +111,19 @@ def predict():
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
     # 
-    if "file" in request.files:
 
-        file = request.files["file"]
+    # process file
+    result = utils.process_file(request, "file")
 
-        if file and utils.allowed_file(file.filename):
+    if not result['valid']:
+        rpse = {"success": False, "prediction": None, "score": None}
+        return jsonify(rpse), 400
 
-            file_name = utils.get_file_hash(file)
+    file_name = result['file_name']
 
-            file.save(os.path.join(settings.UPLOAD_FOLDER, file_name))
-
-            class_name, score = model_predict(file_name)
-            rpse = {"success": True, "prediction": class_name, "score": score}
-            return jsonify(rpse)
-
-    rpse = {"success": False, "prediction": None, "score": None}
-    return jsonify(rpse), 400
-
+    class_name, score = model_predict(file_name)
+    rpse = {"success": True, "prediction": class_name, "score": score}
+    return jsonify(rpse)
 
 
 @router.route("/feedback", methods=["GET", "POST"])
