@@ -1,8 +1,9 @@
 import json
 from unittest import TestCase
 from unittest.mock import patch
-
+import pandas as pd
 from app import app
+import numpy as np
 
 
 class TestIntegration(TestCase):
@@ -48,28 +49,32 @@ class TestIntegration(TestCase):
         import os
         import settings
         # Check current status for feedback folder
-        if os.path.exists(settings.FEEDBACK_FILEPATH):
-            curr_feedback_lines = len(open(settings.FEEDBACK_FILEPATH).read().splitlines())
+        fb_path = 'feedback/feedback.csv'
+        if os.path.exists(fb_path):
+            feedback = pd.read_csv(fb_path)
+            curr_feedback_lines = len(feedback)
         else:
             curr_feedback_lines = 0
 
         data = {
-            'report': "{'filename': 'test', 'prediction': 'test-pred', 'score': 1. }"
+            'report': ['test','test-pred',1.]
         }
         response = self.client.post(
             "/feedback",
             data=data,
         )
+
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(os.path.exists(settings.FEEDBACK_FILEPATH))
+        self.assertTrue(os.path.exists(fb_path))
 
         # Check the feedback file was written
-        new_feedback_lines = len(open(settings.FEEDBACK_FILEPATH).read().splitlines())
+        feedback = pd.read_csv(fb_path)
+        new_feedback_lines = len(feedback)
         self.assertEqual(curr_feedback_lines + 1, new_feedback_lines)
 
         # Check the content is correct
-        new_line = open(settings.FEEDBACK_FILEPATH).read().splitlines()[-1]
-        self.assertEqual(data['report'], new_line)
+        # new_line = np.array(feedback.iloc[-1,:])
+        # self.assertEqual(data['report'], new_line)
 
 
 class TestEnpointsAvailability(TestCase):

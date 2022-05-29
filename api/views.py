@@ -2,7 +2,7 @@ import json
 import utils
 import settings
 import os
-import middleware
+from middleware import model_predict
 import csv
 
 from flask import (
@@ -56,7 +56,7 @@ def upload_image():
             "score": None,
             "filename": None,
         }
-        results = middleware.model_predict(unique_file_name)
+        results = model_predict(unique_file_name)
         context.update({"prediction": results[0],
                         "score": results[1],
                         "filename": unique_file_name})
@@ -81,29 +81,25 @@ def display_image(filename):
 
 @router.route("/predict", methods=["POST"])
 def predict():
-    file = request.files["file"]
+    if 'file' in request.files:
+        file = request.files["file"]
 
-    if file and utils.allowed_file(file.filename):
-        unique_file_name = utils.get_file_hash(file)
-        path = os.path.join(settings.UPLOAD_FOLDER, unique_file_name)
-        if not os.path.exists(path):
-            file.save(path)
+        if file and utils.allowed_file(file.filename):
+            unique_file_name = utils.get_file_hash(file)
+            file.save(settings.UPLOAD_FOLDER + unique_file_name)
+            results = model_predict(unique_file_name)
 
-        results = middleware.model_predict(unique_file_name)
+            rpse = {"success": True, "prediction": results[0], "score": results[1]}
+            return jsonify(rpse)
 
-        rpse = {"success": True, "prediction": results[0], "score": results[1]}
-        return jsonify(rpse)
-
-    else:
-        rpse = {"success": False, "prediction": None, "score": None}
-        return jsonify(rpse), 400
+    rpse = {"success": False, "prediction": None, "score": None}
+    return jsonify(rpse), 400
 
 @router.route("/feedback", methods=["GET", "POST"])
 def feedback():
 
     # Get reported predictions from `report` key
     report = request.form.get("report")
-    # report = json.loads(report)
     fb_path =  'feedback/feedback.csv'
 
     if not os.path.exists(fb_path):
@@ -114,7 +110,8 @@ def feedback():
         flash('Thank you for your feedback!')
     else:
         with open(fb_path, 'a') as file:
-            file.write([report])
+            writer = csv.writer(file)
+            writer.writerow([report])
         flash('Thank you for your feedback!')
         
     return render_template("index.html")
