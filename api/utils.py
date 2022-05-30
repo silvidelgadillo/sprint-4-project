@@ -1,5 +1,5 @@
 import os
-import hashlib      #lo agrego yo
+import hashlib
 
 def allowed_file(filename):
     """
@@ -19,9 +19,9 @@ def allowed_file(filename):
     # Current implementation will allow any kind of file.
     # TODO
     try:
-        images_ext = {'.gif', '.jpeg', '.jpg', '.png'}
+        images_ext = {'.gif', '.jpeg', '.jpg', '.png'} #set para que sea mas rapido recorrerlo
         _, img_check = os.path.splitext(filename)    #como me devuelve un tupple ignoro la primer variable con _,
-        img_check = img_check.lower()
+        img_check = img_check.lower()                  #todas las extensiones en minuscula
 
     except IOError:
         print("===========Error fetching file format")
@@ -46,7 +46,6 @@ def get_file_hash(file):
     """
     # Current implementation will return the original file name.
     # TODO
-    # filename = os.path.basename(file.filename)
     _, split_file = os.path.splitext(file.filename)
     data = file.read()
     md5hash = hashlib.md5(data).hexdigest()

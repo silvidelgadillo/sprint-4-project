@@ -1,12 +1,19 @@
 import utils
+from middleware import model_predict
+import settings
+import json
+import os
+
 
 from flask import (
     Blueprint,
     flash,
     redirect,
     render_template,
+    jsonify,
     request,
     url_for,
+    make_response
 )
 
 router = Blueprint("app_router", __name__, template_folder="templates")
@@ -43,22 +50,28 @@ def upload_image():
         # In order to correctly display the image in the UI and get model
         # predictions you should implement the following:
         #   1. Get an unique file name using utils.get_file_hash() function
+        filename_hashed = utils.get_file_hash(file)
         #   2. Store the image to disk using the new name
+        path_to_save = settings.UPLOAD_FOLDER
+        if os.path.exists(filename_hashed) == False:
+            file.save(os.path.join(path_to_save, filename_hashed))
+            print('File saved in the upload folder')
         #   3. Send the file to be processed by the `model` service
         #      Hint: Use middleware.model_predict() for sending jobs to model
         #            service using Redis.
+        mod_predict, mod_score = model_predict(filename_hashed)
         #   4. Update `context` dict with the corresponding values
         # TODO
         context = {
-            "prediction": None,
-            "score": None,
-            "filename": None,
+            "prediction": mod_predict,
+            "score": mod_score,
+            "filename": filename_hashed,
         }
 
         # Update `render_template()` parameters as needed
         # TODO
         return render_template(
-            "index.html", filename=None, context=None
+            "index.html", filename=filename_hashed, context=context
         )
     # File received and but it isn't an image
     else:
@@ -103,16 +116,42 @@ def predict():
     """
     # To correctly implement this endpoint you should:
     #   1. Check a file was sent and that file is an image
-    #   2. Store the image to disk
+      # No file received, show basic UI
+    error_rpse = {"success": False, "prediction": None, "score": None}
+
+    # No file received, show basic UI
+    if "file" not in request.files:
+        return jsonify(error_rpse), 400
+
+    # # File received but no filename is provided, show basic UI
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify(error_rpse), 400
+
+    if file and utils.allowed_file(file.filename):
+
+        filename_hashed = utils.get_file_hash(file)
+        path_to_save = settings.UPLOAD_FOLDER
+        #   2. Store the image to disk
+        if os.path.exists(filename_hashed) == False:
+            file.save(os.path.join(path_to_save, filename_hashed))
+
     #   3. Send the file to be processed by the `model` service
     #      Hint: Use middleware.model_predict() for sending jobs to model
     #            service using Redis.
+        mod_predict, mod_score = model_predict(filename_hashed)
     #   4. Update and return `rpse` dict with the corresponding values
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
     # TODO
-    rpse = {"success": False, "prediction": None, "score": None}
-
+        rpse = {
+            "success": True,
+            "prediction": mod_predict,
+            "score": mod_score
+            }
+        return jsonify(rpse), 200
+    #if it is none of the above optionss
+    return jsonify(error_rpse), 400
 
 @router.route("/feedback", methods=["GET", "POST"])
 def feedback():
@@ -141,5 +180,5 @@ def feedback():
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
     # TODO
-
-    return render_template("index.html")
+    return report
+    # return render_template("index.html")
