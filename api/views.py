@@ -1,4 +1,20 @@
+## so as everything done here brings the utils we define previously
+from asyncio import FastChildWatcher
+
 import utils
+import os
+import os.path
+import settings
+import middleware
+from utils import get_file_hash
+
+## views = different endpoints of the API
+## flask is the background to code in API
+## blueprint --> divide the code
+## flash --> print
+## redirect --> navigate inside API
+## request --> ask the API something but positioning in the endpoint
+## url --> returns the route of the transaction made
 
 from flask import (
     Blueprint,
@@ -9,8 +25,11 @@ from flask import (
     url_for,
 )
 
+## here we inicialize the API
+
 router = Blueprint("app_router", __name__, template_folder="templates")
 
+## define the endpoints (index, upload image, display image, predict, playback, feedback)
 
 @router.route("/", methods=["GET"])
 def index():
@@ -27,7 +46,7 @@ def upload_image():
     When it receives an image from the UI, it also calls our ML model to
     get and display the predictions.
     """
-    # No file received, show basic UI
+    # No file received, show basic User Interface
     if "file" not in request.files:
         flash("No file part")
         return redirect(request.url)
@@ -42,23 +61,39 @@ def upload_image():
     if file and utils.allowed_file(file.filename):
         # In order to correctly display the image in the UI and get model
         # predictions you should implement the following:
+        
         #   1. Get an unique file name using utils.get_file_hash() function
+        # Here we define the variable with the utils function "get file hash" we define in utils.py
+        new_file = utils.get_file_hash(file)
+        
         #   2. Store the image to disk using the new name
+        ## store image (os.path so as not to replace images if they are the same)
+        ## if path does not exist creat a new one
+        ## check it out: https://www.geeksforgeeks.org/python-os-path-lexists-method/
+        #if os.path.lexists(new_file.path) == False:            
+        #file.save(os.path.join(file, new_file))
+        file.save(os.path.join(settings.UPLOAD_FOLDER, new_file))
+
+
         #   3. Send the file to be processed by the `model` service
         #      Hint: Use middleware.model_predict() for sending jobs to model
         #            service using Redis.
+
+        predict, score = middleware.model_predict(new_file)
+
         #   4. Update `context` dict with the corresponding values
-        # TODO
+        ## values of dictionary are actualized
+
         context = {
-            "prediction": None,
-            "score": None,
-            "filename": None,
+            "prediction": predict,
+            "score": score,
+            "filename": new_file,
         }
 
         # Update `render_template()` parameters as needed
         # TODO
         return render_template(
-            "index.html", filename=None, context=None
+            "index.html", filename = new_file, context = context
         )
     # File received and but it isn't an image
     else:

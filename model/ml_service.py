@@ -1,16 +1,35 @@
-import time
+## here we get the middleware info and process it
 
+import time
+import redis
 import settings
+import json
+
+from tensorflow.keras.applications import resnet50
+from tensorflow.keras.preprocessing import image
+from keras.preprocessing.image import image
+from keras.preprocessing.image import img_to_array
+from keras.applications.resnet50 import preprocess_input
+from keras.applications.resnet50 import ResNet50, decode_predictions
+import matplotlib.pyplot as plt
+import numpy as np
+
+# find info at: https://medium.com/@nina95dan/simple-image-classification-with-resnet-50-334366e7311a
+
 
 
 # TODO
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
-db = None
+db = redis.Redis(       
+    host = settings.REDIS_IP, 
+    port = settings.REDIS_PORT, 
+    db   = settings.REDIS_DB_ID
+)
 
 # TODO
 # Load your ML model and assign to variable `model`
-model = None
+model = resnet50.ResNet50(include_top = True, weights = "imagenet")
 
 
 def predict(image_name):
@@ -30,8 +49,24 @@ def predict(image_name):
         score as a number.
     """
     # TODO
+    ## 1°img --> define a str with the route of the file and the file name, the target size is recommendation of Pablo
+    img = image.load_img(f"{settings.UPLOAD_FOLDER}{image_name}", target_size = (224, 224))
+    ## 2°img --> transform to an array
+    img = image.img_to_array(img)
+    img = np.expand_dims(img, axis = 0)
+    ## 3°img --> apply resnet50 for preprocessing what we need with that image uploaded
+    img = resnet50.preprocess_input(img)
 
-    return None, None
+
+    # Get predictions
+    preds = model.predict(img)
+    ## define a variable where I save the prediction of the image, and bring only the top 1, the best of the predictions
+    img_predict = resnet50.decode_predictions(preds, top=1)
+    ## the result is a list, within an other list, within a tupple,
+    ## I need the position 0 of the first list, 0 of the second list and only position 1 and 2 of the tupple, so:
+    _, class_name, pred_probaility = img_predict[0][0]
+    
+    return class_name, float(pred_probaility)
 
 
 def classify_process():
@@ -60,6 +95,21 @@ def classify_process():
         # Hint: You should be able to successfully implement the communication
         #       code with Redis making use of functions `brpop()` and `set()`.
         # TODO
+
+
+        ## db = redis, brings the 1 of the queue and brings back a string
+        _, data_json = db.brpop(settings.REDIS_QUEUE) # brpop calls the first of queue and brings back name of queue and json en string, with _, I forget about the first and keep only the second part
+       
+        ## transform into dictionary what I get from brpop
+        data_dictionary = json.loads(data_json) # here job_id and name
+
+        ## call model
+        class_name, score = predict(data_dictionary["image_name"])  # image_name comes from middleware
+
+        ## send with middleware to redis
+        prediction_dictionary = {"prediction": class_name, "score": score}
+
+        db.set(data_dictionary["id"], json.dumps(prediction_dictionary))  # id comes from middleware
 
         # Don't forget to sleep for a bit at the end
         time.sleep(settings.SERVER_SLEEP)
