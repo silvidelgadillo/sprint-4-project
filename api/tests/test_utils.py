@@ -1,6 +1,5 @@
 import os
 from unittest import TestCase
-
 from werkzeug.datastructures import FileStorage
 
 import utils
