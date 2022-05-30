@@ -4,18 +4,12 @@ import time
 import redis
 import settings
 import json
+import numpy as np
 
 from tensorflow.keras.applications import resnet50
 from tensorflow.keras.preprocessing import image
-from keras.preprocessing.image import image
-from keras.preprocessing.image import img_to_array
-from keras.applications.resnet50 import preprocess_input
-from keras.applications.resnet50 import ResNet50, decode_predictions
-import matplotlib.pyplot as plt
-import numpy as np
 
 # find info at: https://medium.com/@nina95dan/simple-image-classification-with-resnet-50-334366e7311a
-
 
 
 # TODO
@@ -50,6 +44,7 @@ def predict(image_name):
     """
     # TODO
     ## 1°img --> define a str with the route of the file and the file name, the target size is recommendation of Pablo
+    ## settings upload folder is a string (the rout of the image) and the image name
     img = image.load_img(f"{settings.UPLOAD_FOLDER}{image_name}", target_size = (224, 224))
     ## 2°img --> transform to an array
     img = image.img_to_array(img)
@@ -64,9 +59,9 @@ def predict(image_name):
     img_predict = resnet50.decode_predictions(preds, top=1)
     ## the result is a list, within an other list, within a tupple,
     ## I need the position 0 of the first list, 0 of the second list and only position 1 and 2 of the tupple, so:
-    _, class_name, pred_probaility = img_predict[0][0]
+    _, class_name, pred_probability = img_predict[0][0]
     
-    return class_name, float(pred_probaility)
+    return class_name, float(pred_probability)
 
 
 def classify_process():
