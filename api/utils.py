@@ -20,10 +20,8 @@ def allowed_file(filename):
     # TODO
     extensions = {'.jpg', '.png', '.jpeg', '.gif'}
     _, ext = os.path.splitext(filename)
-    if ext.lower() in extensions:
-      return True
-    else:
-      return False
+    validation = ext.lower() in extensions
+      return validation
 
 
 def get_file_hash(file):
