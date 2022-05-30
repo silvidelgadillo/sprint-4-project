@@ -22,7 +22,7 @@ services:
 
   redis:
     image: redis:6.2.6
-    container_name: sprint-4-redis-1
+    container_name: sprint-4-project_redis_1
     ports:
       - "6379:6379"
 

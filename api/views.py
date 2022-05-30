@@ -1,5 +1,7 @@
+from api.settings import UPLOAD_FOLDER
 import utils
-import middleware
+from middleware import model_predict
+import os
 
 from flask import (
     Blueprint,
@@ -9,9 +11,6 @@ from flask import (
     request,
     url_for,
 )
-
-# https://flask.palletsprojects.com/en/2.1.x/quickstart/
-# https://flask.palletsprojects.com/en/2.1.x/patterns/fileuploads/
 
 router = Blueprint("app_router", __name__, template_folder="templates")
 
@@ -42,14 +41,9 @@ def upload_image():
         flash("No image selected for uploading")
         return redirect(request.url)
 
-    # from werkzeug.utils import secure_filename
-    # if file and utils.allowed_file(file.filename):
-    #     filename = secure_filename(file.filename).
-    #     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    #     return redirect(url_for('download_file', name=filename))
-
     # File received and it's an image, we must show it and get predictions
     if file and utils.allowed_file(file.filename):
+
         # In order to correctly display the image in the UI and get model
         # predictions you should implement the following:
         
@@ -57,8 +51,11 @@ def upload_image():
         filename_hash = utils.get_file_hash(file)
 
         #   2. Store the image to disk using the new name
-        upload_msg_return = utils.save_file(file)
-        print(upload_msg_return)
+        # uploaded_file_code = utils.save_file(file,filename_hash)
+        # completeName = os.path.join(UPLOAD_FOLDER, filename_hash)
+        # file1 = open(completeName, "w")
+        # file1.write("file information")
+        # file1.close()
 
         #   3. Send the file to be processed by the `model` service
         #      Hint: Use middleware.model_predict() for sending jobs to model  <<<<<<<<<<<<<

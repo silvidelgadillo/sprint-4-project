@@ -1,4 +1,5 @@
 import time
+import uuid
 import redis
 import settings
 
@@ -10,7 +11,7 @@ db = redis.Redis(
     port=settings.REDIS_PORT,
     db=settings.REDIS_DB_ID
 )
-assert db.ping()  # api connection checkpoint
+# assert db.ping()  # api connection checkpoint
 
 def model_predict(image_name):
     """
@@ -32,7 +33,7 @@ def model_predict(image_name):
     # We need to assing this ID because we must be able to keep track
     # of this particular job across all the services
     # TODO
-    job_id = None
+    # job_id = str(uuid.uuid4())
 
     # Create a dict with the job data we will send through Redis having the
     # following shape:
@@ -40,8 +41,11 @@ def model_predict(image_name):
     #    "id": str,
     #    "image_name": str,
     # }
-    # TODO
-    job_data = None
+    # # TODO
+    # job_data = {
+    #     "id": job_id
+    #     "image_name": image_name
+    # }
 
     # Send the job to the model service using Redis
     # Hint: Using Redis `rpush()` function should be enough to accomplish this.
