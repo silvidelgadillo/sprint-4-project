@@ -1,16 +1,26 @@
+import json
 import time
-
+import redis
 import settings
+from tensorflow.keras.applications import resnet50
+from tensorflow.keras.preprocessing import image
+import numpy as np
+
 
 
 # TODO
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
-db = None
+db = redis.Redis(
+   host = settings.REDIS_IP,
+   port = settings.REDIS_PORT,
+   db = settings.REDIS_DB_ID
+   )
+
 
 # TODO
 # Load your ML model and assign to variable `model`
-model = None
+model = resnet50.ResNet50(include_top=True, weights="imagenet")
 
 
 def predict(image_name):
@@ -31,7 +41,25 @@ def predict(image_name):
     """
     # TODO
 
-    return None, None
+    # Load image
+    img = image.load_img(settings.UPLOAD_FOLDER + image_name,target_size=(224, 224))
+
+    # Create array 
+    x = image.img_to_array(img)
+    
+    # Create expand
+    x = np.expand_dims(x, axis=0)
+    
+    # Preprocess
+    x = resnet50.preprocess_input(x)
+
+    # Get predictions
+    preds = model.predict(x)
+
+    # Result 
+    res = resnet50.decode_predictions(preds, top=1)[0]
+
+    return [res[0][1],res[0][2]]
 
 
 def classify_process():
@@ -62,7 +90,33 @@ def classify_process():
         # TODO
 
         # Don't forget to sleep for a bit at the end
+
+
+        # Get job
+        id,job_data = db.blpop(settings.REDIS_QUEUE)
+
+        # Read job
+        read_job = json.loads(job_data)
+
+        # Create predict
+        pred1,pred2 = predict(read_job['image'])
+
+        # Generete Dictionary
+        dict = {
+                 "prediction":pred1,
+                 "score": float(pred2) 
+              }
+
+        # Transform dict
+        dict = json.dumps(dict)
+
+        # Set job
+        db.set(read_job['id'],dict)
+
+        # Sleep
         time.sleep(settings.SERVER_SLEEP)
+
+       
 
 
 if __name__ == "__main__":

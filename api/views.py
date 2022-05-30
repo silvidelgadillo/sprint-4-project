@@ -1,5 +1,15 @@
-import utils
+#from types import NoneType
+#from api import middleware
+#from fileinput import filename
+import json
+import os
+from urllib import response
 
+#from matplotlib.style import context
+import utils
+from werkzeug.utils import secure_filename
+import settings
+from middleware import model_predict
 from flask import (
     Blueprint,
     flash,
@@ -7,6 +17,7 @@ from flask import (
     render_template,
     request,
     url_for,
+    make_response,
 )
 
 router = Blueprint("app_router", __name__, template_folder="templates")
@@ -49,17 +60,36 @@ def upload_image():
         #            service using Redis.
         #   4. Update `context` dict with the corresponding values
         # TODO
-        context = {
-            "prediction": None,
-            "score": None,
-            "filename": None,
-        }
+        
+        # Create hash
+        new_image = utils.get_file_hash(file)
+        file.filename = new_image
+        
+        # Create secure_filename 
+        filename = secure_filename(new_image)
 
+      
+            
+        # Save image
+        file.save(os.path.join(settings.UPLOAD_FOLDER,filename))
+
+        fun = model_predict(file.filename)
+        
+
+
+        # Create context
+        context = {
+            "prediction": fun[0],
+            "score": fun[1],
+            "filename": new_image
+        }
+        
         # Update `render_template()` parameters as needed
         # TODO
         return render_template(
-            "index.html", filename=None, context=None
+            "index.html", filename=file.filename , context=context
         )
+
     # File received and but it isn't an image
     else:
         flash("Allowed image types are -> png, jpg, jpeg, gif")
@@ -111,7 +141,41 @@ def predict():
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
     # TODO
-    rpse = {"success": False, "prediction": None, "score": None}
+    # No file received, show basic UI
+    if "file" not in request.files:
+        flash("No file part")
+        return make_response({"success": False, "prediction":None, "score": None}, 400)
+
+
+    # File received but no filename is provided, show basic UI
+    file = request.files["file"]
+    if file.filename == "":
+        flash("No image selected for uploading")
+        return make_response({"success": False, "prediction":None, "score": None}, 400)
+
+
+    # Verify file
+    if file and utils.allowed_file(file.filename):
+
+            # Hash image
+            new_image = utils.get_file_hash(file)
+            file.filename = new_image
+
+            # If not exists
+            if not os.path.exists(os.path.join(settings.UPLOAD_FOLDER,file.filename)):
+       
+                # Save image
+                file.save(os.path.join(settings.UPLOAD_FOLDER,file.filename))
+
+            # Create response
+            rpse = {"success": True, "prediction": model_predict(file.filename)[0], "score": model_predict(file.filename)[1]}
+            
+            return make_response(rpse, 200)
+    
+    # Bad error        
+    else:
+
+        return make_response({"success": False, "prediction":None, "score": None}, 400)
 
 
 @router.route("/feedback", methods=["GET", "POST"])
@@ -142,4 +206,14 @@ def feedback():
     # already provided in settings.py module
     # TODO
 
+    # Open 
+    arch = open(settings.FEEDBACK_FILEPATH,'a')
+
+    # Write feedback
+    arch.write(str(report))
+    arch.write("\n")
+   
+    # Close 
+    arch.close()
+    
     return render_template("index.html")
