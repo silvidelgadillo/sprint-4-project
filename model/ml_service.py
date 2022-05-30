@@ -2,9 +2,9 @@ import time
 import settings
 import redis
 import json
-#from tensorflow.keras.applications import resnet50
-#from tensorflow.keras.preprocessing import image
-
+from tensorflow.keras.applications import resnet50
+from tensorflow.keras.preprocessing import image
+import numpy as np
 
 # REDIS
 # Redis es un motor de base de datos en memoria, basado en el almacenamiento
@@ -33,7 +33,7 @@ db = redis.Redis(
 
 
 # Load your ML model and assign to variable `model`
-#model = resnet50.ResNet50(include_top=True, weights="imagenet")
+model = resnet50.ResNet50(include_top=True, weights="imagenet")
 
 
 
@@ -53,19 +53,17 @@ def predict(image_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-    # TODO VERRRR ESTA MAL!! 
     
-    image_name =  db.brpop(settings.UPLOAD_FOLDER["uploads/"])
-    #image_name = image.load_img(image_name, target_size=(224, 224))
+    image_name = image.load_img(settings.UPLOAD_FOLDER + image_name, target_size=(224, 224))
     image_array = image.img_to_array(image_name)
     image_expand = np.expand_dims(image_array, axis=0)
-    image_preproce = model.preprocess_input(image_expand)
+    image_preproce = resnet50.preprocess_input(image_expand)
     preds_resnet50 = model.predict(image_preproce)
-    preds_decode = model.decode_predictions(preds_resnet50, top=1)
-    class_name = preds_decode[1]
-    pred_probability = round(preds_decode[2], decimal=4)
+    preds_decode = resnet50.decode_predictions(preds_resnet50, top=1)
+    class_name = preds_decode[0][0][1]
+    pred_probability = f'{preds_decode[0][0][2]:.2%}'
     
-    return class_name, pred_probability
+    return class_name, str(pred_probability)
     
 
 def classify_process():
@@ -95,7 +93,6 @@ def classify_process():
         #       code with Redis making use of functions `brpop()` and `set()`.
         
         # traigo lo primero que esta en queue
-        print("hola")
         _, data_json = db.brpop(settings.REDIS_QUEUE)
         data_dict = json.loads(data_json) # convert JSON str to a dict of Python
         prediction, score = predict(data_dict["image_name"])

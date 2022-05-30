@@ -3,4 +3,4 @@ pytest==7.1.1
 redis==4.1.4
 tensorflow==2.8.0
 numpy==1.21.2
-#rotobuf~=3.19.0
+protobuf==3.19.0
