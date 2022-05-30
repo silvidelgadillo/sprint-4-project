@@ -18,10 +18,11 @@
 <body>
     <!-- HEADER -->
     <header>
-        <img
-          src="{{ url_for('static', filename='images/logo_anyone.png') }}" 
-          alt="Anyone AI Logo" 
-          id="anyone-logo"/>
+        <a href="https://anyoneai.com/" target="_blank">
+            <img src="{{ url_for('static', filename='images/logo_anyone.png') }}" 
+              alt="Anyone AI Logo" 
+              id="anyone-logo"/>
+        </a>
     </header>
 
     <hr style="margin-inline: -10px;">
@@ -56,8 +57,12 @@
             {% if context['prediction'] %}
                 
                 <div id="prediction">
-                    <p>Predicted class: {{ context['prediction'] }} </p><br>
-                    <p>Score: {{ context['score'] }} </p>
+                    <div>
+                        <p class="prediction-text">Predicted class: {{ context['prediction'] }} </p>
+                    </div>
+                    <div>
+                        <p class="prediction-text">Score: {{ context['score'] }} </p>
+                    </div>
                 </div>
                 
                 <form id="form" method="POST" action="/feedback">
@@ -65,22 +70,26 @@
                         <button type="submit" class="button">Report incorrect answer</button>
                     </div>
                     <div id="report">
-                        <input name="report" style="visibility: hidden;" value="{'filename': '{{ filename }}', 'prediction': '{{ context['prediction'] }}', 'score': {{ context['score'] }} }"/>
+                        <input name="report" id="report-hidden" value="{'filename': '{{ filename }}', 'prediction': '{{ context['prediction'] }}', 'score': {{ context['score'] }} }"/>
                     </div>
                 </form>
             {% endif %}
+            
+            <h3 id="instruction">Upload another image</h3>
+
         {% endif %}
 
     </section>
 
     <form method="post" action="/" enctype="multipart/form-data">
-        <div id="container">
-            <div id="upload-section">
-                <input type="file" name="file" autocomplete="off" required class="select-file">
-                <br>
-                <input type="submit" value="Submit" class="button">
-            </div>
+        
+        <div id="upload-section">
+            <input type="file" name="file" autocomplete="off" required class="select-file">
         </div>
+        <div id="upload-section">
+            <input type="submit" value="Upload" class="button">
+        </div>
+
     </form>
 
     <!-- CONTACT ME -->

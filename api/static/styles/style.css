@@ -16,25 +16,18 @@ body {
 }
 
 #instruction {
-    margin-top: 3em;
+    margin: 1.5cm;
     text-align: center;
     color: whitesmoke;
     font-weight: normal;
+    font-size: 175%;
 }
 
 /* UPLOAD SECTION */
-#container {
-    height: 200px;
-    position: relative;
-}
 
 #upload-section {
-    margin: 0;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    -ms-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
 }
 
 .button {
@@ -42,7 +35,7 @@ body {
     text-transform: uppercase;
     border-radius: 8px;
     background: linear-gradient(#07F9B5, #95e1dc);
-    border: 1px solid black;
+    border: 1px solid #2A2E37;
     color: #2A2E37;
     text-align: center;
     font-size: 28px;
@@ -50,7 +43,7 @@ body {
     width: 300px;
     transition: all 0.5s;
     cursor: pointer;
-    margin: 30px;
+    margin: 1.5cm;
 }
 
 .button:hover {
@@ -77,19 +70,15 @@ body {
 }
 
 .select-file {
-    display: inline-flex;
-    position: relative;
     font-family: 'Kamerik 105 Cyrillic';
     text-transform: uppercase;
     border-radius: 8px;
     background: linear-gradient(#07F9B5, #95e1dc);
-    border: 4px solid #2A2E37;
+    border: 2px solid #2A2E37;
     color: #2A2E37;
     text-align: center;
     font-size: 23px;
     padding: 20px;
-    margin-top: 10%;
-    margin-left: 1.8%;
     transition: all 0.5s;
     cursor: pointer;
 }
@@ -108,11 +97,11 @@ body {
 }
 
 header {
-    background-color: #293A62;
-    height: 6em;
-    margin: -10px;
     display: flex;
     justify-content: center;
+    background-color: #293A62;
+    height: 6em;
+    margin: -10px; 
 }
 
 footer {
@@ -161,11 +150,38 @@ footer {
 }
 
 #prediction {
-    display: flex;
-    justify-content: center;
+    display: block;
+    position: relative;
+    margin-top: 2cm;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #293A62;
+    border: 5px solid whitesmoke;
+    text-align: center;
+    width: fit-content;
+    border-radius: 0.5cm;
+    transition: 0.5s;
+}
+
+#prediction:hover {
+    transition: 0.5s;
+    -ms-transform: scale(115%);
+    transform: scale(115%);
 }
 
 #report {
     display: flex;
     justify-content: center;
+}
+
+.prediction-text {
+    font-size: 35px;
+    font-weight: bold;
+    margin: 1cm;
+}
+
+#report-hidden {
+    visibility: hidden;
+    height: 0px;
+    width: 0px;
 }
