@@ -11,6 +11,7 @@ import os
 from flask import (
     Blueprint,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -166,12 +167,13 @@ def predict():
     # should return `rpse` dict with default values HTTP 400 Bad Request code
     # TODO !!!
     
-    #if file and utils.allowed_file() # 1
-    #file.save(os.path.join(settings.UPLOAD_FOLDER, file_name)) # 2 
-    
-    
-    rpse = {"success": False, "prediction": None, "score": None}
+    file = request.files["file"]
+    if file and utils.allowed_file(file.filename): # 1
+        file.save(os.path.join(settings.UPLOAD_FOLDER, filename)) # 2 
+    prediction, score = middleware.model_predict(file) # 3
+    rpse = {"success": True, "prediction": {prediction}, "score": {score}}
 
+    return jsonify(rpse)
 
 @router.route("/feedback", methods=["GET", "POST"])
 def feedback():
@@ -199,10 +201,14 @@ def feedback():
 
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
-    # TODO
-
+    # TODO !!!
+    '''
+    file.save(os.path.join(settings.FEEDBACK_FILEPATH, report))
+    
+    pasr json a dict
+    
     return render_template("index.html")
-
+    '''
 
 
 
