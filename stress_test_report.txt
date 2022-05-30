@@ -13,12 +13,12 @@ Report:
 1 instance:
 1 user, no failure
 5 users, no failure
-10 users, 2% failure but continues running
+10 users, 2% failure for /predict but continues running (due to a critical worker timeout)
 
 2 instances:
 1 user, no failure
 5 users, no failure
-10 users, 62% failure and service crashes for /predict
+10 users, 62% failure and service crashes for /predict (due to a critical worker timeout)
 
 3 instances:
-1 user, 67% failure and service crashes for /predict
+1 user, 67% failure and service crashes for /predict (due to a critical worker timeout)
