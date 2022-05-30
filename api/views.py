@@ -150,7 +150,7 @@ def predict():
                  "prediction": predict,
                   "score": score}
 
-        return jsonify(rpse)
+        return jsonify(rpse),200
     else:
         return jsonify(rpse),400
 
@@ -185,5 +185,7 @@ def feedback():
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
     # TODO
+    with open(settings.FEEDBACK_FILEPATH , 'a') as f:
+            f.write(str(report) + '\n')
 
     return render_template("index.html")
