@@ -1,4 +1,7 @@
 import utils
+import os
+import settings
+from middleware import model_predict
 
 from flask import (
     Blueprint,
@@ -50,8 +53,8 @@ def upload_image():
         #   4. Update `context` dict with the corresponding values
         # TODO
         name_hash = utils.get_file_hash(file)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], name_hash))
-        prediction, score = middleware.model_predict(name_hash)
+        file.save(os.path.join(settings.UPLOAD_FOLDER, name_hash))
+        prediction, score = model_predict(name_hash)
         context = {
             "prediction": prediction,
             "score": score,

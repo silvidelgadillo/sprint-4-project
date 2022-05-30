@@ -44,7 +44,7 @@ def model_predict(image_name):
     # }
     # TODO
     job_data = {
-      "id":job_id
+      "id":job_id,
       "image_name":image_name
     }
 
@@ -58,15 +58,17 @@ def model_predict(image_name):
         # Attempt to get model predictions using job_id
         # Hint: Investigate how can we get a value using a key from Redis
         # TODO
-        output = db.get(job_data["id"])
-        output_dict = json.loads(output)
+        if db.get(job_id):
+          output = json.loads(db.get(job_id))
+          db.delete(job_id)
+          break
 
         # Don't forget to delete the job from Redis after we get the results!
         # Then exit the loop
         # TODO
-        db.delete(job_data["id"])
 
         # Sleep some time waiting for model results
         time.sleep(settings.API_SLEEP)
 
-    return output_dict["prediction"], output_dict["score"]
+    return tuple([output["prediction"], output["score"]])
+

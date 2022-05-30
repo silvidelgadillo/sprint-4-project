@@ -1,6 +1,7 @@
 import time
-
+import redis
 import settings
+import json
 
 
 # TODO
@@ -35,7 +36,7 @@ def predict(image_name):
     """
     # TODO
 
-    return "Rata", 100.0
+    return "Rata", 99.9
 
 
 def classify_process():
@@ -68,7 +69,7 @@ def classify_process():
         msg = json.loads(msg)
         pred_class, pred_score = predict(msg['image_name'])
         prediction = {
-          "prediction":pred_class
+          "prediction":pred_class,
           "score":pred_score
         }
         db.set(msg["id"], json.dumps(prediction))

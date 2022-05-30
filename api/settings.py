@@ -19,7 +19,7 @@ REDIS_PORT = 6379
 # DB Id
 REDIS_DB_ID = 0
 # Host IP
-REDIS_IP = "0.0.0.0"
+REDIS_IP = "redis"
 # Sleep parameters which manages the
 # interval between requests to our redis queue
 API_SLEEP = 0.05
