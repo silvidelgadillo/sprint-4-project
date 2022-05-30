@@ -21,7 +21,7 @@ def allowed_file(filename):
     extensions = {'.jpg', '.png', '.jpeg', '.gif'}
     _, ext = os.path.splitext(filename)
     validation = ext.lower() in extensions
-      return validation
+    return validation
 
 
 def get_file_hash(file):
