@@ -56,7 +56,7 @@ def upload_image():
         prediction, score = model_predict(hash_imgname)
 
         context = {
-            "prediction": prediction,
+            "prediction": utils.get_hr_class(prediction),
             "score": score,
             "filename": hash_imgname,
         }

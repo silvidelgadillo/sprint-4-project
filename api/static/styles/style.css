@@ -1,0 +1,162 @@
+@import url("../fonts/stylesheet.css");
+
+body {
+    background-color: #192B56;
+    font-family: 'Kamerik 105 Cyrillic';
+    word-spacing: 0.3em;
+    letter-spacing: 0.07em;
+}
+
+#title {
+    margin-top: 2em;
+    font-size: 3em;
+    text-align: center;
+    color: #09F8AD;
+    text-transform: uppercase;
+}
+
+#instruction {
+    margin-top: 3em;
+    text-align: center;
+    color: whitesmoke;
+    font-weight: normal;
+}
+
+/* UPLOAD SECTION */
+#container {
+    height: 200px;
+    position: relative;
+}
+
+#upload-section {
+    border: 3px solid green;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.button {
+    font-family: 'Kamerik 105 Cyrillic';
+    text-transform: uppercase;
+    border-radius: 8px;
+    background: linear-gradient(#07F9B5, #95e1dc);
+    border: 1px solid black;
+    color: #2A2E37;
+    text-align: center;
+    font-size: 28px;
+    padding: 20px;
+    width: 300px;
+    transition: all 0.5s;
+    cursor: pointer;
+    margin: 30px;
+}
+
+.button:hover {
+    transition: 0.5s;
+    -ms-transform: scale(115%);
+    transform: scale(115%);
+    border-radius: 10px;
+}
+
+.button:active {
+    transition: 0s;
+    -ms-transform: scale(100%);
+    transform: scale(100%);
+}
+
+.select-file {
+    width: 300px;
+}
+
+.select-file::-webkit-file-upload-button {
+    visibility: hidden;
+    height: 0%;
+    width: 0%;
+}
+
+.select-file {
+    display: inline-flex;
+    position: relative;
+    font-family: 'Kamerik 105 Cyrillic';
+    text-transform: uppercase;
+    border-radius: 8px;
+    background: linear-gradient(#07F9B5, #95e1dc);
+    border: 4px solid #2A2E37;
+    color: #2A2E37;
+    text-align: center;
+    font-size: 23px;
+    padding: 20px;
+    margin-top: 10%;
+    margin-left: 1.8%;
+    transition: all 0.5s;
+    cursor: pointer;
+}
+
+.select-file:hover {
+    transition: 0.5s;
+    -ms-transform: scale(115%);
+    transform: scale(115%);
+    border-radius: 10px;
+}
+
+.select-file:active {
+    transition: 0s;
+    -ms-transform: scale(100%);
+    transform: scale(100%);
+}
+
+header {
+    background-color: #293A62;
+    height: 6em;
+    margin: -10px;
+    display: flex;
+    justify-content: center;
+}
+
+footer {
+    position: fixed;
+    bottom: 0em;
+    display: flex;
+    justify-content: center;
+    color: whitesmoke;
+}
+
+#linkedin-link {
+    float: left;
+    margin-top: 1em;
+    margin-right: 1em;
+}
+
+#linkedin-logo {
+    transition: 0.5s;
+    height: 2em;
+    width: auto;
+}
+
+#linkedin-logo:hover {
+    transition: 0.5s;
+    -ms-transform: scale(115%);
+    transform: scale(115%);
+}
+
+#anyone-logo {
+    height: 6em;
+}
+
+#contact {
+    margin-top: 1.2em;
+    margin-right: 1em;
+}
+
+#uploaded-image-container {
+    display: flex;
+    justify-content: center;
+}
+
+#uploaded-image {
+    height: 10cm;
+    width: auto;
+}
