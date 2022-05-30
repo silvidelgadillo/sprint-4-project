@@ -6,7 +6,11 @@ import settings
 # TODO
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
-db = None
+db = redis.Redis(
+    host=settings.REDIS_IP, 
+    port=settings.REDIS_PORT, 
+    db=settings.REDIS_DB_ID
+)
 
 # TODO
 # Load your ML model and assign to variable `model`
@@ -31,7 +35,7 @@ def predict(image_name):
     """
     # TODO
 
-    return None, None
+    return "Rata", 100.0
 
 
 def classify_process():
@@ -60,6 +64,14 @@ def classify_process():
         # Hint: You should be able to successfully implement the communication
         #       code with Redis making use of functions `brpop()` and `set()`.
         # TODO
+        queue_name, msg = db.brpop(settings.REDIS_QUEUE)
+        msg = json.loads(msg)
+        pred_class, pred_score = predict(msg['image_name'])
+        prediction = {
+          "prediction":pred_class
+          "score":pred_score
+        }
+        db.set(msg["id"], json.dumps(prediction))
 
         # Don't forget to sleep for a bit at the end
         time.sleep(settings.SERVER_SLEEP)
