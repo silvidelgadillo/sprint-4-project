@@ -39,7 +39,9 @@
                 </div>
             <form id="form" method="POST" action="/feedback">
                 <button class='report' type="submit">Report incorrect answer</button>
-                <input name="report" style="visibility: hidden;" value={{filename}},{{context['prediction']}},{{context['score']}}/>
+                <input name="report1" style="visibility: hidden;" value={{filename}}>
+                <input name="report2" style="visibility: hidden;" value={{context['prediction']}}>
+                <input name="report3" style="visibility: hidden;" value={{context['score']}}>
             </form>
         {% endif %}
     {% endif %}

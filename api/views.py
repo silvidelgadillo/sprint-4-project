@@ -99,19 +99,21 @@ def predict():
 def feedback():
 
     # Get reported predictions from `report` key
-    report = request.form.get("report")
-    fb_path =  'feedback/feedback.csv'
+    report1 = request.form.get("report1")
+    report2 = request.form.get("report2")
+    report3 = request.form.get("report3")
+    fb_path =  settings.FEEDBACK_FILEPATH2
 
     if not os.path.exists(fb_path):
         with open(fb_path, 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(['Filename', 'Prediction', 'Score'])
-            writer.writerow([report])
+            writer.writerow([str(report1),str(report2),str(report3)])
         flash('Thank you for your feedback!')
     else:
-        with open(fb_path, 'a') as file:
+        with open(fb_path, 'a', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow([report])
+            writer.writerow([str(report1),str(report2),str(report3)])
         flash('Thank you for your feedback!')
         
     return render_template("index.html")

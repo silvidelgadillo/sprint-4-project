@@ -49,7 +49,8 @@ class TestIntegration(TestCase):
         import os
         import settings
         # Check current status for feedback folder
-        fb_path = 'feedback/feedback.csv'
+        fb_path = settings.FEEDBACK_FILEPATH2
+
         if os.path.exists(fb_path):
             feedback = pd.read_csv(fb_path)
             curr_feedback_lines = len(feedback)
@@ -63,7 +64,6 @@ class TestIntegration(TestCase):
             "/feedback",
             data=data,
         )
-
         self.assertEqual(response.status_code, 200)
         self.assertTrue(os.path.exists(fb_path))
 
@@ -71,9 +71,9 @@ class TestIntegration(TestCase):
         feedback = pd.read_csv(fb_path)
         new_feedback_lines = len(feedback)
         self.assertEqual(curr_feedback_lines + 1, new_feedback_lines)
-
+        
         # Check the content is correct
-        # new_line = np.array(feedback.iloc[-1,:])
+        # new_line = list(feedback.iloc[-1,:])
         # self.assertEqual(data['report'], new_line)
 
 
