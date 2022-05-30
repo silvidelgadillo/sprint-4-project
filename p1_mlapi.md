@@ -71,7 +71,7 @@ Write a short report detailing the hardware specs from the server used to run th
 
 ### [Optional] Batch processing
 
-Replace current model behavior to process the jobs in batches. Check if that improves the numbers when doing stress testing.
+Replace current model behavior to process the jobs in batches. Check if that improves the numbers when doing stress testing. GPU needed, otherwise behavior won't change.
 
 ## Part 3 - Getting feedback from users
 
