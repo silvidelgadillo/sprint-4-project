@@ -2,7 +2,7 @@ import utils
 import os
 import settings
 from werkzeug.utils import secure_filename
-import middleware
+from middleware import model_predict
 
 from flask import (
     Blueprint,
@@ -11,6 +11,7 @@ from flask import (
     render_template,
     request,
     url_for,
+    jsonify
 )
 
 router = Blueprint("app_router", __name__, template_folder="templates")
@@ -60,11 +61,11 @@ def upload_image():
         if not os.path.exists(os.path.join(settings.UPLOAD_FOLDER,filename_secure)):
             file.save(os.path.join(settings.UPLOAD_FOLDER,filename_secure))
         
-        predict , score = middleware.model_predict(file.filename)
+        predict , score = model_predict(file.filename)
 
         context = {
             "prediction":predict,
-            "score": score*100,
+            "score": score*100, #to get the percentage score
             "filename": hashed_filename,
         }
 
@@ -124,14 +125,37 @@ def predict():
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
     # TODO
+    
+    rpse = {"success": False, "prediction": None, "score": None}
+     # No file received
+    if "file" not in request.files:
+        return  jsonify(rpse),400
+    # File received but no filename is provided
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify(rpse),400
 
     # File received and it's an image, we must show it and get predictions
-    #file = os.path.join(settings.UPLOAD_FOLDER,filename_secure)
-    #if file and utils.allowed_file(file.filename):
+    if file and utils.allowed_file(file.filename):
+        hashed_filename=utils.get_file_hash(file)
+        file.filename = hashed_filename
+        filename_secure = secure_filename(file.filename)
         
+        if not os.path.exists(os.path.join(settings.UPLOAD_FOLDER,filename_secure)):
+            file.save(os.path.join(settings.UPLOAD_FOLDER,filename_secure))
+        
+        predict , score = model_predict(file.filename)
+    
+        rpse = {"success": True,
+                 "prediction": predict,
+                  "score": score}
+
+        return jsonify(rpse)
+    else:
+        return jsonify(rpse),400
 
 
-    rpse = {"success": False, "prediction": None, "score": None}
+    
 
 
 @router.route("/feedback", methods=["GET", "POST"])
