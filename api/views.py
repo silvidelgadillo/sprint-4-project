@@ -1,5 +1,5 @@
 import utils
-import middleware
+from middleware import model_predict
 import os
 import settings
 from flask import (
@@ -9,6 +9,7 @@ from flask import (
     render_template,
     request,
     url_for,
+    jsonify
 )
 
 router = Blueprint("app_router", __name__, template_folder="templates")
@@ -35,7 +36,7 @@ def upload_image():
         return redirect(request.url)
 
     # File received but no filename is provided, show basic UI
-    file = request.files["file"]
+    file =  request.files["file"]
     if file.filename == "":
         flash("No image selected for uploading")
         return redirect(request.url)
@@ -59,7 +60,7 @@ def upload_image():
         if not os.path.exists(image_path):
             file.save(image_path)
 
-        prediction, score = middleware.model_predict(hash_name)
+        prediction, score = model_predict(hash_name)
         context = {
             "prediction": prediction,
             "score": score,
@@ -122,8 +123,28 @@ def predict():
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
     # TODO
-    # viene aca file = request.files["file"]
-    rpse = {"success": False, "prediction": None, "score": None}
+    rpse = {"success": False, "prediction": 2, "score": None}
+    
+    if "file" not in request.files:
+        return jsonify(rpse), 400
+
+    # File received but no filename is provided, show basic UI
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify(rpse), 400
+
+
+    # File received and it's an image, we must show it and get predictions
+    if file and utils.allowed_file(file.filename):
+        hash_name = utils.get_file_hash(file)
+        image_path = os.path.join(settings.UPLOAD_FOLDER, hash_name)
+        if not os.path.exists(image_path):
+            file.save(image_path)
+        prediction, score = model_predict(hash_name)
+        rpse = {"success": True, "prediction": prediction, "score": score}
+        return jsonify(rpse)
+ 
+
 
 
 @router.route("/feedback", methods=["GET", "POST"])

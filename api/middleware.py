@@ -31,49 +31,25 @@ def model_predict(image_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-    # Assign an unique ID for this job and add it to the queue.
-    # We need to assing this ID because we must be able to keep track
-    # of this particular job across all the services
-    # TODO
+   
     job_id = str(uuid.uuid4())
-
-    # Create a dict with the job data we will send through Redis having the
-    # following shape:
-    # {
-    #    "id": str,
-    #    "image_name": str,
-    # }
-    # TODO
     job_data =  {
     "id": job_id,
     "image_name": image_name,
     }
-
-    # Send the job to the model service using Redis
-    # Hint: Using Redis `rpush()` function should be enough to accomplish this.
-    # TODO
-    #differences with set()?
-    dict_str = json.dumps(job_data)
-    db.rpush(settings.REDIS_QUEUE, dict_str)
+    job_data = json.dumps(job_data)
+    
+    db.rpush(settings.REDIS_QUEUE, job_data)
     # Loop until we received the response from our ML model
-    dict_output=None
     while True:
-        # Attempt to get model predictions using job_id
-        # Hint: Investigate how can we get a value using a key from Redis
-        # TODO
-        output = db.get(job_id)
-        #validar la siguiente linea 
-        # Don't forget to delete the job from Redis after we get the results!
-        # Then exit the loop
-        # TODO
-        dict_output = json.loads(output)
-        if db.exist(job_id):
+        if db.exists(job_id):
+            model_prediction = db.get(job_id)
             db.delete(job_id)
             break
-        # Sleep some time waiting for model results
         time.sleep(settings.API_SLEEP)
-        
-    prediction = dict_output[0]
-    score = dict_output[1]
+    dict_pred = json.loads(model_prediction)
+
+    return dict_pred["prediction"], dict_pred["score"]
+
+
     
-    return prediction, score
