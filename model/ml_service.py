@@ -47,9 +47,10 @@ def predict(image_name):
     preproc_img = resnet50.preprocess_input(img)
     preds = model.predict(preproc_img)
     prediction_array = resnet50.decode_predictions(preds, top=1)[0][0]
-    
+    prediction = prediction_array[1].capitalize()
+    score = round(prediction_array[2], 4)
 
-    return prediction_array[1], float(prediction_array[2])
+    return prediction, score
 
 
 def classify_process():

@@ -1,6 +1,7 @@
 import utils
 from middleware import model_predict
 import os
+import json
 import settings
 from flask import (
     Blueprint,
@@ -123,7 +124,7 @@ def predict():
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
     # TODO
-    rpse = {"success": False, "prediction": 2, "score": None}
+    rpse = {"success": False, "prediction": None, "score": None}
     
     if "file" not in request.files:
         return jsonify(rpse), 400
@@ -169,10 +170,12 @@ def feedback():
         - "score" model confidence score for the predicted class as float.
     """
     # Get reported predictions from `report` key
-    report = request.form.get("report")
-
+    report_data = request.form.get("report")
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
     # TODO
+    
+    with open(str(settings.FEEDBACK_FILEPATH), 'a') as file:
+        file.write(str(report_data) + "\n")
 
     return render_template("index.html")
