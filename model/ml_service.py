@@ -91,5 +91,5 @@ def classify_process():
 
 if __name__ == "__main__":
     # Now launch process
-    print("Launching ML service...######################################################################################")
+    print("Launching ML service...")
     classify_process()

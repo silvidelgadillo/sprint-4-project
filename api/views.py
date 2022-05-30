@@ -1,7 +1,7 @@
 import os
 import utils
 import settings
-import middleware
+from middleware import model_predict
 from flask import (
     Blueprint,
     flash,
@@ -59,7 +59,7 @@ def upload_image():
         #   3. Send the file to be processed by the `model` service
         #      Hint: Use middleware.model_predict() for sending jobs to model
         #            service using Redis.
-        prediction = middleware.model_predict(file_n)
+        prediction = model_predict(file_n)
 
         #   4. Update `context` dict with the corresponding values
         context = {
