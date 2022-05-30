@@ -1,5 +1,6 @@
 from hashlib import md5
 from os.path import splitext
+import json
 
 ALLOWED_IMG_EXT = {".png", ".jpg", ".jpeg", ".gif"}
 
@@ -50,3 +51,24 @@ def get_file_hash(file):
     file.stream.seek(0)
 
     return hash_filename
+
+def get_hr_class(classname):
+    """
+    Map the class name output from the model to a human readable class name 
+    to show in the front-end.
+
+    Parameters
+    ----------
+    class_name : str
+        Output from the model.
+
+    Returns
+    -------
+    str
+        Human readable class name.
+    """
+    
+    with open("./classes_map.json", "r") as f:
+        classes_map = json.load(f)
+    
+    return classes_map[classname]
