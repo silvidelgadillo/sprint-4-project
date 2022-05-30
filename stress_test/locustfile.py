@@ -1,5 +1,5 @@
 from importlib.metadata import files
-from locust import HttpUser, TaskSet, task, between
+from locust import HttpUser, task, between
 
 class UserBehavior(HttpUser):
     wait_time = between(1, 5)
@@ -11,4 +11,4 @@ class UserBehavior(HttpUser):
     @task(10)
     def press_page(self):
         with open('dog.jpeg', 'rb') as image:
-            self.client.post("/predict", files={'photo':image})
+            self.client.post("/predict", files={'file':image})

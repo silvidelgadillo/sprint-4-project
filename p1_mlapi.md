@@ -77,6 +77,6 @@ Replace current model behavior to process the jobs in batches. Check if that imp
 
 Code the `/feedback` endpoint so the users can report using the service UI when a model prediction is wrong. Store the reported image path and the model prediction to a `.csv` file inside the folder `/src/feedback` so we can access later to check those cases in which our Machine Learning model failed according to users.
 
-## Part 4 - Running on the GPU
+## [Optional] - Running on the GPU
 
 The current Docker setup and Dockerfiles provided allow us to run the model only on CPU. We could get a big improvement in terms of speed if we run our Deep Learning models on the GPU. Adapt the project code so we can make use of NVIDIA hardware.
