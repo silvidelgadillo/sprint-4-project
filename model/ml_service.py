@@ -41,7 +41,8 @@ def predict(image_name):
         score as a number.
     """
     # This model its train with 224x224 images thats why we change the size:
-    img = image.load_img(image_name, target_size=(224, 224))
+    
+    img = image.load_img(settings.UPLOAD_FOLDER+image_name, target_size=(224, 224))
     
     # we need to create a new dimension:
     x = image.img_to_array(img)
@@ -53,13 +54,13 @@ def predict(image_name):
     # Get predictions
     preds = model.predict(x)
 
-    # the result its a pillow --> to array:
-    x = image.img_to_array(img)
-
     # The model its trin to return the probability between 1000 classes
     # with top = 1 we choose the one with the hightes prob. 
-    
-    return resnet50.decode_predictions(preds, top=1)
+    preds       = resnet50.decode_predictions(preds, top=1)
+    prediction  = preds[0][0][1]
+    score       = f"{preds[0][0][2]:.2%}"
+
+    return prediction.capitalize(), score
 
 
 def classify_process():

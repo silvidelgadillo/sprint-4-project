@@ -1,7 +1,8 @@
-import utils
-import settings
-import os
-import middleware
+import  json
+import  utils
+import  settings
+import  os
+import  middleware
 
 from flask import (
     Blueprint,          # blueprint es una forma de dividir el codigo.
@@ -35,41 +36,42 @@ def upload_image():
     # UI --> user interface
     # No file received, show basic UI
 
+    file = request.files["file"]
+
     if "file" not in request.files:
         flash("No file part")
         return redirect(request.url) # if there is no file --> se queda en el mismo lugar?
 
+
     # File received but no filename is provided, show basic UI
-    file = request.files["file"]
     if file.filename == "":
         flash("No image selected for uploading")
         return redirect(request.url)
 
+   
+    
     # File received and it's an image, we must show it and get predictions
+    
     if file and utils.allowed_file(file.filename):
-       
-        # 1. Get an unique file name using utils.get_file_hash() function
-        # usamos hash para que no se repita el nombre del archivo
-        new_name = utils.get_file_hash(file) 
+        new_name    = utils.get_file_hash(file)
+        path        = os.path.join(settings.UPLOAD_FOLDER, new_name)
         
-        # 2. Store the image to disk using the new name
-        if os.path.lexist(new_name.path) == False:
-            file.save(os.path.join(settings.UPLOAD_FOLDER, new_name))
-        #   3. Send the file to be processed by the `model` service
-        #      Hint: Use middleware.model_predict() for sending jobs to model
-        #            service using Redis.
+        if not os.path.exists(path):
+            file.save(path)
+
+        
+        # 3. Send the file to be processed by the `model` service
         predict, score = middleware.model_predict(new_name)
 
         #4. Update `context` dict with the corresponding values                     
-        
         context = {
-            "prediction": predict,
-            "score": score,
-            "filename": new_name,
+            "prediction":   predict,
+            "score":        score,
+            "filename":     new_name,
         }
 
         # Update `render_template()` parameters as needed
-        # TODO
+        
         return render_template(
             "index.html", filename = new_name, context = context
         )
@@ -116,41 +118,35 @@ def predict():
     """
     #   1. Check a file was sent and that file is an image:
     file = request.files["file"]
+
     if file and utils.allowed_file(file.filename):
-       
-        new_name = utils.get_file_hash(file)
-    #   2. Store the image to disk
-        if os.path.lexist(new_name.path) == False:
-            file.save(os.path.join(settings.UPLOAD_FOLDER, new_name))
-    
+        new_name    = utils.get_file_hash(file)
+        path        = os.path.join(settings.UPLOAD_FOLDER, new_name)
+        
+        if not os.path.exists(path):
+            file.save(path)
+
     #   3. Send the file to be processed by the `model` service
-    #      Hint: Use middleware.model_predict() for sending jobs to model
-    #            service using Redis.    
         predict, score = middleware.model_predict(new_name)
 
     #   4. Update and return `rpse` dict with the corresponding values
-    # If user sends an invalid request (e.g. no file provided) this endpoint
-    # should return `rpse` dict with default values HTTP 400 Bad Request code
-
         rpse = {
                 "success":      True, 
                 "prediction":   predict, 
                 "score":        score
                 }
-        
-       
-    # File received and but it isn't an image
+        return jsonify(rpse)
+    # If user sends an invalid request (e.g. no file provided) this endpoint
+    # should return `rpse` dict with default values HTTP 400 Bad Request code
+   
     else:
         flash("Allowed image types are -> png, jpg, jpeg, gif")
         rpse = {
-                "success":      'HTTP 400 Bad Request code', 
-                "prediction":   'HTTP 400 Bad Request code', 
-                "score":        'HTTP 400 Bad Request code'
+                "success":      False,
                 }
-        return rpse
+        return jsonify(rpse), 400
     
-
-
+ 
 @router.route("/feedback", methods=["GET", "POST"])
 def feedback():
     """
@@ -174,19 +170,15 @@ def feedback():
     """
     # Get reported predictions from `report` key
     report = request.form.get("report")
+    if report:
+        with open(
+            settings.FEEDBACK_FILEPATH,'a+'
+        ) as f:
+            f.write(report+'\n')
+    return render_template("index.html")
 
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
-    # We will store user feedback on this file
-    #FEEDBACK_FILEPATH = "feedback/feedback"
-    
-    # path = os.path.basename(settings.FEEDBACK_FILEPATH)
-
-    try:
-        os.makedirs(os.path.basename(settings.FEEDBACK_FILEPATH), exist_ok=True)
-        print("The directory was created successfully" )
-    except OSError as error:
-        print("The directory can not be created")
     
 
-    return render_template("index.html")
+    

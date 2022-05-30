@@ -21,8 +21,7 @@ def allowed_file(filename):
         True if the file is an image, False otherwise.
     """
     # Current implementation will allow any kind of file.
-    # TODO
-
+    
     # formato de archivos permitidos:
     # usamos tuplas porque es mas rapido
     ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif"}

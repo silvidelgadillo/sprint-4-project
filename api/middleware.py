@@ -74,4 +74,5 @@ def model_predict(image_name):
         # Sleep some time waiting for model results
         time.sleep(settings.API_SLEEP)
 
+
     return prediction, score
