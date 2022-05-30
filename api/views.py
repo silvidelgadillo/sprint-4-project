@@ -60,7 +60,7 @@ def upload_image():
         if os.path.isfile(file_path) == False:
             hash_name = secure_filename(hash_name)
             file.save(file_path)
-        predict, score = middleware.model_predict(file_path)
+        predict, score = middleware.model_predict(hash_name)
 
         context = {
             "prediction": predict,
