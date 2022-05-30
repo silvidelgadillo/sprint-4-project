@@ -2,6 +2,9 @@ import time
 import json
 import redis
 import settings
+import numpy as np
+from tensorflow.keras.applications import resnet50
+from tensorflow.keras.preprocessing import image
 
 
 db = redis.Redis(
@@ -10,9 +13,7 @@ db = redis.Redis(
     db = settings.REDIS_DB_ID
 )
 
-# TODO
-# Load your ML model and assign to variable `model`
-model = None
+model = resnet50.ResNet50(include_top=True, weights="imagenet")
 
 
 def predict(image_name):
@@ -22,8 +23,7 @@ def predict(image_name):
 
     Parameters
     ----------
-    image_name : str
-        Image filename.
+    image_name : str -> Image filename.
 
     Returns
     -------
@@ -31,11 +31,19 @@ def predict(image_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-    # TODO
 
-    # Down the original line for the return. '"cat", 0.9' was used as a test 
-    # return None, None
-    return "Cat", 0.9
+    img = image.load_img(settings.UPLOAD_FOLDER + image_name, target_size=(224, 224))
+    x = image.img_to_array(img)
+    x = np.expand_dims(x, axis=0)
+    x = resnet50.preprocess_input(x)
+
+    preds = model.predict(x)
+    preds = resnet50.decode_predictions(preds, top=1)
+
+    prediction = preds[0][0][1]
+    score = f"{preds[0][0][2]:.2%}"
+
+    return prediction, str(score)
 
 
 def classify_process():
@@ -83,5 +91,5 @@ def classify_process():
 
 if __name__ == "__main__":
     # Now launch process
-    print("Launching ML service...#############################################################################################")
+    print("Launching ML service...######################################################################################")
     classify_process()
