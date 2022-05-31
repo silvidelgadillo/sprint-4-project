@@ -1,17 +1,21 @@
 import time
+import settings 
+import redis
+import json
+from tensorflow.keras.applications import resnet50
+from tensorflow.keras.preprocessing import image
+import numpy as np
 
-import settings
-
-
-# TODO
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
-db = None
+db = redis.Redis(
+    host = settings.REDIS_IP,
+    port = settings.REDIS_PORT,
+    db= settings.REDIS_DB_ID)
 
 # TODO
 # Load your ML model and assign to variable `model`
-model = None
-
+model = resnet50.ResNet50(include_top=True, weights="imagenet")
 
 def predict(image_name):
     """
@@ -30,8 +34,19 @@ def predict(image_name):
         score as a number.
     """
     # TODO
-
-    return None, None
+    ## LOAD
+    load_image = image.load_img(settings.UPLOAD_FOLDER + image_name, target_size=(224, 224))
+    ## TRANSFORM TO ARRAY and ADD DIMENSION
+    x = image.img_to_array(load_image)
+    x = np.expand_dims(x, axis=0)
+    ## PROCESS THE IMAGE
+    x = resnet50.preprocess_input(x)
+    ## GET THE PREDICTIONS
+    predictions = model.predict(x)
+    _, class_name, pred_probability = resnet50.decode_predictions(predictions, top=1)[0][0]
+    tup_ret = (str(class_name), round(float(pred_probability),3))
+    
+    return tup_ret[0],tup_ret[1]
 
 
 def classify_process():
@@ -48,18 +63,27 @@ def classify_process():
     while True:
         # Inside this loop you should add the code to:
         #   1. Take a new job from Redis
+        _, msg = db.brpop("app_queue")
+        msg = json.loads(msg)
         #   2. Run your ML model on the given data
+        ## msg['image_name'] because is a dict, and image_name is the key
+        pred_class, pred_score = predict(msg["image_name"])
+        
         #   3. Store model prediction in a dict with the following shape:
         #      {
         #         "prediction": str,
         #         "score": float,
         #      }
+        output_msg = {"prediction": pred_class,
+                    "score": pred_score}
+
         #   4. Store the results on Redis using the original job ID as the key
         #      so the API can match the results it gets to the original job
         #      sent
+        output_msg = db.set(msg["id"], json.dumps(output_msg))
+
         # Hint: You should be able to successfully implement the communication
         #       code with Redis making use of functions `brpop()` and `set()`.
-        # TODO
 
         # Don't forget to sleep for a bit at the end
         time.sleep(settings.SERVER_SLEEP)
