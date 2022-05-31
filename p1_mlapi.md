@@ -69,6 +69,25 @@ You can easily launch more instances for a particular service using `--scale SER
 
 Write a short report detailing the hardware specs from the server used to run the service and show a comparison in the results obtained for different number of users being simulated and instances deployed.
 
+Locus test ran over an i7-5820f @3.6ghs with 32 Gb Ram.
+
+Test Setup:
+Number of users : 1000
+Spawn rate: 3
+
+Unscaled:
+[Unscaled Service Locust Test](/api/templates/reportSingle.html)
+For the unscaled test, the service remained responsive until we hit the 502 users, bein the median response time 59000 at that point.
+We started to see the first errors (Device or resource busy) at around 200 users.
+
+Scaled:
+[Unscaled Service Locust Test](/api/templates/reportScaled.html)
+For the scaled test, the service remained responsive until we hitted 502 as before, but the median response improved from 59000 to 21000
+at that point.
+We observed the first errors at around 111 users.
+
+
+
 ### [Optional] Batch processing
 
 Replace current model behavior to process the jobs in batches. Check if that improves the numbers when doing stress testing.
