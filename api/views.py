@@ -1,8 +1,7 @@
 import utils
 import os
 import settings
-import middleware
-
+from middleware import model_predict 
 from flask import (
     Blueprint,
     flash,
@@ -59,7 +58,7 @@ def upload_image():
         }
 
         #   3. Send the file to be processed by the `model` service
-        pred_result = middleware.model_predict(unique_filename)
+        pred_result = model_predict(unique_filename)
         
         #   4. Update `context` dict with the corresponding values
         context.update({

@@ -49,8 +49,8 @@ def model_predict(image_name):
     job_data_str = json.dumps(job_data)
     db.rpush(settings.REDIS_QUEUE, job_data_str)
     x = db.brpop(settings.REDIS_QUEUE) 
-    #y = len(settings.REDIS_QUEUE)
-    return x , 0.99#, y
+    y = len(settings.REDIS_QUEUE)
+    return x , y
     # Loop until we received the response from our ML model
     while True:
         # Attempt to get model predictions using job_id
