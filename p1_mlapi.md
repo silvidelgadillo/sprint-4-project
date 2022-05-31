@@ -74,13 +74,14 @@ Locus test ran over an i7-5820f @3.6ghs with 32 Gb Ram.
 Test Setup:
 Number of users : 1000
 Spawn rate: 3
+
 [Unscaled Service Locust Test](https://htmlpreview.github.io/?https://github.com/anyoneai/sprint-4-project/blob/WahnonAgustin_assignment/api/templates/reportSingle.html)
 
 Unscaled:
 For the unscaled test, the service remained responsive until we hit the 502 users, bein the median response time 59000 at that point.
 We started to see the first errors (Device or resource busy) at around 200 users.
 
-[Unscaled Service Locust Test](https://htmlpreview.github.io/?https://github.com/anyoneai/sprint-4-project/blob/WahnonAgustin_assignment/api/templates/reportScaled.html)
+[Scaled Service Locust Test](https://htmlpreview.github.io/?https://github.com/anyoneai/sprint-4-project/blob/WahnonAgustin_assignment/api/templates/reportScaled.html)
 
 Scaled:
 For the scaled test, the service remained responsive until we hitted 502 as before, but the median response improved from 59000 to 21000
