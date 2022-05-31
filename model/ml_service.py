@@ -69,27 +69,26 @@ def classify_process():
         # Inside this loop you should add the code to:
         #   1. Take a new job from Redis
         _, msg = db.brpop(settings.REDIS_QUEUE)
-        msg_dict = json.loads(msg)
-
-        #   2. Run your ML model on the given data
-        predict_class, score = predict(msg_dict['image_name'])
-        #   3. Store model prediction in a dict with the following shape:
-        #       {
-        #         "prediction": str,
-        #         "score": float,
-        #      }
-        prediction_dict = {
-            "prediction": predict_class ,
-             "score": score,
-            }
-
-        #   4. Store the results on Redis using the original job ID as the key
-        #      so the API can match the results it gets to the original job
-        #      sent
-        # Hint: You should be able to successfully implement the communication
-        #       code with Redis making use of functions `brpop()` and `set()`.
-        # TODO
-        db.set(msg_dict['id'], json.dumps(prediction_dict)) 
+        if msg:
+            msg_dict = json.loads(msg)
+            #   2. Run your ML model on the given data
+            predict_class, score = predict(msg_dict['image_name'])
+            #   3. Store model prediction in a dict with the following shape:
+            #       {
+            #         "prediction": str,
+            #         "score": float,
+            #      }
+            prediction_dict = {
+                "prediction": predict_class ,
+                "score": score,
+                }
+            #   4. Store the results on Redis using the original job ID as the key
+            #      so the API can match the results it gets to the original job
+            #      sent
+            # Hint: You should be able to successfully implement the communication
+            #       code with Redis making use of functions `brpop()` and `set()`.
+            # TODO
+            db.set(msg_dict['id'], json.dumps(prediction_dict)) 
 
         # Don't forget to sleep for a bit at the end
         time.sleep(settings.SERVER_SLEEP)
