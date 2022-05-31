@@ -15,6 +15,7 @@ class TestUtils(TestCase):
         self.assertTrue(utils.allowed_file('../../car.PNG'))
         self.assertTrue(utils.allowed_file('/usr/var/src/car.gif'))
 
+        self.assertFalse(utils.allowed_file('/myPC/jpg/cat.pdf'))
         self.assertFalse(utils.allowed_file('cat.JPGG'))
         self.assertFalse(utils.allowed_file('invoice.pdf'))
         self.assertFalse(utils.allowed_file('/usr/src/slides.odt'))

@@ -1,7 +1,7 @@
-from api.settings import UPLOAD_FOLDER
 import utils
 from middleware import model_predict
 import os
+import settings
 
 from flask import (
     Blueprint,
@@ -51,11 +51,15 @@ def upload_image():
         filename_hash = utils.get_file_hash(file)
 
         #   2. Store the image to disk using the new name
-        # uploaded_file_code = utils.save_file(file,filename_hash)
-        # completeName = os.path.join(UPLOAD_FOLDER, filename_hash)
-        # file1 = open(completeName, "w")
-        # file1.write("file information")
-        # file1.close()
+        
+        # google
+        completeName = os.path.join(settings.UPLOAD_FOLDER, filename_hash)
+        file1 = open(completeName, "w")
+        file1.write("file information")
+        file1.close()
+
+        # maxi
+        file.save(os.path.join(settings.UPLOAD_FOLDER)) 
 
         #   3. Send the file to be processed by the `model` service
         #      Hint: Use middleware.model_predict() for sending jobs to model  <<<<<<<<<<<<<
