@@ -1,0 +1,9 @@
+This project is based on two trunk axes: api and model. We are going to build and run three cointainers, each one with their own image. This is set up 1) at the docker-comppose file and then in each foler (dockerfile). 
+Also, each folder have their own requirement and settings.
+
+API:
+    - The main api file is views. In wich all the endpoints are defined and implemented. Another file is utils were we implement the function to check if the file have the corresponding extension and another function that hash the file. Finaly the middleware file its the one that comunicate with Redis and the model. 
+
+Model:
+    - Basically ml_service is the main file from this part. In wich we implement and call the model. In this case we use an already trained model.
+    
