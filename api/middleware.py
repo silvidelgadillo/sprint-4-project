@@ -1,6 +1,8 @@
 import time
-
+import uuid
+import json
 import settings
+import redis
 
 # TODO
 # Connect to Redis and assign to variable `db``
@@ -10,6 +12,8 @@ db = redis.Redis(
     port=settings.REDIS_PORT, 
     db=settings.REDIS_DB_ID
 )
+
+#db.ping()  si ping da false va a explotar, porque no te conectas a redis, si da True está ok!
 
 def model_predict(image_name):
     """
@@ -31,8 +35,7 @@ def model_predict(image_name):
     # We need to assing this ID because we must be able to keep track
     # of this particular job across all the services
     # TODO
-    assert db.ping() # si ping da false va a explotar, porque no te conectas a redis, si da True está ok!
-    job_id = None
+    job_id = str(uuid.uuid4())
 
     # Create a dict with the job data we will send through Redis having the
     # following shape:
@@ -41,24 +44,32 @@ def model_predict(image_name):
     #    "image_name": str,
     # }
     # TODO
-    job_data = None
+    job_data = {
+        "id": job_id,
+        "image_name": image_name,
+    }
 
     # Send the job to the model service using Redis
     # Hint: Using Redis `rpush()` function should be enough to accomplish this.
     # TODO
-
+    db.rpush(settings.REDIS_QUEUE, json.dumps(job_data))
+    
     # Loop until we received the response from our ML model
     while True:
         # Attempt to get model predictions using job_id
         # Hint: Investigate how can we get a value using a key from Redis
         # TODO
-        output = None
-
+        if (db.exists(job_id)):
+            output      =   db.get(job_id) # llamas al modelo
+            output_dict =   json.loads(output) # este diccionario tiene clase y score
+            pred_class  =   output_dict['class_name'] # defino la clase de animal a predecir
+            pred_score  =   output_dict['score'] # es el score con que probabilidad predigo
         # Don't forget to delete the job from Redis after we get the results!
         # Then exit the loop
         # TODO
-
+            db.delete(job_id)
+            break
         # Sleep some time waiting for model results
         time.sleep(settings.API_SLEEP)
 
-    return None, None
+    return pred_class, pred_score
