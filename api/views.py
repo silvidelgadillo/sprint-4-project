@@ -2,7 +2,7 @@ import  json
 import  utils
 import  settings
 import  os
-import  middleware
+from    middleware import model_predict
 
 from flask import (
     Blueprint,          # blueprint es una forma de dividir el codigo.
@@ -11,6 +11,7 @@ from flask import (
     render_template,    # para poder escribir html.
     request,            # se para en el puerto y se obtiene la informacion que puede obtener de cada ruta (cada endpoint)
     url_for,            # Esta operación recibe como parámetro el nombre del método y nos devuelve la ruta.
+    jsonify
 )
 
 router = Blueprint("app_router", __name__, template_folder="templates")
@@ -42,16 +43,12 @@ def upload_image():
         flash("No file part")
         return redirect(request.url) # if there is no file --> se queda en el mismo lugar?
 
-
     # File received but no filename is provided, show basic UI
     if file.filename == "":
         flash("No image selected for uploading")
         return redirect(request.url)
-
-   
-    
+ 
     # File received and it's an image, we must show it and get predictions
-    
     if file and utils.allowed_file(file.filename):
         new_name    = utils.get_file_hash(file)
         path        = os.path.join(settings.UPLOAD_FOLDER, new_name)
@@ -61,7 +58,7 @@ def upload_image():
 
         
         # 3. Send the file to be processed by the `model` service
-        predict, score = middleware.model_predict(new_name)
+        predict, score = model_predict(new_name)
 
         #4. Update `context` dict with the corresponding values                     
         context = {
@@ -77,7 +74,7 @@ def upload_image():
         )
     # File received and but it isn't an image
     else:
-        flash("Allowed image types are -> png, jpg, jpeg, gif")
+        #flash("Allowed image types are -> png, jpg, jpeg, gif")
         return redirect(request.url)
 
 
@@ -118,8 +115,11 @@ def predict():
     """
     #   1. Check a file was sent and that file is an image:
     file = request.files["file"]
-
-    if file and utils.allowed_file(file.filename):
+    
+    file_exist_not_null = file in request.files["file"] and file is not None
+    file_allowed        = utils.allowed_file(file.filename)
+    
+    if file_exist_not_null and file_allowed :
         new_name    = utils.get_file_hash(file)
         path        = os.path.join(settings.UPLOAD_FOLDER, new_name)
         
@@ -127,7 +127,7 @@ def predict():
             file.save(path)
 
     #   3. Send the file to be processed by the `model` service
-        predict, score = middleware.model_predict(new_name)
+        predict, score = model_predict(new_name)
 
     #   4. Update and return `rpse` dict with the corresponding values
         rpse = {
@@ -135,18 +135,19 @@ def predict():
                 "prediction":   predict, 
                 "score":        score
                 }
-        return jsonify(rpse)
+        return jsonify(rpse),200
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
    
     else:
-        flash("Allowed image types are -> png, jpg, jpeg, gif")
+        flash("Bad request code")
         rpse = {
                 "success":      False,
+                "prediction":   None, 
+                "score":        None
                 }
-        return jsonify(rpse), 400
+        return jsonify(rpse),400
     
- 
 @router.route("/feedback", methods=["GET", "POST"])
 def feedback():
     """
@@ -170,15 +171,17 @@ def feedback():
     """
     # Get reported predictions from `report` key
     report = request.form.get("report")
+    # if there is a report, then open it and whrite 
     if report:
         with open(
             settings.FEEDBACK_FILEPATH,'a+'
         ) as f:
             f.write(report+'\n')
+            # \n is necessary to read it nicely
+    
     return render_template("index.html")
 
-    # Store the reported data to a file on the corresponding path
-    # already provided in settings.py module
+ 
     
 
     
