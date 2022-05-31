@@ -15,7 +15,7 @@ db = redis.Redis(
 
 #db.ping()  si ping da false va a explotar, porque no te conectas a redis, si da True está ok!
 
-def model_predict(image_name):
+def model_predict(newfile):
     """
     Receives an image name and queues the job into Redis.
     Will loop until getting the answer from our ML service.
@@ -46,7 +46,7 @@ def model_predict(image_name):
     # TODO
     job_data = {
         "id": job_id,
-        "image_name": image_name,
+        "image_name": newfile,
     }
 
     # Send the job to the model service using Redis
@@ -62,8 +62,8 @@ def model_predict(image_name):
         if (db.exists(job_id)):
             output      =   db.get(job_id) # llamas al modelo
             output_dict =   json.loads(output) # este diccionario tiene clase y score
-            pred_class  =   output_dict['class_name'] # defino la clase de animal a predecir
-            pred_score  =   output_dict['score'] # es el score con que probabilidad predigo
+            model_predict = output_dict['prediction'] # defino la clase de animal a predecir
+            model_score  = output_dict['score'] # es el score con que probabilidad predigo
         # Don't forget to delete the job from Redis after we get the results!
         # Then exit the loop
         # TODO
@@ -71,5 +71,4 @@ def model_predict(image_name):
             break
         # Sleep some time waiting for model results
         time.sleep(settings.API_SLEEP)
-
-    return pred_class, pred_score
+    return  model_predict, model_score

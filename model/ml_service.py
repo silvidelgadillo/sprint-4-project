@@ -1,4 +1,5 @@
 import time
+import os
 import redis
 import json
 import settings
@@ -6,8 +7,9 @@ import numpy as np
 from tensorflow.keras.applications import resnet50
 from tensorflow.keras.preprocessing import image
 
-
-# TODO
+# escuhca la queue siempre
+#  
+#  TODO
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
 db = redis.Redis(
@@ -39,20 +41,21 @@ def predict(image_name):
         score as a number.
     """
     # TODO
-    img = image.load_img(image_name, target_size=(224, 224)) # guardo en una variable la imagen en un formato 224x224 cuadrada
+    path_images = os.path.join(settings.UPLOAD_FOLDER, image_name) 
+    img = image.load_img(path_images, target_size=(224, 224)) # guardo en una variable la imagen en un formato 224x224 cuadrada, solo toma el archivo, especificar antes el path
     #plt.imshow(img)
     x = image.img_to_array(img) #lo paso a x
     x = np.expand_dims(x, axis=0) # le expando las dim
-    x = resnet50.preprocess_input(x) # 
+    x = resnet50.preprocess_input(x) # meto en el modelo
     
     # Get predictions
     preds = model.predict(x)
-
     decode=resnet50.decode_predictions(preds, top=1)
-    predict_pic(decode)[0][0][1]
-    score_pic()[0][0][2]
+    # la respuesta del modelo es una lista de listas de dict, porque puedo enviar una lista de imágeners a predecir
+    predict_pic=decode[0][0][1]
+    score_pic=decode[0][0][2]
 
-    return 
+    return predict_pic, round(float(score_pic),4)
 
 
 def classify_process():
@@ -85,21 +88,23 @@ def classify_process():
         #buscamos la informaicón del queue
         _, data_json = db.brpop(settings.REDIS_QUEUE) #brpop te tira dos valores, el primero es el queue y el otro es el value 
         # Don't forget to sleep for a bit at the end
-        
-        # cambiamos de str a diccionario
-        data_dict = json.loads(data_json)
+        # si recibo algo, que prediga, sinó que vaya al time sleep
+        if data_json: 
+            # cambiamos de str a diccionario
+            data_dict = json.loads(data_json)
 
-        # llamamos al modelo:
-        class_name, score = predict(data_dict['image_name'])
+            # llamamos al modelo:
+            model_predict, model_score = predict(data_dict['image_name'])
 
-        # esto lo tenemos que mandar a través dle middleware a redis:
-        predict_dict = {"prediction": class_name, "score": score}
-
-        db.set(data_dict['id'], json.dumps(predict_dict)) 
-
+            # esto lo tenemos que mandar a través dle middleware a redis:
+            predict_dict = {"prediction": model_predict, "score": model_score}
+            
+            # solo puede hacerlo una vez, redis
+            db.set(data_dict['id'], json.dumps(predict_dict))
 
         time.sleep(settings.SERVER_SLEEP)
 
+# constructructor llama a la fc 
 
 if __name__ == "__main__":
     # Now launch process
