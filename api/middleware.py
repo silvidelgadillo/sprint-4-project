@@ -76,7 +76,7 @@ def model_predict(image_name):
             
             # Delete job
             db.delete(job_id)
+            break
         
-        
-        return json.loads(output)['prediction'],json.loads(output)['score']
+    return json.loads(output)['prediction'],json.loads(output)['score']
        
