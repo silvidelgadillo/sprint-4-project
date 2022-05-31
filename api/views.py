@@ -37,12 +37,12 @@ def upload_image():
     # UI --> user interface
     # No file received, show basic UI
 
-    file = request.files["file"]
-
     if "file" not in request.files:
         flash("No file part")
         return redirect(request.url) # if there is no file --> se queda en el mismo lugar?
-
+    
+    file = request.files["file"]
+    
     # File received but no filename is provided, show basic UI
     if file.filename == "":
         flash("No image selected for uploading")
@@ -56,7 +56,6 @@ def upload_image():
         if not os.path.exists(path):
             file.save(path)
 
-        
         # 3. Send the file to be processed by the `model` service
         predict, score = model_predict(new_name)
 

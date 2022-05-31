@@ -1,4 +1,4 @@
-from locust import HttpLocust, TaskSet, task
+from stress_test.locust import HttpLocust, TaskSet, task
 
 
 class UserBehavior(TaskSet):
