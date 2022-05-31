@@ -2,6 +2,7 @@ from opcode import hasname
 import os
 import utils
 import settings
+import json
 from werkzeug.utils import secure_filename
 from middleware import model_predict
 from flask import jsonify
@@ -173,9 +174,14 @@ def feedback():
     """
     # Get reported predictions from `report` key
     report = request.form.get("report")
+    report = json.dumps(report)
+    report = json.loads(report)
 
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
     # TODO
+    with open(settings.FEEDBACK_FILEPATH, "a") as data:
+        data.write(str(report) + "\n")
+        data.close()
 
     return render_template("index.html")
