@@ -1,8 +1,11 @@
+import sys
+import os
 from flask_wtf import FlaskForm
 from werkzeug.utils import secure_filename
 from flask_uploads import UploadSet, IMAGES
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
+from wtforms.validators import ValidationError
 import utils
 
 from flask import (
@@ -12,7 +15,30 @@ from flask import (
     render_template,
     request,
     url_for,
+    current_app
 )
+
+images_set = UploadSet('images', IMAGES)
+
+def my_filename_not_empty_check(msg):
+    def _my_filename_not_empty_check(form, field):
+        if len(field.data.filename) <= 0:
+            raise ValidationError(msg)
+    return _my_filename_not_empty_check
+
+def my_allowed_fileextension_check(msg):
+    def _my_allowed_fileextension_check(form, field):
+        if utils.allowed_file(field.data.filename) is False:
+            raise ValidationError(msg)
+    return _my_allowed_fileextension_check
+
+class UploadForm(FlaskForm):
+    image = FileField('image', validators=[
+        FileRequired('No file part'),
+        my_filename_not_empty_check("No image selected for uploading"),
+        FileAllowed(images_set, "Only images allowed"),
+        my_allowed_fileextension_check("Allowed image types are -> png, jpg, jpeg, gif")
+    ])
 
 router = Blueprint("app_router", __name__, template_folder="templates")
 
@@ -22,7 +48,8 @@ def index():
     """
     Index endpoint, renders our HTML code.
     """
-    return render_template("index.html")
+    form = UploadForm()
+    return render_template("index.html", form=form)
 
 
 @router.route("/", methods=["POST"])
@@ -32,43 +59,42 @@ def upload_image():
     When it receives an image from the UI, it also calls our ML model to
     get and display the predictions.
     """
-    # No file received, show basic UI
-    if "file" not in request.files:
-        flash("No file part")
-        return redirect(request.url)
+    print('Entering upload_image')
+    form = UploadForm()
+    if form.validate_on_submit():
+        f = form.image.data
+        filename = secure_filename(f.filename)
 
-    # File received but no filename is provided, show basic UI
-    file = request.files["file"]
-    if file.filename == "":
-        flash("No image selected for uploading")
-        return redirect(request.url)
+        # File received and it's an image, we must show it and get predictions
 
-    # File received and it's an image, we must show it and get predictions
-    if file and utils.allowed_file(file.filename):
         # In order to correctly display the image in the UI and get model
         # predictions you should implement the following:
         #   1. Get an unique file name using utils.get_file_hash() function
+        uploaded_file = request.files['image']
+        hashed_filename = utils.get_file_hash(uploaded_file)
         #   2. Store the image to disk using the new name
+        uploaded_file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], hashed_filename))
         #   3. Send the file to be processed by the `model` service
         #      Hint: Use middleware.model_predict() for sending jobs to model
         #            service using Redis.
         #   4. Update `context` dict with the corresponding values
         # TODO
         context = {
-            "prediction": None,
-            "score": None,
-            "filename": None,
+            "prediction": "cat",
+            "score": 0.99,
+            "filename": hashed_filename,
         }
 
         # Update `render_template()` parameters as needed
         # TODO
+        print('success: Returning from upload_image')
         return render_template(
-            "index.html", filename=None, context=None
+            "index.html", filename=hashed_filename, context=context, form=form
         )
-    # File received and but it isn't an image
     else:
-        flash("Allowed image types are -> png, jpg, jpeg, gif")
-        return redirect(request.url)
+        utils.flash_errors(form)
+    
+    return render_template("index.html", form=form)
 
 
 @router.route("/display/<filename>")

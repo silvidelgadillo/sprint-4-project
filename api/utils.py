@@ -1,4 +1,8 @@
 import os
+from flask import (
+    flash,
+)
+import hashlib
 
 
 def allowed_file(filename):
@@ -18,7 +22,9 @@ def allowed_file(filename):
     """
     # Current implementation will allow any kind of file.
     # TODO
-    return True
+    allowed_extensions = ['.png', '.jpg', '.jpeg', '.gif']
+    extension = os.path.splitext(filename)[-1].lower()
+    return extension in allowed_extensions
 
 
 def get_file_hash(file):
@@ -39,4 +45,28 @@ def get_file_hash(file):
     """
     # Current implementation will return the original file name.
     # TODO
-    return os.path.basename(file.filename)
+    m = hashlib.md5()
+    while len(chunk := file.stream.read(512)) != 0:
+        m.update(chunk)
+    file.stream.seek(0)
+    
+    return m.hexdigest() + os.path.splitext(file.filename)[-1]
+
+def flash_errors(form):
+    """
+    Flashes form errors
+
+    Parameters
+    ----------
+    form : flask_wtf.FlaskForm
+        form handle which contains the errors to be flashed
+
+    Returns
+    -------
+    """
+    for field, errors in form.errors.items():
+        for error in errors:
+            flash(u"Error in the %s field - %s" % (
+                getattr(form, field).label.text,
+                error
+            ), 'error')

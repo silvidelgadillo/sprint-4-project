@@ -30,9 +30,13 @@
     {% endif %}
 {% endif %}
 <form method="post" action="/" enctype="multipart/form-data">
+    {{ form.csrf_token }}
     <dl>
         <p>
-            <input type="file" name="file" autocomplete="off" required>
+            <input type="file" name="image" autocomplete="off" required>
+            {% for error in form.image.errors %}
+                <small class="text-danger">{{ error }}</small>  
+            {% endfor %}
         </p>
     </dl>
     <p>
