@@ -2,7 +2,6 @@ import utils
 from middleware import model_predict
 import settings
 import os
-import pandas as pd
 
 from flask import (
     Blueprint,
@@ -174,16 +173,12 @@ def feedback():
     """
     # Get reported predictions from `report` key
     report_feedback = request.form.get("report")
-    # Store the reported data to a file on the corresponding path
-    # already provided in settings.py module
-    # TODO
+    if report_feedback:
+        # Store the reported data to a file on the corresponding path
+        # already provided in settings.py module
+        # TODO
+        feedback_path = settings.FEEDBACK_FILEPATH    
+        with open(feedback_path, 'a') as feedback:
+            feedback.write(f'{report_feedback}'+'\n')
 
-    # with open(report_feedback, encoding='utf-8') as inputfile:
-    #     df = pd.read_json(inputfile)
-    # df = pd.read_json(report_feedback)
-    # df = 
-    # feedback_path = settings.FEEDBACK_FILEPATH    
-    # feedback_file = os.path.join(feedback_path, 'feedback.csv')
-    # df.to_csv(feedback_file, encoding='utf-8', index=False)
-    return report_feedback
-    # return render_template("index.html")
+    return render_template("index.html")
