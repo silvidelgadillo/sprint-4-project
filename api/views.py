@@ -144,6 +144,7 @@ def predict():
     file.close()
 
     model_pred, model_score = model_predict(hashed_file_name)
+    
     rpse['success'] = True
     rpse['prediction'] = model_pred
     rpse['score'] = model_score
@@ -174,12 +175,15 @@ def feedback():
     """
     # Get reported predictions from `report` key
     report = request.form.get("report")
+
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
     # TODO
+
     feedback_path = settings.FEEDBACK_FILEPATH
     open(feedback_path, 'a').close() #we create the file if it does not exist
     feedback_file = open(feedback_path, 'a')
+
     if(report):
         feedback_file.write(report+'\n')
     feedback_file.close()
