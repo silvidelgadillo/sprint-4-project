@@ -1,17 +1,29 @@
 import time
-
+import redis
+import json
 import settings
 
+from tensorflow.keras.applications import resnet50
+from tensorflow.keras.preprocessing import image
 
-# TODO
+import matplotlib.pyplot as plt
+import numpy as np
+
+
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
-db = None
 
-# TODO
+db = redis.Redis(
+    host="0.0.0.0", 
+    port="6379", 
+    db=0
+)
+
+db.ping()
+
 # Load your ML model and assign to variable `model`
-model = None
 
+model = resnet50.ResNet50(include_top=True, weights="imagenet")
 
 def predict(image_name):
     """
@@ -29,10 +41,15 @@ def predict(image_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-    # TODO
 
-    return None, None
+    img = image.load_img(image_name, target_size=(224, 224))
+    x = image.img_to_array(img)
+    x = np.expand_dims(x, axis=0)
+    x = resnet50.preprocess_input(x)
 
+    preds = model.predict(x)
+
+    return resnet50.decode_predictions(preds, top=1)
 
 def classify_process():
     """

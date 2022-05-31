@@ -1,4 +1,9 @@
 import utils
+from os import path
+import settings
+from middleware import model_predict
+from asyncio import FastChildWatcher
+
 
 from flask import (
     Blueprint,
@@ -7,6 +12,7 @@ from flask import (
     render_template,
     request,
     url_for,
+    jsonify
 )
 
 router = Blueprint("app_router", __name__, template_folder="templates")
@@ -40,25 +46,37 @@ def upload_image():
 
     # File received and it's an image, we must show it and get predictions
     if file and utils.allowed_file(file.filename):
+
         # In order to correctly display the image in the UI and get model
         # predictions you should implement the following:
+
         #   1. Get an unique file name using utils.get_file_hash() function
+
+        new_name = utils.get_file_hash(file)
+
         #   2. Store the image to disk using the new name
+
+        file.save(path.join(settings.UPLOAD_FOLDER, new_name))
+
         #   3. Send the file to be processed by the `model` service
+
         #      Hint: Use middleware.model_predict() for sending jobs to model
-        #            service using Redis.
+        #      service using Redis.
+
+        predictions, score = model_predict(file)
+
         #   4. Update `context` dict with the corresponding values
-        # TODO
+
         context = {
-            "prediction": None,
-            "score": None,
-            "filename": None,
+            "prediction": predictions,
+            "score": score,
+            "filename": new_name,
         }
 
         # Update `render_template()` parameters as needed
-        # TODO
+
         return render_template(
-            "index.html", filename=None, context=None
+            "index.html", filename=new_name, context=context
         )
     # File received and but it isn't an image
     else:
@@ -78,6 +96,7 @@ def display_image(filename):
 
 @router.route("/predict", methods=["POST"])
 def predict():
+    
     """
     Endpoint used to get predictions without need to access the UI.
 
@@ -103,15 +122,35 @@ def predict():
     """
     # To correctly implement this endpoint you should:
     #   1. Check a file was sent and that file is an image
+
+    file = request.files["file"]
+    file_not_null = (request.form["not_a_file"] is not None)
+    return jsonify({"success": False, "prediction": None, "score": None}), 400
+
+    # file_is_allowed = (utils.allowed_file(request.form["not_a_file"].filename))
+    
+    #if file_not_null and file_is_allowed:
+
     #   2. Store the image to disk
+
+        #file.save(path.join(settings.UPLOAD_FOLDER))  # ask if we need to specifiy a new name, or use the current one
+
     #   3. Send the file to be processed by the `model` service
-    #      Hint: Use middleware.model_predict() for sending jobs to model
-    #            service using Redis.
+    #       Hint: Use middleware.model_predict() for sending jobs to model
+    #       service using Redis.
+
+        #predictions, score = model_predict(file)
+
     #   4. Update and return `rpse` dict with the corresponding values
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
-    # TODO
-    rpse = {"success": False, "prediction": None, "score": None}
+
+        #rpse = {"success": True, "prediction": predictions, "score": score}
+
+    #else:
+        #rpse = {"success": False, "prediction": None, "score": None}
+        #return jsonify(rpse), 400
+
 
 
 @router.route("/feedback", methods=["GET", "POST"])
