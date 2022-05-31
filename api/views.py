@@ -52,14 +52,8 @@ def upload_image():
 
         #   2. Store the image to disk using the new name
         
-        # google
-        completeName = os.path.join(settings.UPLOAD_FOLDER, filename_hash)
-        file1 = open(completeName, "w")
-        file1.write("file information")
-        file1.close()
-
-        # maxi
-        file.save(os.path.join(settings.UPLOAD_FOLDER)) 
+        # funcion save built-in python - buscar
+        file.save(os.path.join(settings.UPLOAD_FOLDER, filename_hash)) 
 
         #   3. Send the file to be processed by the `model` service
         #      Hint: Use middleware.model_predict() for sending jobs to model  <<<<<<<<<<<<<

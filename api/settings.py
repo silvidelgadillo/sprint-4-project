@@ -6,6 +6,7 @@ API_DEBUG = True
 # We will store images uploaded by the user on this folder
 UPLOAD_FOLDER = "static/uploads/"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# uploads de carpeta raíz, static/ se escribe así porque si
 
 # Limit the file weight to 16 MB
 MAX_CONTENT_LENGTH = 16 * 1000 * 1000
@@ -13,6 +14,7 @@ MAX_CONTENT_LENGTH = 16 * 1000 * 1000
 # We will store user feedback on this file
 FEEDBACK_FILEPATH = "feedback/feedback"
 os.makedirs(os.path.basename(FEEDBACK_FILEPATH), exist_ok=True)
+# idem upload
 
 # REDIS settings
 # Queue name
