@@ -1,17 +1,26 @@
 import time
-
+import redis
+import json
 import settings
+import numpy as np
+from tensorflow.keras.applications import resnet50
+from tensorflow.keras.preprocessing import image
 
 
 # TODO
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
-db = None
+db = redis.Redis(
+    host=settings.REDIS_IP, 
+    port=settings.REDIS_PORT, 
+    db=settings.REDIS_DB_ID
+)
+db.ping() # si ping da false va a explotar, porque no te conectas a redis, si da True está ok!
 
 # TODO
 # Load your ML model and assign to variable `model`
-model = None
 
+model = resnet50.ResNet50(include_top=True, weights="imagenet")
 
 def predict(image_name):
     """
@@ -30,8 +39,20 @@ def predict(image_name):
         score as a number.
     """
     # TODO
+    img = image.load_img(image_name, target_size=(224, 224)) # guardo en una variable la imagen en un formato 224x224 cuadrada
+    #plt.imshow(img)
+    x = image.img_to_array(img) #lo paso a x
+    x = np.expand_dims(x, axis=0) # le expando las dim
+    x = resnet50.preprocess_input(x) # 
+    
+    # Get predictions
+    preds = model.predict(x)
 
-    return None, None
+    decode=resnet50.decode_predictions(preds, top=1)
+    predict_pic(decode)[0][0][1]
+    score_pic()[0][0][2]
+
+    return 
 
 
 def classify_process():
@@ -60,8 +81,23 @@ def classify_process():
         # Hint: You should be able to successfully implement the communication
         #       code with Redis making use of functions `brpop()` and `set()`.
         # TODO
-
+        #data_json = db.brpop(settings.REDIS_QUEUE)[1] #brpop te tira dos valores, el primero es el queue y el otro es el value
+        #buscamos la informaicón del queue
+        _, data_json = db.brpop(settings.REDIS_QUEUE) #brpop te tira dos valores, el primero es el queue y el otro es el value 
         # Don't forget to sleep for a bit at the end
+        
+        # cambiamos de str a diccionario
+        data_dict = json.loads(data_json)
+
+        # llamamos al modelo:
+        class_name, score = predict(data_dict['image_name'])
+
+        # esto lo tenemos que mandar a través dle middleware a redis:
+        predict_dict = {"prediction": class_name, "score": score}
+
+        db.set(data_dict['id'], json.dumps(predict_dict)) 
+
+
         time.sleep(settings.SERVER_SLEEP)
 
 
