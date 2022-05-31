@@ -1,5 +1,6 @@
 import time
 import redis
+import os
 import settings
 import json
 from tensorflow.keras.applications import resnet50
@@ -37,14 +38,15 @@ def predict(image_name):
         score as a number.
     """
     # TODO
-    img = image.load_img(settings.UPLOAD_FOLDER + image_name, target_size=(224, 224))
+    file_path = os.path.join(settings.UPLOAD_FOLDER, image_name)
+    img = image.load_img(file_path, target_size=(224, 224))
     img = image.img_to_array(img)
-    x = np.expand_dims(img, axis=0)
-    x = resnet50.preprocess_input(x)
-    preds = model.predict(x)
+    img = np.expand_dims(img, axis=0)
+    img = resnet50.preprocess_input(img)
+    preds = model.predict(img)
     preds_set = resnet50.decode_predictions(preds, top=1)
     pred_class = preds_set[0][0][1]
-    pred_score = f"{preds_set[0][0][2]:.2%}"
+    pred_score = round(float(preds_set[0][0][2]), 4)
 
     return pred_class, pred_score
 

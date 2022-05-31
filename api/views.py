@@ -3,7 +3,8 @@ import os
 import utils
 import settings
 from werkzeug.utils import secure_filename
-import middleware
+from middleware import model_predict
+from flask import jsonify
 
 from flask import (
     Blueprint,
@@ -60,11 +61,11 @@ def upload_image():
         if os.path.isfile(file_path) == False:
             hash_name = secure_filename(hash_name)
             file.save(file_path)
-        predict, score = middleware.model_predict(hash_name)
+        predict, score = model_predict(hash_name)
 
         context = {
             "prediction": predict,
-            "score": score,
+            "score": f"{score:.2%}",
             "filename": hash_name
         }
 
@@ -124,7 +125,29 @@ def predict():
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
     # TODO
+    
     rpse = {"success": False, "prediction": None, "score": None}
+    # file_check = ("file" in request.files) & (request.files["file"] is not None)
+
+    if not "file" in request.files:
+        return jsonify(rpse), 400
+    
+    file = request.files["file"]
+    if request.files["file"] is None:
+        return jsonify(rpse), 400
+
+    if utils.allowed_file(file.filename):
+        hash_name = utils.get_file_hash(file)
+        file_path = os.path.join(settings.UPLOAD_FOLDER, hash_name)
+        if os.path.isfile(file_path) == False:
+            hash_name = secure_filename(hash_name)
+            file.save(file_path)
+        predict, score = model_predict(hash_name)
+        rpse = {"success": True, "prediction": predict, "score": score}
+        return jsonify(rpse), 200
+
+    else:
+        return jsonify(rpse), 400
 
 
 @router.route("/feedback", methods=["GET", "POST"])
