@@ -76,12 +76,12 @@ Number of users : 1000
 Spawn rate: 3
 
 Unscaled:
-[Unscaled Service Locust Test](/api/templates/reportSingle.html)
+[Unscaled Service Locust Test](https:./api/templates/reportSingle.html)
 For the unscaled test, the service remained responsive until we hit the 502 users, bein the median response time 59000 at that point.
 We started to see the first errors (Device or resource busy) at around 200 users.
 
 Scaled:
-[Unscaled Service Locust Test](/api/templates/reportScaled.html)
+[Unscaled Service Locust Test](https:./api/templates/reportScaled.html)
 For the scaled test, the service remained responsive until we hitted 502 as before, but the median response improved from 59000 to 21000
 at that point.
 We observed the first errors at around 111 users.
