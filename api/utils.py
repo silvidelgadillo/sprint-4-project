@@ -17,7 +17,7 @@ def allowed_file(filename):
         True if the file is an image, False otherwise.
     """
     try:
-        images_ext = {'.gif', '.jpeg', '.jpg', '.png'}
+        images_ext = {'.gif', '.jpeg', '.jpg', '.png'} # es un set
         _, img_check = os.path.splitext(filename) # el _ es para descartar una variable de splittext, porque split test te devuelve el nombre
         img_check = img_check.lower()
 
@@ -44,7 +44,7 @@ def get_file_hash(file):
         New filename based in md5 file hash.
     """
     # Current implementation will return the original file name.
-    # filename=  os.path.basename(file.filename)
+
     _ , split_file = os.path.splitext(file.filename)
     data = file.read()
     md5hash = hashlib.md5(data).hexdigest()
