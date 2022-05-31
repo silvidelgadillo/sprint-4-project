@@ -1,9 +1,8 @@
 import utils
 from middleware import model_predict
 import settings
-import json
 import os
-
+import pandas as pd
 
 from flask import (
     Blueprint,
@@ -12,8 +11,7 @@ from flask import (
     render_template,
     jsonify,
     request,
-    url_for,
-    make_response
+    url_for
 )
 
 router = Blueprint("app_router", __name__, template_folder="templates")
@@ -175,10 +173,17 @@ def feedback():
         - "score" model confidence score for the predicted class as float.
     """
     # Get reported predictions from `report` key
-    report = request.form.get("report")
-
+    report_feedback = request.form.get("report")
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
     # TODO
-    return report
+
+    # with open(report_feedback, encoding='utf-8') as inputfile:
+    #     df = pd.read_json(inputfile)
+    # df = pd.read_json(report_feedback)
+    # df = 
+    # feedback_path = settings.FEEDBACK_FILEPATH    
+    # feedback_file = os.path.join(feedback_path, 'feedback.csv')
+    # df.to_csv(feedback_file, encoding='utf-8', index=False)
+    return report_feedback
     # return render_template("index.html")
