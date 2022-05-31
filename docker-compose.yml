@@ -27,6 +27,7 @@ services:
     build:
       context: ./model
       target: build
+    runtime: nvidia
     depends_on:
       - redis
     volumes:
