@@ -165,15 +165,14 @@ def predict():
     #   4. Update and return `rpse` dict with the corresponding values
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
-    # TODO !!!
     
     file = request.files["file"]
     if file and utils.allowed_file(file.filename): # 1
         file.save(os.path.join(settings.UPLOAD_FOLDER, filename)) # 2 
     prediction, score = middleware.model_predict(file) # 3
-    rpse = {"success": True, "prediction": {prediction}, "score": {score}}
+    rpse = {"success": True, "prediction": {prediction}, "score": {score}} # 4
 
-    return jsonify(rpse)
+    return jsonify(rpse), 400
 
 @router.route("/feedback", methods=["GET", "POST"])
 def feedback():
@@ -201,14 +200,17 @@ def feedback():
 
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
-    # TODO !!!
-    '''
-    file.save(os.path.join(settings.FEEDBACK_FILEPATH, report))
+
     
-    pasr json a dict
-    
+    if report:
+    # 'a': opens a file for appending at the end of the 
+    # file without truncating it. Creates a new file if it does not exist.
+        with open(settings.FEEDBACK_FILEPATH, "a") as feedback:
+    # write: used to write into a file using the file object
+            report = feedback.write(f'Report:{report}/n')
+            
     return render_template("index.html")
-    '''
+    
 
 
 
