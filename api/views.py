@@ -113,13 +113,22 @@ def predict():
         - "prediction" model predicted class as string.
         - "score" model confidence score for the predicted class as float.
     """
-    #   1. Check a file was sent and that file is an image:
+    # first lets create de json file for the error cases:
+    dic_error_rpse = {"success": False, "prediction": None, "score": None}
+
+    # if there is no file recives:
+    if "file" not in request.files:
+        return jsonify(dic_error_rpse),400
+
+    # File received but without a name:
     file = request.files["file"]
-    
-    file_exist_not_null = file in request.files["file"] and file is not None
-    file_allowed        = utils.allowed_file(file.filename)
-    
-    if file_exist_not_null and file_allowed :
+    if file.filename == "":
+        return jsonify(dic_error_rpse),400
+
+    # Good cases: 
+    #   1. Check a file was sent and that file is an image:
+       
+    if file and utils.allowed_file(file.filename) :
         new_name    = utils.get_file_hash(file)
         path        = os.path.join(settings.UPLOAD_FOLDER, new_name)
         
@@ -140,13 +149,7 @@ def predict():
     # should return `rpse` dict with default values HTTP 400 Bad Request code
    
     else:
-        flash("Bad request code")
-        rpse = {
-                "success":      False,
-                "prediction":   None, 
-                "score":        None
-                }
-        return jsonify(rpse),400
+        return jsonify(dic_error_rpse),400
     
 @router.route("/feedback", methods=["GET", "POST"])
 def feedback():
