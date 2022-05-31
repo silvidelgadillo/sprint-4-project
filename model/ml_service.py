@@ -75,8 +75,20 @@ def classify_process():
 
         time.sleep(settings.SERVER_SLEEP)
 
+def first_prediction():
+    """Make a fake first prediction when running the containers
+    to avoid first time loading time of the model.
+    """
+
+    img_path = os.path.join("tests/dog.jpeg")
+    img = image.load_img(img_path, target_size=(224, 224))
+    img = image.img_to_array(img)
+    img = np.expand_dims(img, axis=0)
+    model.predict(img)
+
 
 if __name__ == "__main__":
     # Now launch process
     print("Launching ML service...") 
+    first_prediction()
     classify_process()
