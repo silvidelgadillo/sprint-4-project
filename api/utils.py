@@ -4,6 +4,7 @@ import json
 
 ALLOWED_IMG_EXT = {".png", ".jpg", ".jpeg", ".gif"}
 
+
 def allowed_file(filename):
     """
     Checks if the format for the file received is acceptable. For this
@@ -19,12 +20,12 @@ def allowed_file(filename):
     bool
         True if the file is an image, False otherwise.
     """
-    
+
     _, ext = splitext(filename)
     ext = ext.lower()
 
     valid_file = ext in ALLOWED_IMG_EXT
-    
+
     return valid_file
 
 
@@ -44,17 +45,18 @@ def get_file_hash(file):
     str
         New filename based in md5 file hash.
     """
-    
+
     _, ext = splitext(file.filename)
-    readable_hash = md5(file.read()).hexdigest() 
+    readable_hash = md5(file.read()).hexdigest()
     hash_filename = f"{readable_hash}{ext}"
     file.stream.seek(0)
 
     return hash_filename
 
+
 def get_hr_class(classname):
     """
-    Map the class name output from the model to a human readable class name 
+    Map the class name output from the model to a human readable class name
     to show in the front-end.
 
     Parameters
@@ -67,8 +69,8 @@ def get_hr_class(classname):
     str
         Human readable class name.
     """
-    
+
     with open("./classes_map.json", "r") as f:
         classes_map = json.load(f)
-    
+
     return classes_map[classname]

@@ -12,12 +12,12 @@ class ApiUser(HttpUser):
 
     @task(3)
     def predict_endpoint(self):
-        """Select a random image from the images folder 
+        """Select a random image from the images folder
         and make a post request with it to /predict endpoint.
         """
         files = os.listdir("images")
         file = choice(files)
 
         with open(f"images/{file}", "rb") as img:
-            file = [("file",(file, img, "image/jpeg"))]
+            file = [("file", (file, img, "image/jpeg"))]
             self.client.post("/predict", files=file)

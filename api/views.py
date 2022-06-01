@@ -11,7 +11,7 @@ from flask import (
     render_template,
     request,
     url_for,
-    make_response
+    make_response,
 )
 
 router = Blueprint("app_router", __name__, template_folder="templates")
@@ -45,10 +45,10 @@ def upload_image():
 
     # File received and it's an image, we must show it and get predictions
     if file and utils.allowed_file(file.filename):
-        
+
         hash_imgname = utils.get_file_hash(file)
         img_savepath = path.join(settings.UPLOAD_FOLDER, hash_imgname)
-        
+
         if not path.exists(img_savepath):  # Check if the file already exist
             file.stream.seek(0)
             file.save(img_savepath)
@@ -61,9 +61,7 @@ def upload_image():
             "filename": hash_imgname,
         }
 
-        return render_template(
-            "index.html", filename=hash_imgname, context=context
-        )
+        return render_template("index.html", filename=hash_imgname, context=context)
 
     # File received and but it isn't an image
     else:
@@ -76,9 +74,7 @@ def display_image(filename):
     """
     Display uploaded image in our UI.
     """
-    return redirect(
-        url_for("static", filename="uploads/" + filename), code=301
-    )
+    return redirect(url_for("static", filename="uploads/" + filename), code=301)
 
 
 @router.route("/predict", methods=["POST"])
@@ -124,21 +120,17 @@ def predict():
 
     # File received and it's an image
     if file and utils.allowed_file(file.filename):
-        
+
         hash_imgname = utils.get_file_hash(file)
         img_savepath = path.join(settings.UPLOAD_FOLDER, hash_imgname)
-        
+
         if not path.exists(img_savepath):  # Check if the file already exist
             file.stream.seek(0)
             file.save(img_savepath)
 
         prediction, score = model_predict(hash_imgname)
 
-        rpse = {
-            "success": True,
-            "prediction": prediction,
-            "score": score 
-        }
+        rpse = {"success": True, "prediction": prediction, "score": score}
 
         rpse_str = json.dumps(rpse)
 
@@ -173,7 +165,7 @@ def feedback():
           incorrect.
         - "score" model confidence score for the predicted class as float.
     """
-    # Get reported predictions from `report` key
+    # Get reported predictions from `report` key
     report = request.form.get("report")
 
     with open(f"{settings.FEEDBACK_FILEPATH}", "a") as f:

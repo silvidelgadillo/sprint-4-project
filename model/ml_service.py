@@ -9,9 +9,7 @@ import settings
 
 
 db = redis.Redis(
-    host = settings.REDIS_IP,
-    port = settings.REDIS_PORT, 
-    db = settings.REDIS_DB_ID
+    host=settings.REDIS_IP, port=settings.REDIS_PORT, db=settings.REDIS_DB_ID
 )
 
 model = resnet50.ResNet50(include_top=True, weights="imagenet")
@@ -64,16 +62,14 @@ def classify_process():
 
         pred_class, pred_score = pred
 
-        pred_data = {
-            "prediction": pred_class,
-            "score": round(pred_score, 4)
-        }
+        pred_data = {"prediction": pred_class, "score": round(pred_score, 4)}
 
         pred_data_str = json.dumps(pred_data)
 
         db.set(job_data["id"], pred_data_str)
 
         time.sleep(settings.SERVER_SLEEP)
+
 
 def first_prediction():
     """Make a fake first prediction when running the containers

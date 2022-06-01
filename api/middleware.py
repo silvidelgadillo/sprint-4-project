@@ -6,10 +6,9 @@ import time
 
 
 db = redis.Redis(
-    host = settings.REDIS_IP,
-    port = settings.REDIS_PORT, 
-    db = settings.REDIS_DB_ID
+    host=settings.REDIS_IP, port=settings.REDIS_PORT, db=settings.REDIS_DB_ID
 )
+
 
 def model_predict(image_name):
     """
@@ -29,7 +28,7 @@ def model_predict(image_name):
     """
 
     job_id = str(uuid.uuid4())
-    
+
     job_data = {
         "id": job_id,
         "image_name": image_name,
@@ -37,11 +36,7 @@ def model_predict(image_name):
 
     job_data_str = json.dumps(job_data)
 
-    db.rpush(
-        settings.REDIS_QUEUE,
-        job_data_str
-    )
-
+    db.rpush(settings.REDIS_QUEUE, job_data_str)
 
     # Loop until we received the response from our ML model
     while True:
@@ -50,9 +45,9 @@ def model_predict(image_name):
         if pred_data_str:
             db.delete(job_data["id"])
             break
-        
+
         time.sleep(settings.API_SLEEP)
-    
+
     pred_data = json.loads(pred_data_str)
 
     pred_class = pred_data["prediction"]

@@ -1,7 +1,7 @@
 from itertools import product
 import subprocess as sp
 
-### Config parameters
+# Config parameters
 
 num_models_list = [1, 2]
 num_users_list = [10, 100]
@@ -9,7 +9,8 @@ spawn_rate_list = [1, 3]
 run_time = "7m"
 host = "http://127.0.0.1"
 
-### --------------------
+# --------------------
+
 
 def run_tests():
     """Run the tests with different combinations of config parameters, and save
@@ -22,9 +23,17 @@ def run_tests():
 
             # Start containers
 
-            args = ["docker", "compose", "up", "-d", "--build", "--scale", f"model={num_models}"]  
+            args = [
+                "docker",
+                "compose",
+                "up",
+                "-d",
+                "--build",
+                "--scale",
+                f"model={num_models}",
+            ]
 
-            sp.call(args) 
+            sp.call(args)
 
             # Start locust test
 
@@ -34,21 +43,31 @@ def run_tests():
             print(f"Number of users: {num_users}")
             print(f"Spawn rate: {spawn_rate}")
 
-            args = ["locust", "--headless", "-H", host, "-L", "ERROR", 
-                     "-u", str(num_users), "-r", str(spawn_rate), 
-                     "-t", run_time, "--html", html_file]
+            args = [
+                "locust",
+                "--headless",
+                "-H",
+                host,
+                "-L",
+                "ERROR",
+                "-u",
+                str(num_users),
+                "-r",
+                str(spawn_rate),
+                "-t",
+                run_time,
+                "--html",
+                html_file,
+            ]
 
-            sp.call(args)  
-        
+            sp.call(args)
+
             # Stop containers
 
-            args = ["docker", "compose", "down"]  
+            args = ["docker", "compose", "down"]
 
-            sp.call(args) 
-    
+            sp.call(args)
+
 
 if __name__ == "__main__":
     run_tests()
-
-
-
