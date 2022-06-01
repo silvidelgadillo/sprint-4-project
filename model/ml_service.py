@@ -1,14 +1,16 @@
 import time
-
+import redis
 import settings
+import json
 
-
-# TODO
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
-db = None
+db = redis.Redis(
+    host=settings.REDIS_HOST_NAME, 
+    port=settings.REDIS_PORT,
+    db=settings.REDIS_DB_ID
+)
 
-# TODO
 # Load your ML model and assign to variable `model`
 model = None
 
@@ -29,9 +31,7 @@ def predict(image_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-    # TODO
-
-    return "Cat", 0.9999
+    return tuple(["Cat", 0.9876]) # dummy model until finish the rest
 
 
 def classify_process():
@@ -48,18 +48,31 @@ def classify_process():
     while True:
         # Inside this loop you should add the code to:
         #   1. Take a new job from Redis
+
+        queue_name, redis_msg = db.brpop(settings.REDIS_QUEUE)
+        redis_msg = json.loads(redis_msg)
+
+        id         = redis_msg['id']
+        image_name = redis_msg['image_name']
+
         #   2. Run your ML model on the given data
+        
+        pred_class, pred_score = predict(image_name) 
+
         #   3. Store model prediction in a dict with the following shape:
-        #      {
-        #         "prediction": str,
-        #         "score": float,
-        #      }
+        
+        output_msg = {
+            "prediction": pred_class,
+            "score": pred_score,
+        }
+
         #   4. Store the results on Redis using the original job ID as the key
         #      so the API can match the results it gets to the original job
         #      sent
         # Hint: You should be able to successfully implement the communication
         #       code with Redis making use of functions `brpop()` and `set()`.
-        # TODO
+
+        db.set(id, json.dumps(output_msg))
 
         # Don't forget to sleep for a bit at the end
         time.sleep(settings.SERVER_SLEEP)

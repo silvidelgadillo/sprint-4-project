@@ -36,10 +36,11 @@ def upload_image():
         return redirect(request.url)
 
     # File received but no filename is provided, show basic UI
-    file = request.files["file"]
+
     if file.filename == "":
         flash("No image selected for uploading")
         return redirect(request.url)
+    file = request.files["file"] # estaba arriba, por error Index de Ine muevo para despues del if
 
     # File received and it's an image, we must show it and get predictions
     if file and utils.allowed_file(file.filename):
@@ -56,22 +57,35 @@ def upload_image():
         file.save(os.path.join(settings.UPLOAD_FOLDER, filename_hash)) 
 
         #   3. Send the file to be processed by the `model` service
-        #      Hint: Use middleware.model_predict() for sending jobs to model  <<<<<<<<<<<<<
+        #      Hint: Use middleware.model_predict() for sending jobs to model
         #            service using Redis.
-                # https://flask.palletsprojects.com/en/2.1.x/quickstart/#rendering-templates
+
+        prediction, score = model_predict(filename_hash)
+        # result_tuple = model_predict(filename_hash)
+        # prediction   = result_tuple[0]
+        # score        = result_tuple[1]
+
         #   4. Update `context` dict with the corresponding values
-        # TODO
+
+        # format for properly view in the UI
+            # prediction = separar guiones + .capitalize()
+            # score = round(score*100,2)
+
         context = {
-            "prediction": None,
-            "score": None,
-            "filename": None,
+            "prediction": prediction,
+            "score": score,
+            "filename": filename_hash,
         }
 
         # Update `render_template()` parameters as needed
-        # TODO
+        # https://flask.palletsprojects.com/en/2.1.x/quickstart/#rendering-templates
+
         return render_template(
-            "index.html", filename=None, context=None
+            "index.html",
+            filename = filename_hash,
+            context  = context
         )
+
     # File received and but it isn't an image
     else:
         flash("Allowed image types are -> png, jpg, jpeg, gif")
@@ -155,3 +169,6 @@ def feedback():
     # TODO
 
     return render_template("index.html")
+
+
+

@@ -2,6 +2,7 @@ import os
 import hashlib
 
 def allowed_file(filename):
+    
     """
     Checks if the format for the file received is acceptable. For this
     particular case, we must accept only image files.
@@ -29,8 +30,6 @@ def allowed_file(filename):
         check_allowed_file = False
 
     return check_allowed_file
-
-
 def get_file_hash(file):
     """
     Returns a new filename based on the file content using MD5 hashing.
