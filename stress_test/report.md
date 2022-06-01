@@ -6,7 +6,7 @@ First Round:
 - Number of users: 100 
 - Spawn Rate: 3
 - time: 10 minutes
-- Weigth: index(1) ; predict(3) 
+- weight: index(1) ; predict(3) 
 - Not Scaled
 --------Results: 
 --Get:
@@ -22,7 +22,7 @@ Second Round:
 - Number of users: 100 
 - Spawn Rate: 3
 - time: 10 minutes
-- Weigth: index(1) ; predict(3) 
+- weight: index(1) ; predict(3) 
 - Scaled: --scale model=3
 
 --------Results: 
