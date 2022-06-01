@@ -9,6 +9,7 @@ from flask import (
     render_template,
     request,
     url_for,
+    jsonify
 )
 
 router = Blueprint("app_router", __name__, template_folder="templates")
@@ -39,6 +40,7 @@ def upload_image():
     if file.filename == "":
         flash("No image selected for uploading")
         return redirect(request.url)
+    
 
     # File received and it's an image, we must show it and get predictions
     if file and utils.allowed_file(file.filename):
@@ -53,7 +55,6 @@ def upload_image():
         
          # Check the file already exist
         if not os.path.exists(image_path): 
-            #file.stream.seek(0)
             file.save(image_path)
 
         context = {
@@ -119,17 +120,32 @@ def predict():
         - "score" model confidence score for the predicted class as float.
     """
     # To correctly implement this endpoint you should:
+    rpse = {"success": False, "prediction": None, "score": None}
+    
     #   1. Check a file was sent and that file is an image
-    #   2. Store the image to disk
+    if "file" in request.files and file.filename != "":
+        file = request.files["file"]
+        
+        if file and utils.allowed_file(file.filename):
+            unique_filename = utils.get_file_hash(file)
+            image_path = os.path.join(settings.UPLOAD_FOLDER, unique_filename)
+
+     #   2. Store the image to disk if it does not exist
+            if not os.path.exists(image_path): 
+                file.save(image_path)
+
     #   3. Send the file to be processed by the `model` service
     #      Hint: Use middleware.model_predict() for sending jobs to model
     #            service using Redis.
+            pred_result = model_predict(unique_filename)
+   
     #   4. Update and return `rpse` dict with the corresponding values
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
-    # TODO
-    rpse = {"success": False, "prediction": None, "score": None}
-
+            rpse.update ({"success": True, "prediction": pred_result[0], "score":pred_result[1]})
+            return jsonify(rpse)
+    #rpse = {"success": False, "prediction": None, "score": None}
+    return jsonify(rpse), 400
 
 @router.route("/feedback", methods=["GET", "POST"])
 def feedback():
