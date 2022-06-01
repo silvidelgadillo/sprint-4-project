@@ -197,6 +197,7 @@ def feedback():
     # already provided in settings.py module
 
     with open(settings.FEEDBACK_FILEPATH, "a+") as feedback:
+        # parametro 'a+' - (a) si no existe el archivo, lo crea. si existe lo abre y lo lee
         feedback.write(str(report) + '\n')
     
     # Alan
