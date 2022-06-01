@@ -103,7 +103,7 @@ def display_image(filename):
 
 
 @router.route("/predict", methods=["POST"])
-def predict():
+def predict(file):
     """
     Endpoint used to get predictions without need to access the UI.
 
@@ -129,15 +129,42 @@ def predict():
     """
     # To correctly implement this endpoint you should:
     #   1. Check a file was sent and that file is an image
+
+    if file.filename == "":
+ 
+        file = request.files["file"]
+
+        if file and utils.allowed_file(file.filename):
+        
+            filename_hash = utils.get_file_hash(file)
+
     #   2. Store the image to disk
+            file.save(os.path.join(settings.UPLOAD_FOLDER, filename_hash))
+
     #   3. Send the file to be processed by the `model` service
     #      Hint: Use middleware.model_predict() for sending jobs to model
     #            service using Redis.
+
+            prediction, score = model_predict(filename_hash)
+
+            rpse = {
+                "prediction": prediction,
+                "score": score,
+                "filename": filename_hash,
+            }
+
     #   4. Update and return `rpse` dict with the corresponding values
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
-    # TODO
-    rpse = {"success": False, "prediction": None, "score": None}
+
+    else:
+        rpse = {
+            "success": False,
+            "prediction": 'Bad Request',
+            "score": 400
+        }
+    
+    return rpse
 
 
 @router.route("/feedback", methods=["GET", "POST"])

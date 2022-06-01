@@ -12,7 +12,7 @@ db = redis.Redis(
 )
 
 # Load your ML model and assign to variable `model`
-model = None
+model = None # ResNet50
 
 
 def predict(image_name):
@@ -49,8 +49,8 @@ def classify_process():
         # Inside this loop you should add the code to:
         #   1. Take a new job from Redis
 
-        queue_name, redis_msg = db.brpop(settings.REDIS_QUEUE)
-        redis_msg = json.loads(redis_msg)
+        _, json_redis_msg = db.brpop(settings.REDIS_QUEUE)
+        redis_msg = json.loads(json_redis_msg)
 
         id         = redis_msg['id']
         image_name = redis_msg['image_name']
