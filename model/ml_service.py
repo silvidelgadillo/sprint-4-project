@@ -58,9 +58,9 @@ def predict(image_name):
     # with top = 1 we choose the one with the hightes prob. 
     preds       = resnet50.decode_predictions(preds, top=1)
     prediction  = preds[0][0][1]
-    score       = f"{preds[0][0][2]:.2%}"
+    score       = preds[0][0][2]
 
-    return prediction.capitalize(), score
+    return prediction.capitalize(), round(float(score),4)
 
 
 def classify_process():

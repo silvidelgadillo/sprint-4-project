@@ -9,6 +9,15 @@ once everithing works I finished the upload_image function.
 4) views --> predict()
 5) Feedback
 
-Test: I think that the hardest thing for me was to find a way to passed the predict()
+Test: 
+
+    1) Testing utility function.
+    2) Testing predict and feedback.
+    3) Integration testing.
+    4) Testing predict using postman and it works
+    5) stress_test: install and understand locust. Understand locust charts.
+
+6) TODO: Inform how much de api in my pc can support!!!! Ver las RPS
+7) Scale
 
 
