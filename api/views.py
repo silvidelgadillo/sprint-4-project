@@ -57,7 +57,7 @@ def upload_image():
         file.save(settings.UPLOAD_FOLDER + name_hash)
         prediction, score = model_predict(name_hash)
         context = {
-            "prediction": prediction,
+            "prediction": prediction.replace("_", " "),
             "score": score,
             "filename": name_hash
         }
@@ -161,5 +161,8 @@ def feedback():
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
     # TODO
+    file = open(settings.FEEDBACK_FILEPATH, 'at' )
+    file.write(str(report) + '\n')
+    file.close()
 
     return render_template("index.html")
