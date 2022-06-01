@@ -1,6 +1,9 @@
 <!doctype html>
+<html>
 <title>ML API</title>
-<h2>Select a file to upload</h2>
+
+<body background="img.jpg">
+<h2 style="color:#2db421 ; font-family: Arial, Helvetica, sans-serif; background-color: aquamarine; text-align: center;">Select a file to upload</h2>
 <p>
     {% with messages = get_flashed_messages() %}
       {% if messages %}
@@ -39,3 +42,5 @@
         <input type="submit" value="Submit">
     </p>
 </form>
+</body>
+</html>

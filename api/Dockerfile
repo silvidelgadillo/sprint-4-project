@@ -10,7 +10,7 @@ ADD ./ /src/
 WORKDIR /src
 
 FROM base as test
-RUN ["pytest", "-v", "/src/tests"]
+RUN ["pytest", "-v", "-rA","/src/tests"]
 
 FROM base as build
 ENTRYPOINT ["gunicorn", "--workers=8", "--bind", "0.0.0.0:5000", "app:app"]
