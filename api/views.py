@@ -123,9 +123,9 @@ def predict():
     rpse = {"success": False, "prediction": None, "score": None}
     
     #   1. Check a file was sent and that file is an image
-    if "file" in request.files and file.filename != "":
+    if "file" in request.files:
         file = request.files["file"]
-        
+
         if file and utils.allowed_file(file.filename):
             unique_filename = utils.get_file_hash(file)
             image_path = os.path.join(settings.UPLOAD_FOLDER, unique_filename)
@@ -170,9 +170,12 @@ def feedback():
     """
     # Get reported predictions from `report` key
     report = request.form.get("report")
-
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
-    # TODO
+    feedback_path =  settings.FEEDBACK_FILEPATH
+
+    with open(feedback_path, "a+") as f:
+        f.write(f'{report}\n')
+        flash('Thanks for your feedback')
 
     return render_template("index.html")
