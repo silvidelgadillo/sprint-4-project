@@ -19,12 +19,10 @@ class UserBehavior(TaskSet):
         payload={}
 
         self.client.post("http://0.0.0.0/predict",
-        headers=headers,
-        data=payload,
-        files=files
-        )
-
-    
+                        headers=headers,
+                        data=payload,
+                        files=files
+                        )    
 
 
 class APIUser(HttpUser):

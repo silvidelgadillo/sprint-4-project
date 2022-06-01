@@ -1,8 +1,10 @@
 import utils
 import os
 import settings
-from werkzeug.utils import secure_filename
 import middleware
+import json
+from werkzeug.utils import secure_filename
+from middleware     import model_predict
 
 from flask import (
     Blueprint,
@@ -53,26 +55,27 @@ def upload_image():
         #      Hint: Use middleware.model_predict() for sending jobs to model
         #            service using Redis.
         #   4. Update `context` dict with the corresponding values
-        new_name = utils.get_file_hash(file)      
+        new_name      = utils.get_file_hash(file)      
         file.filename = new_name
-        filename_sec = secure_filename(file.filename)
+        filename_sec  = secure_filename(file.filename)
 
         already_exist = os.path.exists(os.path.join(settings.UPLOAD_FOLDER, 
                                         filename_sec))
         if already_exist == False:
             file.save(os.path.join(settings.UPLOAD_FOLDER, filename_sec))
 
-        predict, score = middleware.model_predict(new_name)
-        context = {
-            "prediction": predict,
-            "score": score,
-            "filename": new_name
-            }
+        predict, score = model_predict(new_name)
+        context        = {"prediction": predict,
+                        "score": score,
+                        "filename": new_name
+                        }
 
         # Update `render_template()` parameters as needed
         # TODO
-        return render_template("index.html",filename= new_name,
-                                context= context)
+        return render_template("index.html",
+                                filename= new_name,
+                                context= context
+                                )
     # File received and but it isn't an image
     else:
         flash("Allowed image types are -> png, jpg, jpeg, gif")
@@ -115,12 +118,22 @@ def predict():
         - "score" model confidence score for the predicted class as float.
     """
     # To correctly implement this endpoint you should:
-    #   1. Check a file was sent and that file is an image
-    exist = file in request.files and request.files[file] is not None
-    if exist and utils.allowed_file(file.filename):
-        new_name = utils.get_file_hash(file)      
+    #   1. Check a file was sent and that file is an image    
+    # No file received, show basic UI
+    if "file" not in request.files:
+        rpse = {"success": False, "prediction": None, "score": None}
+        return jsonify(rpse), 400
+
+    # File received but no filename is provided, show basic UI
+    file = request.files["file"]
+    if file.filename == "":
+        rpse = {"success": False, "prediction": None, "score": None}
+        return jsonify(rpse), 400
+
+    if file and utils.allowed_file(file.filename):
+        new_name      = utils.get_file_hash(file)      
         file.filename = new_name
-        filename_sec = secure_filename(file.filename)
+        filename_sec  = secure_filename(file.filename)
 
     #   2. Store the image to disk
     # Check if the image it´s already in the folder
@@ -132,9 +145,9 @@ def predict():
 
     #   3. Send the file to be processed by the `model` service
     # Predict and save the results
-        predict, score = middleware.model_predict(new_name)
-    #      Hint: Use middleware.model_predict() for sending jobs to model
-    #            service using Redis.
+        predict, score = model_predict(new_name)
+    # Hint: Use middleware.model_predict() for sending jobs to model
+    # service using Redis.
 
     #   4. Update and return `rpse` dict with the corresponding values
         rpse = {"success": True, "prediction": predict, "score": score}
@@ -146,7 +159,6 @@ def predict():
     # File received and but it isn't an image
     else:
         rpse = {"success": False, "prediction": None, "score": None}
-        flash(rpse)
         return jsonify(rpse), 400
 
 
@@ -174,11 +186,20 @@ def feedback():
     """
     # Get reported predictions from `report` key
     report = request.form.get("report")
-
+    print(report)
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
-    # TODO
-    
+    # TODO    
+
+    # We will store user feedback on this file
+    FEEDBACK_FILEPATH = "feedback/feedback"
+    # os.makedirs(os.path.basename(FEEDBACK_FILEPATH), exist_ok=True)
+
+    completeName = os.path.join(FEEDBACK_FILEPATH)
+    file1 = open(completeName, "w")
+    file1.write(str(report))
+    file1.close()
+
     return render_template("index.html")
 
 if __name__ == '__main__':

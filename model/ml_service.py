@@ -2,19 +2,21 @@ import time
 import settings 
 import redis
 import json
-from tensorflow.keras.applications import resnet50
-from tensorflow.keras.preprocessing import image
 import numpy as np
+
+from tensorflow.keras.applications  import resnet50
+from tensorflow.keras.preprocessing import image
+
 
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
 db = redis.Redis(
-    host = settings.REDIS_IP,
-    port = settings.REDIS_PORT,
-    db= settings.REDIS_DB_ID)
-
-# TODO
+                host = settings.REDIS_IP,
+                port = settings.REDIS_PORT,
+                db= settings.REDIS_DB_ID
+                )
 # Load your ML model and assign to variable `model`
+# TODO
 model = resnet50.ResNet50(include_top=True, weights="imagenet")
 
 def predict(image_name):
@@ -43,6 +45,7 @@ def predict(image_name):
     x = resnet50.preprocess_input(x)
     ## GET THE PREDICTIONS
     predictions = model.predict(x)
+
     _, class_name, pred_probability = resnet50.decode_predictions(predictions, top=1)[0][0]
     tup_ret = (str(class_name), round(float(pred_probability),3))
     
@@ -64,7 +67,7 @@ def classify_process():
         # Inside this loop you should add the code to:
         #   1. Take a new job from Redis
         _, msg = db.brpop("app_queue")
-        msg = json.loads(msg)
+        msg    = json.loads(msg)
         #   2. Run your ML model on the given data
         ## msg['image_name'] because is a dict, and image_name is the key
         pred_class, pred_score = predict(msg["image_name"])

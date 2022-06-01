@@ -3,15 +3,15 @@ import settings
 import redis
 import json
 import uuid
-# import ml_service
 
 # TODO
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
 db = redis.Redis(
-    host = settings.REDIS_IP,
-    port = settings.REDIS_PORT,
-    db= settings.REDIS_DB_ID)
+                host = settings.REDIS_IP,
+                port = settings.REDIS_PORT,
+                db   = settings.REDIS_DB_ID
+                )
 
 def model_predict(image_name):
     """
