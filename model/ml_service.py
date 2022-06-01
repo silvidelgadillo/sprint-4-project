@@ -89,6 +89,6 @@ def first_prediction():
 
 if __name__ == "__main__":
     # Now launch process
-    print("Launching ML service...") 
+    print("Launching ML service...")
     first_prediction()
     classify_process()

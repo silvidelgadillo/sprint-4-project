@@ -1,12 +1,23 @@
-from locust import HttpLocust, TaskSet, task
+from locust import HttpUser, task, between
+from random import choice
+import os
 
 
-class UserBehavior(TaskSet):
+class ApiUser(HttpUser):
+    wait_time = between(1, 5)
 
-    # Put your stress tests here
-    # TODO
-    raise NotImplementedError
+    @task(1)
+    def index_page(self):
+        self.client.get("/")
 
+    @task(3)
+    def predict_endpoint(self):
+        """Select a random image from the images folder 
+        and make a post request with it to /predict endpoint.
+        """
+        files = os.listdir("images")
+        file = choice(files)
 
-class APIUser(HttpLocust):
-    task_set = UserBehavior
+        with open(f"images/{file}", "rb") as img:
+            file = [("file",(file, img, "image/jpeg"))]
+            self.client.post("/predict", files=file)
