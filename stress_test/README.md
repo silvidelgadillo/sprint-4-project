@@ -39,7 +39,7 @@ All the test were run with the GPU enabled and disabled (two different folders i
 
 # Conclusions
 
-For some reason regarding the memory, when scaling to two models using GPU, the model containers failed and closed.
+For some reason regarding the memory, when scaling to two models using GPU, the model containers failed and closed. Consequently, in the ```reports/with_gpu``` folder, there are only the test without scaling the model.
 
 On the other hand, without scaling the benefits of using GPU vs CPU slightly increased as the test became more demanding (10% of increase), with a mean improvement of the response time of approximately 45% using GPU (using 90%ile for calculation). I think this is a low value, given that in Sprint Project 3 when changing from CPU to GPU I've seen decreases in processing time of about 10x or more. My guess here is that Flask, redis or gunicorn impose limits when reducing the response time, but I really don't know.
 
