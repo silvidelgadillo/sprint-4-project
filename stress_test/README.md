@@ -31,7 +31,7 @@ All the test were run with the GPU enabled and disabled (two different folders i
 
 * **Graphics Card**: nVidia GP107M [GeForce GTX 1050 Ti Mobile] 4 GB VRAM; Intel HD Graphics 630
 
-* **Disk**: TOSHIBA MQ02ABD1; 1 TB
+* **Disk**: TOSHIBA HDD 1 TB
 
 * **Ram**: Total memory: 16 GB; 2 modules in dual-channel: 8 GB; 2400 MHz
 
@@ -39,9 +39,9 @@ All the test were run with the GPU enabled and disabled (two different folders i
 
 # Conclusions
 
-For some reason regarding the memory, when scaling to two models using GPU, the model containers failed and closed. I didn't deep dive into that issue. In any case, I leave the locust reports for them in the respective folder.
+For some reason regarding the memory, when scaling to two models using GPU, the model containers failed and closed.
 
-On the other hand without scaling, the benefits of using GPU vs using CPU increased noticeably as the test became more demanding, but not as much when the test was light. When using 10 users and 1 in spawn rate, the response time decreased by ~25% using GPU. I think this is due to the limits that Flask or gunicorn impose in reducing the response time.
+On the other hand, without scaling the benefits of using GPU vs CPU slightly increased as the test became more demanding (10% of increase), with a mean improvement of the response time of approximately 45% using GPU (using 90%ile for calculation). I think this is a low value, given that in Sprint Project 3 when changing from CPU to GPU I've seen decreases in processing time of about 10x or more. My guess here is that Flask, redis or gunicorn impose limits when reducing the response time, but I really don't know.
 
-Regarding scaling using the CPU, globally, the response time was less than a half, which means that the API can handle more than double RPS using two model containers.
+Regarding scaling using the CPU, globally, the response time was less than a half, which means that the API can handle more than double RPS using two models. Furthermore, working with 2 models on CPU gives us better results than working with only 1 model on GPU (~14 RPS vs ~10 RPS respectively).
 
