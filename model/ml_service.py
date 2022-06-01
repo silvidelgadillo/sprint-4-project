@@ -1,3 +1,8 @@
+from tensorflow.keras.applications import ResNet50
+from tensorflow.keras.applications.resnet50 import preprocess_input, decode_predictions
+
+from PIL import Image
+import numpy as np
 import time
 import redis
 import settings
@@ -14,8 +19,8 @@ db = redis.Redis(
 )
 
 # TODO
-# Load your ML model and assign to variable `model`
-model = None
+# Load your ML model and assign to variable 'model'
+model = ResNet50(weights="imagenet")
 
 
 def predict(image_name):
@@ -35,8 +40,16 @@ def predict(image_name):
         score as a number.
     """
     # TODO
+    path = settings.UPLOAD_FOLDER + image_name
+    img = Image.open(path).resize((224, 224), resample = 0)
+    img = np.array(img)
+    img = np.expand_dims(img, axis = 0)
+    img = preprocess_input(img)
+    pred = model.predict(img)
+    class_name = decode_predictions(pred, top=1)[0][0][1]
+    pred_probability = round(decode_predictions(pred, top=1)[0][0][2], 3)
 
-    return "Rata", 99.9
+    return tuple([class_name, pred_probability])
 
 
 def classify_process():
@@ -70,7 +83,7 @@ def classify_process():
         pred_class, pred_score = predict(msg['image_name'])
         prediction = {
           "prediction":pred_class,
-          "score":pred_score
+          "score":str(pred_score)
         }
         db.set(msg["id"], json.dumps(prediction))
 
