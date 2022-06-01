@@ -10,6 +10,7 @@ from flask import (
     render_template,
     request,
     url_for,
+    jsonify,
 )
 
 router = Blueprint("app_router", __name__, template_folder="templates")
@@ -53,12 +54,12 @@ def upload_image():
         #   4. Update `context` dict with the corresponding values
         # TODO
         name_hash = utils.get_file_hash(file)
-        file.save(os.path.join(settings.UPLOAD_FOLDER, name_hash))
+        file.save(settings.UPLOAD_FOLDER + name_hash)
         prediction, score = model_predict(name_hash)
         context = {
             "prediction": prediction,
             "score": score,
-            "filename": name_hash,
+            "filename": name_hash
         }
 
         # Update `render_template()` parameters as needed
@@ -117,7 +118,20 @@ def predict():
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
     # TODO
+    if "file" in request.files:
+      file = request.files["file"]
+
+      if file and utils.allowed_file(file.filename):
+
+        name_hash = utils.get_file_hash(file)
+        file.save(settings.UPLOAD_FOLDER + name_hash)
+        prediction, score = model_predict(name_hash)
+
+        rpse = {"success": True, "prediction": prediction, "score": score}
+        return jsonify(rpse)
+
     rpse = {"success": False, "prediction": None, "score": None}
+    return jsonify(rpse), 400
 
 
 @router.route("/feedback", methods=["GET", "POST"])
