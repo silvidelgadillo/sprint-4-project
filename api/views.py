@@ -10,6 +10,7 @@ from flask import (
     render_template,
     request,
     url_for,
+    jsonify,
 )
 
 router = Blueprint("app_router", __name__, template_folder="templates")
@@ -36,11 +37,11 @@ def upload_image():
         return redirect(request.url)
 
     # File received but no filename is provided, show basic UI
-
+    file = request.files["file"]
     if file.filename == "":
         flash("No image selected for uploading")
         return redirect(request.url)
-    file = request.files["file"] # estaba arriba, por error Index de Ine muevo para despues del if
+
 
     # File received and it's an image, we must show it and get predictions
     if file and utils.allowed_file(file.filename):
@@ -103,7 +104,7 @@ def display_image(filename):
 
 
 @router.route("/predict", methods=["POST"])
-def predict(file):
+def predict():
     """
     Endpoint used to get predictions without need to access the UI.
 
@@ -130,7 +131,8 @@ def predict(file):
     # To correctly implement this endpoint you should:
     #   1. Check a file was sent and that file is an image
 
-    if file.filename == "":
+    if "file" in request.files:
+    # if file.filename == "":
  
         file = request.files["file"]
 
@@ -148,23 +150,23 @@ def predict(file):
             prediction, score = model_predict(filename_hash)
 
             rpse = {
+                "success": True,
                 "prediction": prediction,
                 "score": score,
-                "filename": filename_hash,
             }
+            return jsonify(rpse)
 
     #   4. Update and return `rpse` dict with the corresponding values
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
 
-    else:
-        rpse = {
-            "success": False,
-            "prediction": 'Bad Request',
-            "score": 400
-        }
+    rpse = {
+        "success": False,
+        "prediction": None,
+        "score": None
+    }
     
-    return rpse
+    return jsonify(rpse), 400
 
 
 @router.route("/feedback", methods=["GET", "POST"])
@@ -193,7 +195,14 @@ def feedback():
 
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
-    # TODO
+
+    with open(settings.FEEDBACK_FILEPATH, "a+") as feedback:
+        feedback.write(str(report) + '\n')
+    
+    # Alan
+    # feedback = open(settings.FEEDBACK_FILEPATH, "a+")
+    # feedback.write(str(report) + '\n')
+    # feedback.close()
 
     return render_template("index.html")
 

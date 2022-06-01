@@ -15,7 +15,7 @@ db = redis.Redis(
 model = None # ResNet50
 
 
-def predict(image_name):
+def predict(img_name):
     """
     Load image from the corresponding folder based on the image name
     received, then, run our ML model to get predictions.
