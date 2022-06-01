@@ -53,8 +53,9 @@ def model_predict(image_name):
     while True:
         # Attempt to get model predictions using job_id
         # Hint: Investigate how can we get a value using a key from Redis
-        output_str = db.get(job_id)
         if db.exists(job_id):
+            # Get job of redis queue
+            output_str = db.get(job_id)
             # Don't forget to delete the job from Redis after we get the results!
             # Then exit the loop
             db.delete(job_id)
@@ -62,5 +63,6 @@ def model_predict(image_name):
         # Sleep some time waiting for model results
         time.sleep(settings.API_SLEEP)
     
+    # Load job as a dict
     output_dic = json.loads(output_str)
     return tuple([output_dic['prediction'],output_dic['score']])
