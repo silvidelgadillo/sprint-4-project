@@ -120,17 +120,19 @@ def predict():
     # To correctly implement this endpoint you should:
     #   1. Check a file was sent and that file is an image    
     # No file received, show basic UI
+    check = False
+    rpse = {"success": check, "prediction": None, "score": None}
+    
     if "file" not in request.files:
-        rpse = {"success": False, "prediction": None, "score": None}
         return jsonify(rpse), 400
 
     # File received but no filename is provided, show basic UI
     file = request.files["file"]
     if file.filename == "":
-        rpse = {"success": False, "prediction": None, "score": None}
         return jsonify(rpse), 400
 
     if file and utils.allowed_file(file.filename):
+        check = True
         new_name      = utils.get_file_hash(file)      
         file.filename = new_name
         filename_sec  = secure_filename(file.filename)
@@ -150,7 +152,7 @@ def predict():
     # service using Redis.
 
     #   4. Update and return `rpse` dict with the corresponding values
-        rpse = {"success": True, "prediction": predict, "score": score}
+        rpse = {"success": check, "prediction": predict, "score": score}
 
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
@@ -158,7 +160,7 @@ def predict():
         return jsonify(rpse), 200
     # File received and but it isn't an image
     else:
-        rpse = {"success": False, "prediction": None, "score": None}
+        rpse = {"success": check, "prediction": None, "score": None}
         return jsonify(rpse), 400
 
 
@@ -196,8 +198,9 @@ def feedback():
     # os.makedirs(os.path.basename(FEEDBACK_FILEPATH), exist_ok=True)
 
     completeName = os.path.join(FEEDBACK_FILEPATH)
-    file1 = open(completeName, "w")
+    file1 = open(completeName, "a")
     file1.write(str(report))
+    file1.write("\n")
     file1.close()
 
     return render_template("index.html")
