@@ -47,7 +47,7 @@ def predict(image_name):
     img = preprocess_input(img)
     pred = model.predict(img)
     class_name = decode_predictions(pred, top=1)[0][0][1]
-    pred_probability = round(decode_predictions(pred, top=1)[0][0][2], 3)
+    pred_probability = round(float(decode_predictions(pred, top=1)[0][0][2]), 4)
 
     return tuple([class_name, pred_probability])
 
@@ -83,7 +83,7 @@ def classify_process():
         pred_class, pred_score = predict(msg['image_name'])
         prediction = {
           "prediction":pred_class,
-          "score":str(pred_score)
+          "score":pred_score
         }
         db.set(msg["id"], json.dumps(prediction))
 
