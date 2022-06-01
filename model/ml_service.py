@@ -31,7 +31,7 @@ def predict(img_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-    return tuple(["Cat", 0.9876]) # dummy model until finish the rest
+    return tuple(["Eskimo_dog", 0.9346]) # dummy model until finish the rest
 
 
 def classify_process():
