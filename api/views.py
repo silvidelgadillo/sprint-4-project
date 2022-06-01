@@ -49,7 +49,12 @@ def upload_image():
         unique_filename = utils.get_file_hash(file)
         
         #   2. Store the image to disk using the new name
-        file.save(os.path.join(settings.UPLOAD_FOLDER, unique_filename))
+        image_path = os.path.join(settings.UPLOAD_FOLDER, unique_filename)
+        
+         # Check the file already exist
+        if not os.path.exists(image_path): 
+            #file.stream.seek(0)
+            file.save(image_path)
 
         context = {
             "prediction": None,
@@ -64,13 +69,13 @@ def upload_image():
         context.update({
             "prediction": pred_result[0],
             "score": pred_result[1],
-            "filename": file.filename,
+            "filename": unique_filename,
         })
 
         # Update `render_template()` parameters as needed       
 
         return render_template(
-            "index.html", filename=context['filename'], context=context
+            "index.html", filename=unique_filename, context=context
         )
     # File received and but it isn't an image
     else:
