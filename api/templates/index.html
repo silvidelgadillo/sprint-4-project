@@ -1,41 +1,71 @@
 <!doctype html>
-<title>ML API</title>
-<h2>Select a file to upload</h2>
-<p>
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul>
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-</p>
-{% if filename %}
-    <div>
-        <img src="{{ url_for('app_router.display_image', filename=filename) }}">
-    </div>
-    {% if context['prediction'] %}
-        <div class="row">
-            <div class="col-25">
-            <label for="subject">Predicted class: {{ context['prediction'] }} </label><br>
-            <label for="subject">Score: {{ context['score'] }} </label>
-            </div>
-        </div>
-        <form id="form" method="POST" action="/feedback">
-            <button type="submit">Report incorrect answer</button>
-            <input name="report" style="visibility: hidden;" value="{'filename': '{{ filename }}', 'prediction': '{{ context['prediction'] }}', 'score': {{ context['score'] }} }"/>
-        </form>
-    {% endif %}
-{% endif %}
-<form method="post" action="/" enctype="multipart/form-data">
-    <dl>
-        <p>
-            <input type="file" name="file" autocomplete="off" required>
-        </p>
-    </dl>
+<style>
+
+::-webkit-file-upload-button {
+    background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(51,120,198,1) 3%, rgba(56,124,201,1) 74%, rgba(226,226,226,1) 83%, rgba(181,74,200,1) 100%, rgba(9,11,121,1) 100%);  
+    border-radius: 6px;
+    border-right: transparent;
+
+}
+
+</style>
+
+<body style="background-image: url('https://grupoinmotion.com/wp-content/uploads/2020/12/inteligencia-artificial-770x400.jpg');  background-size: cover; position: relative;">
+
+    <div style="width: 15%;height: 320px;background-color:transparent ; position: relative;margin-top: 15%;margin-left: 45%;border-radius: 10%;">
+    <center><title>ML API</title></center>
+    <center><h2>Select a file to upload</h2></center>
     <p>
-        <input type="submit" value="Submit">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        {% endwith %}
     </p>
-</form>
+    {% if filename %}
+        <div >
+            <center><img src="{{ url_for('app_router.display_image', filename=filename) }}" style="max-width: 50% ;max-height: 50%;"></center>
+        </div>
+        {% if context['prediction'] %}
+            <div class="row">
+                <div class="col-25">
+                <center><b><label for="subject">Predicted class: {{ context['prediction'] }} </label></b></center>
+                <center><b><label for="subject">Score: {{ context['score'] * 100 }} % </label></b></center>
+                </div>
+            </div>
+            <form id="form" method="POST" action="/feedback">
+                <center><button type="submit" style=" 
+                background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(42,95,154,1) 4%, rgba(40,105,166,1) 41%, rgba(213,197,228,1) 49%, rgba(198,102,192,1) 57%, rgba(160,57,161,1) 100%, rgba(9,11,121,1) 100%, rgba(0,212,255,1) 100%);                
+                border-radius: 6px;
+                width: 65%;
+                margin-left: -10px;">Report incorrect answer</button></center>
+                <input  name="report" style="visibility: hidden;" value="{'filename': '{{ filename }}', 'prediction': '{{ context['prediction'] }}', 'score': {{ context['score'] }} }" style="border-radius: 10%" />
+            </form>
+        {% endif %}
+    {% endif %}
+    <form method="post" action="/" enctype="multipart/form-data" style="margin-top: -10px;">
+        <dl >
+            <p style="background-color: red;">
+                <center><input type="file" name="file" autocomplete="off" required style=" 
+                    background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(42,95,154,1) 4%, rgba(40,105,166,1) 41%, rgba(213,197,228,1) 49%, rgba(198,102,192,1) 57%, rgba(160,57,161,1) 100%, rgba(9,11,121,1) 100%, rgba(0,212,255,1) 100%);              
+                    border-radius: 6px;
+                    width: 65%;
+                    margin-left: -20px;" ></center>
+            </p>
+        </dl>
+        <p>
+            <center><input type="submit" value="Submit" style=" 
+                background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(42,95,154,1) 4%, rgba(40,105,166,1) 41%, rgba(213,197,228,1) 49%, rgba(198,102,192,1) 57%, rgba(160,57,161,1) 100%, rgba(9,11,121,1) 100%, rgba(0,212,255,1) 100%);                
+                border-radius: 6px;
+                width: 65%;
+                margin-left: -10px;
+                "></center>
+        </p>
+    </form>
+</div>
+
+</body>

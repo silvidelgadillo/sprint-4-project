@@ -2,6 +2,7 @@ import json
 import time
 import redis
 import settings
+import os
 from tensorflow.keras.applications import resnet50
 from tensorflow.keras.preprocessing import image
 import numpy as np
@@ -42,7 +43,7 @@ def predict(image_name):
     # TODO
 
     # Load image
-    img = image.load_img(settings.UPLOAD_FOLDER + image_name,target_size=(224, 224))
+    img = image.load_img(os.path.join(settings.UPLOAD_FOLDER ,image_name),target_size=(224, 224))
 
     # Create array 
     x = image.img_to_array(img)
@@ -59,7 +60,7 @@ def predict(image_name):
     # Result 
     res = resnet50.decode_predictions(preds, top=1)[0]
 
-    return [res[0][1],res[0][2]]
+    return [res[0][1],round(res[0][2],4)]
 
 
 def classify_process():
@@ -104,7 +105,7 @@ def classify_process():
         # Generete Dictionary
         dict = {
                  "prediction":pred1,
-                 "score": float(pred2) 
+                 "score": round(float(pred2),4)
               }
 
         # Transform dict
