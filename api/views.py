@@ -121,7 +121,26 @@ def predict():
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
     # TODO
-    rpse = {"success": False, "prediction": None, "score": None}
+
+    rpse = {"success": False, "prediction": None, "score": None}    
+    
+    if "file" not in request.files:
+        flash("No file part")
+        return redirect(request.url)
+
+    file = request.files["file"]
+    if file.filename == "":
+        flash("No image selected for uploading")
+        return redirect(request.url)
+
+    # File received and but it isn't an image
+    else:
+        flash("Allowed image types are -> png, jpg, jpeg, gif")
+        return redirect(request.url)
+    
+
+
+
 
 
 @router.route("/feedback", methods=["GET", "POST"])
