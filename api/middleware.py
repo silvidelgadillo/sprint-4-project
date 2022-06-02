@@ -1,6 +1,6 @@
 import time
 import redis
-import json 
+import json
 import settings
 import uuid
 
@@ -8,11 +8,10 @@ import uuid
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
 db = redis.Redis(
-    host=settings.REDIS_IP, 
-    port=settings.REDIS_PORT, 
-    db=settings.REDIS_DB_ID
+    host=settings.REDIS_IP, port=settings.REDIS_PORT, db=settings.REDIS_DB_ID
 )
-#assert db.ping() #si da false explota porq no hay conexion
+# assert db.ping() #si da false explota porq no hay conexion
+
 
 def model_predict(image_name):
     """
@@ -35,7 +34,6 @@ def model_predict(image_name):
     # of this particular job across all the services
     # TODO
     job_id = str(uuid.uuid4())
-    
 
     # Create a dict with the job data we will send through Redis having the
     # following shape:
@@ -45,35 +43,32 @@ def model_predict(image_name):
     # }
     # TODO
     job_data = {
-    "id": job_id,
-    "image_name": image_name,
+        "id": job_id,
+        "image_name": image_name,
     }
 
-    # Send the job to the model service using Redis
+    #  Send the job to the model service using Redis
     # Hint: Using Redis `rpush()` function should be enough to accomplish this.
     # TODO
-    job_data_str=json.dumps(job_data)
-    
-    db.rpush(
-    settings.REDIS_QUEUE,
-    job_data_str
-    )
+    job_data_str = json.dumps(job_data)
+
+    db.rpush(settings.REDIS_QUEUE, job_data_str)
 
     # Loop until we received the response from our ML model
     while True:
         # Attempt to get model predictions using job_id
-        # Hint: Investigate how can we get a value using a key from Redis
-        # TODO
+        #  Hint: Investigate how can we get a value using a key from Redis
+        #  TODO
         output = db.get(job_data["id"])
-        #wait the response
+        # wait the response
         if not output is None:
-            output= json.loads(output)
+            output = json.loads(output)
             # Don't forget to delete the job from Redis after we get the results!
             # Then exit the loop
-            # TODO
+            #  TODO
             db.delete(job_data["id"])
-            break            
+            break
         # Sleep some time waiting for model results
         time.sleep(settings.API_SLEEP)
-        
-    return output['prediction'] , output['score']
+
+    return output["prediction"], output["score"]

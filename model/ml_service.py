@@ -11,11 +11,9 @@ import os
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
 db = redis.Redis(
-    host=settings.REDIS_IP, 
-    port=settings.REDIS_PORT, 
-    db=settings.REDIS_DB_ID
+    host=settings.REDIS_IP, port=settings.REDIS_PORT, db=settings.REDIS_DB_ID
 )
-#assert db.ping()
+# assert db.ping()
 
 # TODO
 # Load your ML model and assign to variable `model`
@@ -40,7 +38,10 @@ def predict(image_name):
     """
     # TODO
 
-    img = image.load_img(os.path.join(settings.UPLOAD_FOLDER,image_name), target_size=(224, 224))
+    img = image.load_img(
+        os.path.join(settings.UPLOAD_FOLDER, image_name),
+        target_size=(224, 224),
+    )
     x = image.img_to_array(img)
     x = np.expand_dims(x, axis=0)
     x = resnet50.preprocess_input(x)
@@ -48,7 +49,7 @@ def predict(image_name):
     preds = model.predict(x)
     _, clss, score = resnet50.decode_predictions(preds, top=1)[0][0]
 
-    return clss, round(float(score),4)
+    return clss, round(float(score), 4)
 
 
 def classify_process():
@@ -64,14 +65,14 @@ def classify_process():
     """
     while True:
         # Inside this loop you should add the code to:
-        #   1. Take a new job from Redis
-        #   2. Run your ML model on the given data
-        #   3. Store model prediction in a dict with the following shape:
-        #      {
+        #    1. Take a new job from Redis
+        #    2. Run your ML model on the given data
+        #    3. Store model prediction in a dict with the following shape:
+        #       {
         #         "prediction": str,
         #         "score": float,
         #      }
-        #   4. Store the results on Redis using the original job ID as the key
+        #    4. Store the results on Redis using the original job ID as the key
         #      so the API can match the results it gets to the original job
         #      sent
         # Hint: You should be able to successfully implement the communication
@@ -81,9 +82,9 @@ def classify_process():
         msg = json.loads(msg)
         pred_class, pred_score = predict(msg["image_name"])
         output_msg = {
-                        "prediction": pred_class,
-                        "score": pred_score,
-                    }
+            "prediction": pred_class,
+            "score": pred_score,
+        }
         db.set(msg["id"], json.dumps(output_msg))
 
         # Don't forget to sleep for a bit at the end
