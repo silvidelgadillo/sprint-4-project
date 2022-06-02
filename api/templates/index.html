@@ -35,18 +35,6 @@
             <h3 id="instruction">Please upload the image to be classified by clicking the button below</h3>
         {% endif %}
 
-        <p>
-            {% with messages = get_flashed_messages() %}
-              {% if messages %}
-                <ul>
-                {% for message in messages %}
-                  <li>{{ message }}</li>
-                {% endfor %}
-                </ul>
-              {% endif %}
-            {% endwith %}
-        </p>
-
         {% if filename %}
             <h3 id="instruction">Your uploaded image:</h3>
             
@@ -91,6 +79,22 @@
         </div>
 
     </form>
+
+    <div id="messages-section">
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    
+                    <div>
+                        <p class="message">{{ message }}</p>
+                    </div>
+
+                {% endfor %}        
+            {% endif %}
+        {% endwith %}
+
+    </div>
 
     <!-- CONTACT ME -->
     <footer>

@@ -171,4 +171,6 @@ def feedback():
     with open(f"{settings.FEEDBACK_FILEPATH}", "a") as f:
         f.write(f"{report}\n")
 
+    flash("Thanks for your feedback!")
+
     return render_template("index.html")
