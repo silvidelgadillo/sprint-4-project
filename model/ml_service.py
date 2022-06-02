@@ -1,6 +1,9 @@
 import json
 import time
 import redis
+from tensorflow.keras.applications import resnet50
+from tensorflow.keras.preprocessing import image
+import numpy as np
 import settings
 
 
@@ -15,7 +18,7 @@ db = redis.Redis(
 
 # TODO
 # Load your ML model and assign to variable `model`
-model = None
+model = resnet50.ResNet50(include_top=True, weights="imagenet")
 
 
 def predict(image_name):
@@ -35,10 +38,19 @@ def predict(image_name):
         score as a number.
     """
     # TODO
+    img = image.load_img(settings.UPLOAD_FOLDER+image_name, target_size=(224, 224))
+    x = image.img_to_array(img)
+    x = np.expand_dims(x, axis=0)
+    x = resnet50.preprocess_input(x)
+
+    # Get predictions
+    preds = model.predict(x)
+    predict = resnet50.decode_predictions(preds, top=1)
+    # predict = predict[0][0][1:]
+    a, b = predict[0][0][1:]
 
 
-
-    return "Cat", 0.9999
+    return str(a), round(float(b), 4)
 
 
 
@@ -56,7 +68,7 @@ def classify_process():
     while True:
         # Inside this loop you should add the code to:
         #   1. Take a new job from Redis
-        queue_name, job_data = db.brpop(settings.REDIS_QUEUE)
+        _, job_data = db.brpop(settings.REDIS_QUEUE)
         job_data = json.loads(job_data)
 
         #   2. Run your ML model on the given data
@@ -69,7 +81,7 @@ def classify_process():
         #      }
         output_msg = {
             "prediction": pred_class,
-            "score": pred_score,}
+            "score": round(pred_score, 4),}
 
         #   4. Store the results on Redis using the original job ID as the key
         #      so the API can match the results it gets to the original job

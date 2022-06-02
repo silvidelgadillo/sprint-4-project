@@ -31,8 +31,7 @@ def model_predict(image_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-
-
+    
     # Assign an unique ID for this job and add it to the queue.
     # We need to assing this ID because we must be able to keep track
     # of this particular job across all the services
@@ -65,17 +64,22 @@ def model_predict(image_name):
         # Attempt to get model predictions using job_id
         # Hint: Investigate how can we get a value using a key from Redis
         # TODO
-        output  = db.get(job_data["id"])
-        output = json.loads(output)
 
+
+        output = db.get(job_data["id"])
+        
+        if output is not None:
+            output = json.loads(output)
+        
         # Don't forget to delete the job from Redis after we get the results!
         # Then exit the loop
         # TODO
-        db.delete(job_data["id"])
+            db.delete(job_data["id"])
+            break
         # delete 
         # Sleep some time waiting for model results
         time.sleep(settings.API_SLEEP)
-        break
+        
 
     return output["prediction"], output["score"]
 
