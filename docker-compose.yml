@@ -21,9 +21,13 @@ services:
       - ./uploads:/src/static/uploads
       - ./api:/src
     command: --reload
+    networks:
+    - sprint4-net
 
   redis:
     image: redis:6.2.6
+    networks:
+    - sprint4-net
 
   model:
     image: ml_service
@@ -34,3 +38,11 @@ services:
       - redis
     volumes:
       - ./uploads:/src/uploads
+    networks:
+    - sprint4-net
+    environment:
+      - PYTHONUNBUFFERED=1
+
+networks:
+  sprint4-net:
+    driver: bridge
