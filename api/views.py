@@ -173,7 +173,7 @@ def feedback():
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
     feedback_path =  settings.FEEDBACK_FILEPATH
-
+    #create file
     with open(feedback_path, "a+") as f:
         f.write(f'{report}\n')
         flash('Thanks for your feedback')
