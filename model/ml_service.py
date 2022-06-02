@@ -6,6 +6,7 @@ import redis
 from tensorflow.keras.applications import resnet50
 from tensorflow.keras.preprocessing import image
 import numpy as np
+import os
 
 
 # Connect to Redis and assign to variable `db``
@@ -36,9 +37,8 @@ def predict(image_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-
     
-    image_path = settings.UPLOAD_FOLDER+image_name
+    image_path = os.path.join(settings.UPLOAD_FOLDER, image_name)
 
     img = image.load_img(image_path, target_size=(224, 224))
 
@@ -56,7 +56,7 @@ def predict(image_name):
     #return most_prob_pred[0][0][1], most_prob_pred[0][0][2]
     
     predict_class = most_prob_pred[0][0][1]
-    predict_score = round(float(most_prob_pred[0][0][2]),3)    
+    predict_score = round(float(most_prob_pred[0][0][2]),4)    
 
     return predict_class, predict_score
 
