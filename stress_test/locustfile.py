@@ -12,5 +12,5 @@ class UserBeh(HttpUser):
     @task(3)
     def predict(self):
         self.client.get("http://localhost/")
-        files   = ["file", ("dog.jpeg", open("dog.jpeg", "rb"), "image/jpeg")]
+        files   = [("file", ("dog.jpeg", open("dog.jpeg", "rb"), "image/jpeg"))]
         self.client.post("http://localhost/", header = {}, data = {}, files = files)
