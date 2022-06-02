@@ -80,7 +80,6 @@ def upload_image():
         #            service using Redis.
         prediction, score = middleware.model_predict(hashed_filename)
         #   4. Update `context` dict with the corresponding values
-        # TODO
         context = {
             "prediction": prediction,
             "score": score,
@@ -88,7 +87,6 @@ def upload_image():
         }
 
         # Update `render_template()` parameters as needed
-        # TODO
         print('success: Returning from upload_image')
         return render_template(
             "index.html", filename=hashed_filename, context=context, form=form
