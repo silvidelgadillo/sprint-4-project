@@ -9,7 +9,7 @@
         <title>ML API  </title>
         <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
     </head>
-    <body class="bg-sky-900">
+    <body class="bg-sky-900" style="opacity:0;">
         <div id="app" class="container mx-auto px-5">
             <div  class="drop-shadow-lg bg-gray-200 rounded-xl mt-8 p-8">
 
@@ -110,6 +110,9 @@
         </div>
         <script src="https://unpkg.com/vue@3"></script>
         <script src="{{ url_for('static', filename='app.js') }}"></script>
+        <script>
+            window.onload = function() {setTimeout(function(){document.body.style.opacity="100";},500);};
+           </script>
     </body>
     
 </html>
