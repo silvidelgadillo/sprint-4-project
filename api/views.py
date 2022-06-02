@@ -115,7 +115,6 @@ def predict():
     # File received but no filename is provided
     file = request.files["file"]
     if file.filename == "":
-        rpse = {"success": False, "prediction": None, "score": None}
         return error_response
 
     # File received and it's an image

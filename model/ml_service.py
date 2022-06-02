@@ -59,15 +59,11 @@ def classify_process():
         job_data = json.loads(job_data_str)
 
         pred = predict(job_data["image_name"])
-
         pred_class, pred_score = pred
-
         pred_data = {"prediction": pred_class, "score": round(pred_score, 4)}
-
         pred_data_str = json.dumps(pred_data)
 
         db.set(job_data["id"], pred_data_str)
-
         time.sleep(settings.SERVER_SLEEP)
 
 

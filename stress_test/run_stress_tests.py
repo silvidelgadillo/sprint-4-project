@@ -11,7 +11,6 @@ host = "http://127.0.0.1"
 
 # --------------------
 
-
 def run_tests():
     """Run the tests with different combinations of config parameters, and save
     a html report for each one.
@@ -46,18 +45,12 @@ def run_tests():
             args = [
                 "locust",
                 "--headless",
-                "-H",
-                host,
-                "-L",
-                "ERROR",
-                "-u",
-                str(num_users),
-                "-r",
-                str(spawn_rate),
-                "-t",
-                run_time,
-                "--html",
-                html_file,
+                "-H", host,
+                "-L", "ERROR",
+                "-u", str(num_users),
+                "-r", str(spawn_rate),
+                "-t", run_time,
+                "--html", html_file,
             ]
 
             sp.call(args)
