@@ -7,6 +7,7 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms.validators import ValidationError
 import utils
+import middleware
 
 from flask import (
     Blueprint,
@@ -77,11 +78,12 @@ def upload_image():
         #   3. Send the file to be processed by the `model` service
         #      Hint: Use middleware.model_predict() for sending jobs to model
         #            service using Redis.
+        prediction, score = middleware.model_predict(hashed_filename)
         #   4. Update `context` dict with the corresponding values
         # TODO
         context = {
-            "prediction": "cat",
-            "score": 0.99,
+            "prediction": prediction,
+            "score": score,
             "filename": hashed_filename,
         }
 
