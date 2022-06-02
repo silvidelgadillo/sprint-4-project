@@ -1,0 +1,63 @@
+EXECUTIVE REPORT OF STRESS-TEST WITH LOCUST
+
+Specifications of the hardware and software used:
+- HP Pavilion x360 Convertible
+- Intel Core i5-8250 CPU @ 1.60GHz 1.80GHz
+- Installed RAM 4.00 GB (3.84 GB usable)
+- 64-bit operating system, x64 processor
+- Windows 10 Home Single Language
+
+Tests were developed using the following grid:
+- Number of users (peak concurrency): 10, 50 and 100
+- Spawn rate (users started/second): 1, 2 and 3
+- Model scaling: x1, x2
+- Test time: 10 minutes
+
+The results were the following:
+| Scale    | # Users  | Spawn rate | Average time (ms) | RPS ratio | % Failures |
+| -------- | -------- | ---------- | ----------------- | --------- | ---------- |
+| Model x1 | 10       | 1          | 461               | 2.82      | 0.00       |
+| Model x1 | 10       | 2          | 438               | 2.88      | 0.00       |
+| Model x1 | 10       | 3          | 388               | 2.96      | 0.00       |
+| -------- | -------- | ---------- | ----------------- | --------- | ---------- |
+| Model x1 | 50       | 1          | 7965              | 4.35      | 4.30       |
+| Model x1 | 50       | 2          | 7877              | 4.48      | 4.23       |
+| Model x1 | 50       | 3          | 8388              | 4.29      | 4.36       |
+| -------- | -------- | ---------- | ----------------- | --------- | ---------- |
+| Model x1 | 100      | 1          | 18622             | 4.17      | 4.41       |
+| Model x1 | 100      | 2          | 18468             | 4.4       | 4.25       |
+| Model x1 | 100      | 3          | 16739             | 4.82      | 3.77       |
+| -------- | -------- | ---------- | ----------------- | --------- | ---------- |
+| Model x2 | 10       | 1          | 398               | 2.93      | 0.00       |
+| Model x2 | 10       | 2          | 471               | 2.93      | 0.00       |
+| Model x2 | 10       | 3          | 449               | 2.91      | 0.00       |
+| -------- | -------- | ---------- | ----------------- | --------- | ---------- |
+| Model x2 | 50       | 1          | 4703              | 6.19      | 2.38       |
+| Model x2 | 50       | 2          | 6615              | 5.08      | 2.90       |
+| Model x2 | 50       | 3          | 4657              | 6.41      | 2.43       |
+| -------- | -------- | ---------- | ----------------- | --------- | ---------- |
+| Model x2 | 100      | 1          | 10176             | 6.93      | 2.24       |
+| Model x2 | 100      | 2          | 12010             | 6.35      | 2.35       |
+| Model x2 | 100      | 3          | 10859             | 6.96      | 2.21       |
+Were RPS means request per second, and ms means miliseconds in the average response time.
+
+The conclusions are the following:
+- The best combination was the scaled model x2, with 100 users, at a rate of 3 users per second, which generated 
+  a RPS ratio of 6.96 (the highest), and a failure rate of 2.21% (the lowest, ignoring the tests of only 10 users).
+  This as long as our model in production can accept some percentage of failures.
+- If it could not accept any kind of failure, the best combination would be the scaled model x1, with 10 users, at
+  a rate of 3 users per second, which generated a RPS ratio of 2.96.
+- In general, for all combinations that keep the number of users at 10, very similar results are generated, with 
+  the main characteristic of not having any errors, since the small number of requests entered does not stress the 
+  code, and allows it to handle without failures of the model, but with the disadvantage of having a low RPS 
+  performance compared to the other tests.
+- For all the rest of the combinations, using the number of users in 50 and 100, a notable improvement can be seen 
+  in the increase in the RPS ratio, but to the detriment of accepting a % of failure in the predictions of the model 
+  by a "remote end closed connection without response". This is because, by accepting a greater number of users, it 
+  is possible that some requests are left far behind in the queue, and they do not have time to be accepted by the 
+  model that is working in production, exiting the connection by the timeout.
+- It is important to say that, for these combinations that accept a % of failure, a notable improvement is seen 
+  between the unscaled and the scaled model. In average, with the scaled model x2, the RPS ratio increases in 40%, 
+  and the percentage of failures decreases in 40%, in comparison with the unscaled model (x1).
+- Finally, it is important to note that the average response time of the model increases proportionally to the 
+  number of users that has been indicated as a parameter in each of the tests carried out.

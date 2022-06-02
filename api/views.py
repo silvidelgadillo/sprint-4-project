@@ -1,4 +1,7 @@
 import utils
+import os
+import settings
+from middleware import model_predict
 
 from flask import (
     Blueprint,
@@ -7,6 +10,7 @@ from flask import (
     render_template,
     request,
     url_for,
+    jsonify
 )
 
 router = Blueprint("app_router", __name__, template_folder="templates")
@@ -49,16 +53,30 @@ def upload_image():
         #            service using Redis.
         #   4. Update `context` dict with the corresponding values
         # TODO
+        # Step 1
+        uniq_file_name = utils.get_file_hash(file)
+        # Step 2
+        loc_store_img = os.path.join(settings.UPLOAD_FOLDER, uniq_file_name)
+        if os.path.exists(loc_store_img) is False:
+            file.save(loc_store_img)
+
         context = {
             "prediction": None,
             "score": None,
             "filename": None,
         }
-
+        # Step 3
+        result_pred, result_score = model_predict(uniq_file_name)
+        # Step 4
+        context = {
+            "prediction": result_pred,
+            "score": result_score,
+            "filename": uniq_file_name
+        }
         # Update `render_template()` parameters as needed
         # TODO
         return render_template(
-            "index.html", filename=None, context=None
+            "index.html", filename=uniq_file_name, context=context
         )
     # File received and but it isn't an image
     else:
@@ -113,6 +131,26 @@ def predict():
     # TODO
     rpse = {"success": False, "prediction": None, "score": None}
 
+    # Step 1
+    if "file" in request.files:
+        file = request.files["file"]
+
+        if file and utils.allowed_file(file.filename):
+            uniq2_file_name = utils.get_file_hash(file)
+            loc2_store_img = os.path.join(settings.UPLOAD_FOLDER, uniq2_file_name)
+            # Step 2
+            if os.path.exists(loc2_store_img) is False:
+                file.save(loc2_store_img)
+                
+            # Step 3
+            result2_pred, result2_score = model_predict(uniq2_file_name)
+             #Step 4
+            rpse = {"success": True, "prediction": result2_pred, "score": result2_score}
+            return jsonify(rpse)
+
+    return jsonify(rpse), 400
+
+
 
 @router.route("/feedback", methods=["GET", "POST"])
 def feedback():
@@ -141,5 +179,8 @@ def feedback():
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
     # TODO
+    if report:
+        with open(settings.FEEDBACK_FILEPATH, "a+") as f:
+            f.write(report + "\n")
 
     return render_template("index.html")
