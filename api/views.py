@@ -115,12 +115,21 @@ def predict():
 
     if not result['valid']:
         rpse = {"success": False, "prediction": None, "score": None}
+        # if required by the frontpage
+        if ('front' in request.form):
+            rpse['error'] = result['error']
         return jsonify(rpse), 400
 
     file_name = result['file_name']
 
     class_name, score = model_predict(file_name)
+
     rpse = {"success": True, "prediction": class_name, "score": score}
+
+    # if required by the frontpage
+    if ('front' in request.form):
+        rpse['file_name'] = file_name
+        
     return jsonify(rpse)
 
 
@@ -155,5 +164,9 @@ def feedback():
         with open(settings.FEEDBACK_FILEPATH, "a") as feedback:
             # Append feedback at the end of file
             feedback.write(str(report) + "\n")
+
+    # if required by the frontpage
+    if ('front' in request.form):
+        return '1'
 
     return render_template("index.html")

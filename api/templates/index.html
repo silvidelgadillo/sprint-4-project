@@ -8,89 +8,108 @@
         />
         <title>ML API  </title>
         <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
-        
-
     </head>
     <body class="bg-sky-900">
-        <div class="container mx-auto px-5">
-            <div class="drop-shadow-lg bg-gray-200 rounded-xl mt-8 p-8">
+        <div id="app" class="container mx-auto px-5">
+            <div  class="drop-shadow-lg bg-gray-200 rounded-xl mt-8 p-8">
 
-            <div class="flex flex-col lg:flex-row gap-4 ">
-                <div class="grow">
-                <div>
-                    <h3 class="font-mono mb-3 text-lg text-sky-900">Image Prediction</h3>
-                    {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                    <ul>
-                    {% for message in messages %}
-                        <li>{{ message }}</li>
-                    {% endfor %}
-                    </ul>
-                    {% endif %}
-                {% endwith %}
-               
-        
-                </div>
-    
-                
-                <form method="post" action="/" enctype="multipart/form-data">
+                <div class="flex flex-col lg:flex-row gap-4 ">
+                    <div class="grow lg:border-r-2 lg:border-indigo-500 pr-5">
+                        <div>
+                            <h3 class="font-mono mb-3 text-lg text-sky-900">Image Prediction</h3>
                     
-                    <div>
-                        <label
-                            class="flex justify-center w-full h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-gray-400 focus:outline-none">
-                            <span class="flex items-center space-x-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                </svg>
-                                <span class="font-medium text-gray-600">
-                                    Drop the image to predict, or
-                                    <span class="text-blue-600 underline">browse</span>
-                                </span>
-                            </span>
-                            <input type="file" name="file" class="hidden">
-                        </label>
-                        <div class="text-right">
-                            <input class="mt-4 cursor-pointer px-6 py-2 mx-auto rounded-md text-lg font-semibold text-indigo-100 bg-green-400" type="submit" value="Submit">
-                
                         </div>
-                    </div>
-            
-                </form>
-                {% if context and context['prediction'] %}
-                <div class="row">
-                    <div class="col-25">
-                    <label for="subject">Predicted class: {{ context['prediction'] }} </label><br>
-                    <label for="subject">Score: {{ context['score'] }} </label>
-                    </div>
-                </div>
-                <form id="form" method="POST" action="/feedback">
-                    <button type="submit">Report incorrect answer</button>
-                    <input name="report" style="visibility: hidden;" value="{'filename': '{{ filename }}', 'prediction': '{{ context['prediction'] }}', 'score': {{ context['score'] }} }"/>
-                </form>
-            {% endif %}
-                </div>
-                <div class="h-full flex-auto w-full h-64 lg:h-none lg:w-64 lg:border-l-2 lg:border-indigo-500 bg-contain bg-no-repeat bg-center">
-                    
-                    {% if filename %}
-                            <div class="text-center pt-8">
-                                    <img class="mx-auto w-64" src="{{ url_for('app_router.display_image', filename=filename) }}">
-                                                              
+                        <div v-if="errors" class="rounded-xl my-4 p-2 text-red-800 border-2 border-red-800 bg-red-300">
+                            [[errors]]
+                        </div>
+                        <div v-show="loading"><img class="w-28 mx-auto" src="/static/loading.gif" alt=""></div>
+                            
+                            <div v-show="!loading && !prediction" dragenter.prevent @dragover.prevent @drop.prevent="dropFile">
+                                
+                                <label for="file"
+                                    class="flex justify-center w-full h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-gray-400 focus:outline-none">
+                                    <input id="file" @change="handleFile" ref="inputFile" type="file" name="file" class="hidden">
+                                    <span class="flex items-center space-x-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <span v-if="!fileName" class="font-medium text-gray-600">
+                                            Drop the image to predict, or
+                                            <span class="text-blue-600 underline">browse</span>
+                                        </span>
+                                        <span v-else>
+                                            [[ fileName ]]
+                                        </span>
+                                    </span>
+                                    
+                                </label>
+                                <div v-if="fileName" class="text-right">
+                                    <button @click.prevent="handleUpload" class="mt-4 cursor-pointer px-6 py-2 mx-auto rounded-md text-lg font-semibold text-indigo-100 bg-green-600">Submit</button>
+                                </div>
                             </div>
 
-                    {% else %}
-                            <div class="text-center pt-8">
-                                <img class="mx-auto w-64" src="{{ url_for('static', filename='background.webp') }}">
-                                                        
+                        <div v-if="prediction && !mje">
+                            <div class="flex flex-row mt-5 border border-gray-400 p-4 drop-shadow-md">
+                                <div class="basis-1/2 text-center"> 
+                                    <p class="text-xl text-indigo-600">Predicted: [[ predictionFormat ]]
+
+                                    </p> 
+                                </div>
+                                <div class="basis-1/2 text-center"> 
+                                    <p class="text-xl text-indigo-600">Score: [[ scoreFormat ]]</p> 
+                                </div>
+
+                            </div>
+                            
+                            <h4 class="text-center text-2xl font-semibold mt-5 text-green-600">Evaluate it</h4>
+
+                            <div class="flex flex-row mt-5 p-4 drop-shadow-md">
+                                
+                                <div class="basis-1/2 text-center"> 
+                                    <a @click.prevent="feedback(true)" href="#">
+                                        <img  class="w-20 mx-auto"  src="/static/images/up.png" alt="up">
+                                    </a>
+                                </div>
+                                <div class="basis-1/2 text-center"> 
+                                    <a @click.prevent="feedback(false)" href="#">
+                                        <img class="w-20 mx-auto" src="/static/images/down.png" alt="down">
+
+                                    </a>
+                                </div>
+
+                            </div>
+                                                
+                        </div>
+                        <div v-if="mje">
+                            <h4 class="text-center text-2xl font-semibold mt-5 text-indigo-600">[[ mje ]]</h4>
+                            <button @click.prevent="reset" class="block mt-4 cursor-pointer px-6 py-2 mx-auto rounded-md text-lg font-semibold text-indigo-100 bg-green-600">Try Again</button>
+                        </div>
+                    </div>
+                    <div class="flex-auto h-full  w-full lg:h-none lg:w-64 ">
+                        
+                        <div v-if="image" class="text-center pt-8">
+                            <img class="mx-auto w-64" :src="image">                                 
+                        </div>
+                    
+                        <div v-else class="text-center pt-8">
+                            <img class="mx-auto w-64" src="{{ url_for('static', filename='background.webp') }}">                            
                         </div>    
-                    {% endif %}
+                    
+                    </div>
+                    
                 </div>
-                
-            </div>
 
             </div>
+           
         </div>
+        <div class="text-center">
+            <a class="text-gray-100 text-sm" href="https://www.vecteezy.com/free-vector/web">Web Vectors by Vecteezy</a>
+
+        </div>
+        <script src="https://unpkg.com/vue@3"></script>
+        <script src="{{ url_for('static', filename='app.js') }}"></script>
     </body>
     
 </html>
