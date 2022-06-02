@@ -124,7 +124,7 @@ def predict():
     file = request.files["file"]
     if file.filename == "":
         return jsonify(error_rpse), 400
-
+        
     if file and utils.allowed_file(file.filename):
 
         filename_hashed = utils.get_file_hash(file)

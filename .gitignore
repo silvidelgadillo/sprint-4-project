@@ -131,3 +131,35 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+.DS_Store
+env8/pyvenv.cfg
+env8/bin/activate
+env8/bin/activate.csh
+env8/bin/activate.fish
+env8/bin/easy_install
+env8/bin/easy_install-3.7
+env8/bin/f2py
+env8/bin/f2py3
+env8/bin/f2py3.7
+env8/bin/iptest
+env8/bin/iptest3
+env8/bin/ipython
+env8/bin/ipython3
+env8/bin/jupyter
+env8/bin/jupyter-kernel
+env8/bin/jupyter-kernelspec
+env8/bin/jupyter-migrate
+env8/bin/jupyter-run
+env8/bin/jupyter-troubleshoot
+env8/bin/normalizer
+env8/bin/pip
+env8/bin/pip3
+env8/bin/pip3.7
+env8/bin/pip3.10
+env8/bin/pygmentize
+env8/bin/python
+env8/bin/python3
+env8/share/jupyter/kernels/python3/kernel.json
+env8/share/jupyter/kernels/python3/logo-32x32.png
+env8/share/jupyter/kernels/python3/logo-64x64.png
+env8/share/man/man1/ipython.1.gz

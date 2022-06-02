@@ -18,19 +18,8 @@ class UserBehavior(HttpUser):
         headers = {}
         payload = {}
         self.client.post(
-            'http://0.0.0.0/predict',
+            'http://127.0.0.1/predict',
             headers = headers,
             data = payload,
             files = files,
         )
-
-    # @task(10)
-    # def press_page(self):
-    #     with open('dog.jpeg', 'rb') as image:
-    #         self.client.post("/predict", files={'file':image})
-
-
-# class APIUser(HttpLocust):
-#     task_set = UserBehavior
-#     min_wait = 1000
-#     max_wait = 5000
