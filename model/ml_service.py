@@ -2,11 +2,11 @@ import time
 import redis
 import settings
 import json
+import os
 
 from tensorflow.keras.applications import resnet50
 from tensorflow.keras.preprocessing import image
 
-import matplotlib.pyplot as plt
 import numpy as np
 
 # Connect to Redis and assign to variable `db``
@@ -19,7 +19,7 @@ db = redis.Redis(
 
 # Load your ML model and assign to variable `model`
 model = resnet50.ResNet50(include_top=True, weights="imagenet")
-model.summary()
+#model.summary()
 
 
 def predict(img_name):
@@ -38,8 +38,7 @@ def predict(img_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-
-    img = image.load_img(settings.UPLOAD_FOLDER + img_name, target_size=(224, 224))
+    img = image.load_img(os.path.join(settings.UPLOAD_FOLDER, img_name), target_size=(224, 224))
     x = image.img_to_array(img)
 
     x = np.expand_dims(x, axis=0)
@@ -47,10 +46,10 @@ def predict(img_name):
 
     # Get predictions
     preds = model.predict(x)
-    preds_dec = resnet50.decode_predictions(preds, top=1)
+    preds_dec = resnet50.decode_predictions(preds, top=1) # return format [[(a,b,c)]]
     # https://www.tensorflow.org/api_docs/python/tf/keras/applications/resnet50/decode_predictions
 
-    return preds_dec[1], round(preds_dec[2],4) 
+    return preds_dec[0][0][1], round(float(preds_dec[0][0][2]),4) 
 
     # return tuple(["Eskimo_dog", 0.9346]) # dummy model until finish the rest
 
