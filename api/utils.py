@@ -65,9 +65,27 @@ def process_file(request, file_request):
     if file and allowed_file(file.filename):
         file_name = get_file_hash(file)
         
+        # if file not exist save it
         if(not os.path.exists(os.path.join(settings.UPLOAD_FOLDER, file_name))):
             file.save(os.path.join(settings.UPLOAD_FOLDER, file_name))
+
         return {'error': None, 'redirect_home': False, 'valid': True, 'file_name': file_name}
     
     return {'error': 'Allowed image types are -> png, jpg, jpeg, gif', 
             'redirect_home': False, 'valid': False, 'file_name': False}
+    
+def savePredictions(file_name, score, prediction):
+    root_name, _ = os.path.splitext(file_name)
+    file_name_txt = root_name + '.txt'
+    if(not os.path.exists(os.path.join(settings.UPLOAD_FOLDER, file_name_txt))):
+        with open(os.path.join(settings.UPLOAD_FOLDER, file_name_txt), "w") as prediction_file:
+            prediction_file.write(prediction + "," + str(score)) 
+
+def readPredictionFile(file_name):
+    root_name, _ = os.path.splitext(file_name)
+    file_name_txt = root_name + '.txt'
+    if(os.path.exists(os.path.join(settings.UPLOAD_FOLDER, file_name_txt))):
+        with open(os.path.join(settings.UPLOAD_FOLDER, file_name_txt), "r") as prediction_file:
+            class_name, score = prediction_file.read().split(",")
+        return class_name, float(score)
+    return False, False

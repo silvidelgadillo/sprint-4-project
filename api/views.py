@@ -50,7 +50,15 @@ def upload_image():
         #            service using Redis.
         #   4. Update `context` dict with the corresponding values
 
-        class_name, score = model_predict(file_name)
+        # we see if the txt file with the prediction exist
+        class_name, score = utils.readPredictionFile(file_name)
+
+        # if doesn't exist we call to the model and save the predic into txt file 
+        if class_name is False:
+
+            class_name, score = model_predict(file_name)
+        
+            utils.savePredictions(file_name, score=score, prediction=class_name)
 
         context = {
             "prediction": class_name,
@@ -122,7 +130,15 @@ def predict():
 
     file_name = result['file_name']
 
-    class_name, score = model_predict(file_name)
+    # we see if the txt file with the prediction exist
+    class_name, score = utils.readPredictionFile(file_name)
+
+    # if doesn't exist we call to the model and save the predic into txt file   
+    if class_name is False:
+
+        class_name, score = model_predict(file_name)
+        
+        utils.savePredictions(file_name, score=score, prediction=class_name)    
 
     rpse = {"success": True, "prediction": class_name, "score": score}
 
