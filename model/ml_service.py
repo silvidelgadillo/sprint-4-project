@@ -47,12 +47,12 @@ def predict(img_name):
 
     # Get predictions
     preds = model.predict(x)
-    resnet50.decode_predictions(preds, top=1)
+    preds_dec = resnet50.decode_predictions(preds, top=1)
     # https://www.tensorflow.org/api_docs/python/tf/keras/applications/resnet50/decode_predictions
 
+    return preds_dec[1], round(preds_dec[2],4) 
 
-
-    return tuple(["Eskimo_dog", 0.9346]) # dummy model until finish the rest
+    # return tuple(["Eskimo_dog", 0.9346]) # dummy model until finish the rest
 
 
 def classify_process():

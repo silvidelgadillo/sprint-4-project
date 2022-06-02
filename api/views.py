@@ -69,8 +69,8 @@ def upload_image():
         #   4. Update `context` dict with the corresponding values
 
         # format for properly view in the UI
-            # prediction = separar guiones + .capitalize()
-            # score = round(score*100,2)
+        prediction = prediction.capitalize() # separar guiones
+        score = round(score*100,2)
 
         context = {
             "prediction": prediction,
