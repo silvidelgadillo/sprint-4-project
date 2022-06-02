@@ -1,15 +1,20 @@
 import utils
+import os
+import app
+import settings
+from middleware import model_predict 
 
 from flask import (
-    Blueprint,
-    flash,
-    redirect,
-    render_template,
-    request,
+    jsonify,
+    Blueprint, 
+    flash,  
+    redirect, 
+    request, 
     url_for,
+    render_template,
 )
 
-router = Blueprint("app_router", __name__, template_folder="templates")
+router = Blueprint("app_router", __name__, template_folder="templates")     
 
 
 @router.route("/", methods=["GET"])
@@ -27,40 +32,35 @@ def upload_image():
     When it receives an image from the UI, it also calls our ML model to
     get and display the predictions.
     """
-    # No file received, show basic UI
-    if "file" not in request.files:
+    
+    if "file" not in request.files:  
         flash("No file part")
-        return redirect(request.url)
+        return redirect(request.url) 
 
-    # File received but no filename is provided, show basic UI
-    file = request.files["file"]
-    if file.filename == "":
+    file = request.files["file"] 
+    if file.filename == "": 
         flash("No image selected for uploading")
         return redirect(request.url)
 
-    # File received and it's an image, we must show it and get predictions
     if file and utils.allowed_file(file.filename):
-        # In order to correctly display the image in the UI and get model
-        # predictions you should implement the following:
-        #   1. Get an unique file name using utils.get_file_hash() function
-        #   2. Store the image to disk using the new name
-        #   3. Send the file to be processed by the `model` service
-        #      Hint: Use middleware.model_predict() for sending jobs to model
-        #            service using Redis.
-        #   4. Update `context` dict with the corresponding values
-        # TODO
+        filename_hashed = utils.get_file_hash(file)
+        loc_store_img = os.path.join(settings.UPLOAD_FOLDER, filename_hashed)
+
+        if os.path.exists(loc_store_img) is False:
+            file.save(loc_store_img) 
+
+        pred, score = model_predict(filename_hashed)
+
         context = {
-            "prediction": None,
-            "score": None,
-            "filename": None,
+            "prediction": pred,
+            "score": score,
+            "filename": filename_hashed,
         }
 
-        # Update `render_template()` parameters as needed
-        # TODO
         return render_template(
-            "index.html", filename=None, context=None
+            "index.html", filename=filename_hashed, context=context     
         )
-    # File received and but it isn't an image
+
     else:
         flash("Allowed image types are -> png, jpg, jpeg, gif")
         return redirect(request.url)
@@ -80,66 +80,38 @@ def display_image(filename):
 def predict():
     """
     Endpoint used to get predictions without need to access the UI.
-
-    Parameters
-    ----------
-    file : str
-        Input image we want to get predictions from.
-
-    Returns
-    -------
-    flask.Response
-        JSON response from our API having the following format:
-            {
-                "success": bool,
-                "prediction": str,
-                "score": float,
-            }
-
-        - "success" will be True if the input file is valid and we get a
-          prediction from our ML model.
-        - "prediction" model predicted class as string.
-        - "score" model confidence score for the predicted class as float.
     """
-    # To correctly implement this endpoint you should:
-    #   1. Check a file was sent and that file is an image
-    #   2. Store the image to disk
-    #   3. Send the file to be processed by the `model` service
-    #      Hint: Use middleware.model_predict() for sending jobs to model
-    #            service using Redis.
-    #   4. Update and return `rpse` dict with the corresponding values
-    # If user sends an invalid request (e.g. no file provided) this endpoint
-    # should return `rpse` dict with default values HTTP 400 Bad Request code
-    # TODO
     rpse = {"success": False, "prediction": None, "score": None}
+    if "file" not in request.files:  
+        return jsonify(rpse), 400
 
+    file = request.files["file"] 
+    if file.filename == "": 
+        return jsonify(rpse), 400
+
+    if file and utils.allowed_file(file.filename):
+        filename_hashed = utils.get_file_hash(file)
+        loc_store_img_0 = os.path.join(settings.UPLOAD_FOLDER, filename_hashed)
+
+        if os.path.exists(loc_store_img_0) is False:
+            file.save(loc_store_img_0)
+
+        pred, sc = model_predict(filename_hashed) 
+
+        rpse = {"success": True, "prediction": pred, "score": sc}
+        return jsonify(rpse)
+    else:
+        rpse = {"success": False, "prediction": None, "score": None}
+        return jsonify(rpse)     
 
 @router.route("/feedback", methods=["GET", "POST"])
 def feedback():
     """
     Store feedback from users about wrong predictions on a text file.
-
-    Parameters
-    ----------
-    report : request.form
-        Feedback given by the user with the following JSON format:
-            {
-                "filename": str,
-                "prediction": str,
-                "score": float
-            }
-
-        - "filename" corresponds to the image used stored in the uploads
-          folder.
-        - "prediction" is the model predicted class as string reported as
-          incorrect.
-        - "score" model confidence score for the predicted class as float.
     """
-    # Get reported predictions from `report` key
+    
     report = request.form.get("report")
-
-    # Store the reported data to a file on the corresponding path
-    # already provided in settings.py module
-    # TODO
+    feedback_file = open(str(settings.FEEDBACK_FILEPATH), "a")
+    feedback_file.write(str(report) + "\n")
 
     return render_template("index.html")

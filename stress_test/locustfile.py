@@ -1,12 +1,24 @@
-from locust import HttpLocust, TaskSet, task
+from locust import HttpUser, TaskSet, task, between
+class UserBehavior(HttpUser):
 
-
-class UserBehavior(TaskSet):
+    wait_time = between(1, 5)
 
     # Put your stress tests here
     # TODO
-    raise NotImplementedError
+    @task(1)
+    def index(self):
+        self.client.get("http://0.0.0.0/")
 
-
-class APIUser(HttpLocust):
-    task_set = UserBehavior
+    @task(3)
+    def predict(self):
+        files = [
+            ("file", ("dog.jpeg", open("dog.jpeg", "rb"), "image/jpeg"))
+        ]
+        headers = {}
+        payload = {}
+        self.client.post(
+            "http://0.0.0.0/predict",
+            headers = headers,
+            data = payload,
+            files = files,
+        )
