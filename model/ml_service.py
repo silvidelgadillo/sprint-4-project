@@ -1,5 +1,6 @@
 from tensorflow.keras.applications import resnet50
 from tensorflow.keras.preprocessing import image
+from tensorflow import config
 import os
 import numpy as np
 import json
@@ -11,6 +12,13 @@ import settings
 db = redis.Redis(
     host=settings.REDIS_IP, port=settings.REDIS_PORT, db=settings.REDIS_DB_ID
 )
+
+# Prevent tensorflow to allocate the entire GPU
+physical_devices = config.list_physical_devices("GPU")
+try:
+    config.experimental.set_memory_growth(physical_devices[0], True)
+except:
+    pass
 
 model = resnet50.ResNet50(include_top=True, weights="imagenet")
 
