@@ -6,7 +6,7 @@
         - Number of users: 50
         - Rate: 20
 
-Here I'm testing 50 users, max wait time in this case is 47.000 m secs
+Here I'm testing 50 users, max wait time in this case is 47.000 m secs. Model is not working that well because of the amount of users tested, it took lot of time to standarize the test so as to get the conclusion
 
 ![Test 50 users](/sprint-4-project/stress_test/50-20.png)
 
@@ -14,7 +14,7 @@ Here I'm testing 50 users, max wait time in this case is 47.000 m secs
         - Number of users: 200
         - Rate: 10
 
-Here I'm testing 200
+Here I'm testing 200, same as previous stress test but with even more users. The time users wait is even more and they have their request cancelled.
 
 ![Test 200 users](/sprint-4-project/stress_test/200-10.png)
 
