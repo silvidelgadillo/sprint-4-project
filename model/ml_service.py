@@ -81,10 +81,10 @@ def classify_process(batch_size=1, brpop_timeout=0.1):
 
         while received_jobs <= batch_size:
             job = db.brpop(settings.REDIS_QUEUE, timeout=brpop_timeout)
-            
-            if job == None and received_jobs == 0:
+
+            if job is None and received_jobs == 0:
                 continue
-            elif job == None and received_jobs > 0:
+            elif job is None and received_jobs > 0:
                 break
 
             _, job_data_str = job
@@ -96,15 +96,17 @@ def classify_process(batch_size=1, brpop_timeout=0.1):
 
         for job_element in jobs_data:
             image_names.append(job_element["image_name"])
-        
-        preds = predict(image_names)
-        pred_classes, pred_scores = preds        
 
-        for job_element, pred_class, pred_score in zip(jobs_data, pred_classes, pred_scores):
+        preds = predict(image_names)
+        pred_classes, pred_scores = preds
+
+        for job_element, pred_class, pred_score in zip(
+            jobs_data, pred_classes, pred_scores
+        ):
             pred_data = {"prediction": pred_class, "score": pred_score}
             pred_data_str = json.dumps(pred_data)
             db.set(job_element["id"], pred_data_str)
-        
+
         time.sleep(settings.SERVER_SLEEP)
 
 
