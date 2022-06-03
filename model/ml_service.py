@@ -23,7 +23,7 @@ except:
 model = resnet50.ResNet50(include_top=True, weights="imagenet")
 
 
-def predict(image_name_list):
+def predict(image_names):
     """
     Load image from the corresponding folder based on the image name
     received, then, run our ML model to get predictions.
@@ -42,8 +42,7 @@ def predict(image_name_list):
     images = []
 
     # Loading images and preprocess
-    for image_name in image_name_list:
-
+    for image_name in image_names:
         img_path = os.path.join(settings.UPLOAD_FOLDER, image_name)
         img = image.load_img(img_path, target_size=(224, 224))
         img = image.img_to_array(img)
@@ -54,7 +53,7 @@ def predict(image_name_list):
 
     # Get predictions
     preds = model.predict(images)
-    preds = resnet50.decode_predictions(preds, top=1)[0]
+    preds = resnet50.decode_predictions(preds, top=1)
 
     class_names = []
     pred_probabilities = []
