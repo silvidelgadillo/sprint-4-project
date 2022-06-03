@@ -23,7 +23,7 @@ except:
 model = resnet50.ResNet50(include_top=True, weights="imagenet")
 
 
-def predict(image_name):
+def predict(image_name_list):
     """
     Load image from the corresponding folder based on the image name
     received, then, run our ML model to get predictions.
@@ -39,19 +39,33 @@ def predict(image_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-    # Loading image and preprocess
-    img_path = os.path.join(settings.UPLOAD_FOLDER, image_name)
-    img = image.load_img(img_path, target_size=(224, 224))
-    img = image.img_to_array(img)
-    img = np.expand_dims(img, axis=0)
-    img = resnet50.preprocess_input(img)
+    images = []
+
+    # Loading images and preprocess
+    for image_name in image_name_list:
+
+        img_path = os.path.join(settings.UPLOAD_FOLDER, image_name)
+        img = image.load_img(img_path, target_size=(224, 224))
+        img = image.img_to_array(img)
+        images.append(img)
+
+    images = np.array(images)
+    images = resnet50.preprocess_input(images)
 
     # Get predictions
-    preds = model.predict(img)
-    _, class_name, pred_probability = resnet50.decode_predictions(preds, top=1)[0][0]
-    pred_probability = round(float(pred_probability), 4)
+    preds = model.predict(images)
+    preds = resnet50.decode_predictions(preds, top=1)[0]
 
-    return class_name, pred_probability
+    class_names = []
+    pred_probabilities = []
+
+    for pred in preds:
+        _, class_name, pred_probability = pred[0]
+        pred_probability = round(float(pred_probability), 4)
+        class_names.append(class_name)
+        pred_probabilities.append(pred_probability)
+
+    return class_names, pred_probabilities
 
 
 def classify_process():
