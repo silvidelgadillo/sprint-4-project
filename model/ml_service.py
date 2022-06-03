@@ -1,7 +1,6 @@
-from tensorflow.keras.applications import ResNet50
-from tensorflow.keras.applications.resnet50 import preprocess_input, decode_predictions
+from tensorflow.keras.applications import resnet50
+from tensorflow.keras.preprocessing import image
 
-from PIL import Image
 import numpy as np
 import time
 import redis
@@ -20,7 +19,7 @@ db = redis.Redis(
 
 # TODO
 # Load your ML model and assign to variable 'model'
-model = ResNet50(weights="imagenet")
+model = resnet50.ResNet50(include_top = True, weights="imagenet")
 
 
 def predict(image_name):
@@ -41,13 +40,13 @@ def predict(image_name):
     """
     # TODO
     path = settings.UPLOAD_FOLDER + image_name
-    img = Image.open(path).resize((224, 224), resample = 0)
-    img = np.array(img)
-    img = np.expand_dims(img, axis = 0)
-    img = preprocess_input(img)
-    pred = model.predict(img)
-    class_name = decode_predictions(pred, top=1)[0][0][1]
-    pred_probability = round(float(decode_predictions(pred, top=1)[0][0][2]), 4)
+    img = image.load_img(path, target_size = (224, 224))
+    x = image.img_to_array(img)
+    x = np.expand_dims(x, axis = 0)
+    x = resnet50.preprocess_input(x)
+    pred = model.predict(x)
+    class_name = resnet50.decode_predictions(pred, top=1)[0][0][1]
+    pred_probability = round(float(resnet50.decode_predictions(pred, top=1)[0][0][2]), 4)
 
     return tuple([class_name, pred_probability])
 
