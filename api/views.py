@@ -23,7 +23,7 @@ def index():
     return render_template("index.html")
 
 
-@router.route("/", methods=["POST"])
+@router.route("/previous_version", methods=["POST"])
 def upload_image():
     """
     Function used in our frontend so we can upload and show an image.
@@ -61,15 +61,23 @@ def upload_image():
             utils.savePredictions(file_name, score=score, prediction=class_name)
 
         context = {
-            "prediction": class_name,
-            "score": score,
+            "prediction": class_name.replace("_", " "),
+            "score": f'{score:.2%}',
             "filename": file_name,
         }
 
     # Update `render_template()` parameters as needed
     return render_template(
-        "index.html", filename=file_name, context=context
+        "previous_version.html", filename=file_name, context=context
     )
+
+
+@router.route("/previous_version")
+def previous_version():
+    """
+    previous version endpoint, renders our HTML code.
+    """
+    return render_template("previous_version.html")    
 
 
 @router.route("/display/<filename>")
@@ -185,4 +193,4 @@ def feedback():
     if ('front' in request.form):
         return '1'
 
-    return render_template("index.html")
+    return render_template("previous_version.html")
