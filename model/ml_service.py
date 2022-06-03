@@ -67,7 +67,7 @@ def predict(image_names):
     return class_names, pred_probabilities
 
 
-def classify_process():
+def classify_process(batch_size=1):
     """
     Loop indefinitely asking Redis for new jobs.
     When a new job arrives, takes it from the Redis queue, uses the loaded ML
@@ -76,15 +76,35 @@ def classify_process():
     the results.
     """
     while True:
-        _, job_data_str = db.brpop(settings.REDIS_QUEUE)
-        job_data = json.loads(job_data_str)
+        jobs_data = []
+        received = 0
 
-        preds = predict(job_data["image_names"])
+        while received <= batch_size:
+            job = db.brpop(settings.REDIS_QUEUE, timeout=0.3)
+            
+            if job == None and received == 0:
+                continue
+            elif job == None and received > 0:
+                break
+
+            _, job_data_str = job
+            job_data = json.loads(job_data_str)
+            jobs_data.append(job_data)
+            received += 1
+
+        image_names = []
+
+        for job_element in jobs_data:
+            image_names.append(job_element["image_name"])
+        
+        preds = predict(image_names)
         pred_classes, pred_scores = preds
         preds_data = {"classes": pred_classes, "scores": pred_scores}
         preds_data_str = json.dumps(preds_data)
 
-        db.set(job_data["id"], preds_data_str)
+        for job_element, pred_element in zip(jobs_data, preds_data_str):
+            db.set(job_element["id"], pred_element)
+        
         time.sleep(settings.SERVER_SLEEP)
 
 
