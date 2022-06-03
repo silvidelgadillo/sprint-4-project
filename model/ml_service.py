@@ -79,12 +79,12 @@ def classify_process():
         _, job_data_str = db.brpop(settings.REDIS_QUEUE)
         job_data = json.loads(job_data_str)
 
-        pred = predict(job_data["image_name"])
-        pred_class, pred_score = pred
-        pred_data = {"prediction": pred_class, "score": round(pred_score, 4)}
-        pred_data_str = json.dumps(pred_data)
+        preds = predict(job_data["image_names"])
+        pred_classes, pred_scores = preds
+        preds_data = {"classes": pred_classes, "scores": pred_scores}
+        preds_data_str = json.dumps(preds_data)
 
-        db.set(job_data["id"], pred_data_str)
+        db.set(job_data["id"], preds_data_str)
         time.sleep(settings.SERVER_SLEEP)
 
 
