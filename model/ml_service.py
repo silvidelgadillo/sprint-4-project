@@ -67,7 +67,7 @@ def predict(image_names):
     return class_names, pred_probabilities
 
 
-def classify_process(batch_size=1):
+def classify_process(batch_size=1, brpop_timeout=0.1):
     """
     Loop indefinitely asking Redis for new jobs.
     When a new job arrives, takes it from the Redis queue, uses the loaded ML
@@ -77,20 +77,20 @@ def classify_process(batch_size=1):
     """
     while True:
         jobs_data = []
-        received = 0
+        received_jobs = 0
 
-        while received <= batch_size:
-            job = db.brpop(settings.REDIS_QUEUE, timeout=0.3)
+        while received_jobs <= batch_size:
+            job = db.brpop(settings.REDIS_QUEUE, timeout=brpop_timeout)
             
-            if job == None and received == 0:
+            if job == None and received_jobs == 0:
                 continue
-            elif job == None and received > 0:
+            elif job == None and received_jobs > 0:
                 break
 
             _, job_data_str = job
             job_data = json.loads(job_data_str)
             jobs_data.append(job_data)
-            received += 1
+            received_jobs += 1
 
         image_names = []
 
@@ -98,12 +98,12 @@ def classify_process(batch_size=1):
             image_names.append(job_element["image_name"])
         
         preds = predict(image_names)
-        pred_classes, pred_scores = preds
-        preds_data = {"classes": pred_classes, "scores": pred_scores}
-        preds_data_str = json.dumps(preds_data)
+        pred_classes, pred_scores = preds        
 
-        for job_element, pred_element in zip(jobs_data, preds_data_str):
-            db.set(job_element["id"], pred_element)
+        for job_element, pred_class, pred_score in zip(jobs_data, pred_classes, pred_scores):
+            pred_data = {"prediction": pred_class, "score": pred_score}
+            pred_data_str = json.dumps(pred_data)
+            db.set(job_element["id"], pred_data_str)
         
         time.sleep(settings.SERVER_SLEEP)
 
@@ -124,4 +124,4 @@ if __name__ == "__main__":
     # Now launch process
     print("Launching ML service...")
     first_prediction()
-    classify_process()
+    classify_process(batch_size=10)

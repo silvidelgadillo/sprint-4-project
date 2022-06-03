@@ -4,8 +4,8 @@ import subprocess as sp
 # Config parameters
 
 num_models_list = [4]
-num_users_list = [10, 100]
-spawn_rate_list = [1, 3]
+num_users_list = [100]
+spawn_rate_list = [3]
 run_time = "7m"
 host = "http://127.0.0.1"
 
