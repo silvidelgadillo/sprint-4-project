@@ -3,6 +3,7 @@ import settings
 import redis
 import json
 import numpy as np
+import os
 
 from tensorflow.keras.applications  import resnet50
 from tensorflow.keras.preprocessing import image
@@ -37,7 +38,8 @@ def predict(image_name):
     """
     # TODO
     ## LOAD
-    load_image = image.load_img(settings.UPLOAD_FOLDER + image_name, target_size=(224, 224))
+    load_image = image.load_img(os.path.join(settings.UPLOAD_FOLDER, image_name), 
+                                target_size=(224, 224))
     ## TRANSFORM TO ARRAY and ADD DIMENSION
     x = image.img_to_array(load_image)
     x = np.expand_dims(x, axis=0)
@@ -47,7 +49,7 @@ def predict(image_name):
     predictions = model.predict(x)
 
     _, class_name, pred_probability = resnet50.decode_predictions(predictions, top=1)[0][0]
-    tup_ret = (str(class_name), round(float(pred_probability),3))
+    tup_ret = (str(class_name), round(float(pred_probability)),4)
     
     return tup_ret[0],tup_ret[1]
 
