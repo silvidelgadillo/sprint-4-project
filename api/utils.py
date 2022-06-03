@@ -73,17 +73,28 @@ def process_file(request, file_request):
     
     return {'error': 'Allowed image types are -> png, jpg, jpeg, gif', 
             'redirect_home': False, 'valid': False, 'file_name': False}
+
+def get_prediction(model_predict, file_name):
+    # we see if the txt file with the prediction exist
+    class_name, score = read_prediction_file(file_name)
+    # if doesn't exist we call to the model and save the predic into txt file   
+    if class_name is False:
+        class_name, score = model_predict(file_name)
+        save_predictions(file_name, score=score, prediction=class_name) 
+    return class_name, score
     
-def savePredictions(file_name, score, prediction):
+def save_predictions(file_name, score, prediction):
     root_name, _ = os.path.splitext(file_name)
     file_name_txt = root_name + '.txt'
+    # if prediction txt file not exist we create it and save the prediction
     if(not os.path.exists(os.path.join(settings.UPLOAD_FOLDER, file_name_txt))):
         with open(os.path.join(settings.UPLOAD_FOLDER, file_name_txt), "w") as prediction_file:
             prediction_file.write(prediction + "," + str(score)) 
 
-def readPredictionFile(file_name):
+def read_prediction_file(file_name):
     root_name, _ = os.path.splitext(file_name)
     file_name_txt = root_name + '.txt'
+    # if prediction txt file exist we read the prediction
     if(os.path.exists(os.path.join(settings.UPLOAD_FOLDER, file_name_txt))):
         with open(os.path.join(settings.UPLOAD_FOLDER, file_name_txt), "r") as prediction_file:
             class_name, score = prediction_file.read().split(",")

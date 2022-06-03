@@ -30,6 +30,15 @@ def upload_image():
     When it receives an image from the UI, it also calls our ML model to
     get and display the predictions.
     """
+    # In order to correctly display the image in the UI and get model
+     # predictions you should implement the following:
+    #   1. Get an unique file name using utils.get_file_hash() function
+    #   2. Store the image to disk using the new name
+    #   3. Send the file to be processed by the `model` service
+    #   Hint: Use middleware.model_predict() for sending jobs to model
+    #         service using Redis.
+    #   4. Update `context` dict with the corresponding values    
+    
     # process file
     result = utils.process_file(request, "file")
 
@@ -41,24 +50,9 @@ def upload_image():
         if(result['redirect_home']):
             return redirect('/previous_version')
     else:
-        # In order to correctly display the image in the UI and get model
-        # predictions you should implement the following:
-        #   1. Get an unique file name using utils.get_file_hash() function
-        #   2. Store the image to disk using the new name
-        #   3. Send the file to be processed by the `model` service
-        #      Hint: Use middleware.model_predict() for sending jobs to model
-        #            service using Redis.
-        #   4. Update `context` dict with the corresponding values
 
-        # we see if the txt file with the prediction exist
-        class_name, score = utils.readPredictionFile(file_name)
-
-        # if doesn't exist we call to the model and save the predic into txt file 
-        if class_name is False:
-
-            class_name, score = model_predict(file_name)
-        
-            utils.savePredictions(file_name, score=score, prediction=class_name)
+        # get prediction, class_name and score
+        class_name, score = utils.get_prediction(model_predict, file_name) 
 
         context = {
             "prediction": class_name.replace("_", " "),
@@ -138,15 +132,8 @@ def predict():
 
     file_name = result['file_name']
 
-    # we see if the txt file with the prediction exist
-    class_name, score = utils.readPredictionFile(file_name)
-
-    # if doesn't exist we call to the model and save the predic into txt file   
-    if class_name is False:
-
-        class_name, score = model_predict(file_name)
-        
-        utils.savePredictions(file_name, score=score, prediction=class_name)    
+    # get prediction, class_name and score
+    class_name, score = utils.get_prediction(model_predict, file_name) 
 
     rpse = {"success": True, "prediction": class_name, "score": score}
 
