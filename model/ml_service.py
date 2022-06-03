@@ -5,6 +5,7 @@ import redis
 import settings
 import json
 import numpy as np
+import os
 
 from tensorflow.keras.applications import resnet50
 from tensorflow.keras.preprocessing import image
@@ -45,7 +46,7 @@ def predict(image_name):
     # TODO
     ## 1°img --> define a str with the route of the file and the file name, the target size is recommendation of Pablo
     ## settings upload folder is a string (the rout of the image) and the image name
-    img = image.load_img(f"{settings.UPLOAD_FOLDER}{image_name}", target_size = (224, 224))
+    img = image.load_img(os.path.join(settings.UPLOAD_FOLDER, image_name), target_size = (224, 224))
     ## 2°img --> transform to an array
     img = image.img_to_array(img)
     img = np.expand_dims(img, axis = 0)
@@ -61,7 +62,7 @@ def predict(image_name):
     ## I need the position 0 of the first list, 0 of the second list and only position 1 and 2 of the tupple, so:
     _, class_name, pred_probability = img_predict[0][0]
     
-    return class_name, float(pred_probability)
+    return class_name, round(float(pred_probability),4)
 
 
 def classify_process():
