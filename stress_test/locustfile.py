@@ -9,14 +9,14 @@ class UserBehavior(HttpUser):
 
     @task(3)
     def predict(self):
-        header  = {}
-        data    = {}
-        files   = [
+        header = {}
+        data = {}
+        files = [
             ("file", ("dog.jpeg", open("dog.jpeg", "rb"), "image/jpeg")),
         ]
         self.client.post(
             "http://localhost/predict",
-            header = header,
+            headers = header,
             data = data,
             files = files,
         )
