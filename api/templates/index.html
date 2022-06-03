@@ -29,7 +29,7 @@
         <div class="row">
             <div class="col-25">
             <label for="subject" style="font-family: "Helvetica Neue";>Predicted class: {{ context['prediction'] }} </label><br>
-            <label for="subject" style="font-family: "Helvetica Neue";>Score: {{ context['score']}} </label>
+            <label for="subject" style="font-family: "Helvetica Neue";>Score: {{ context['score']}} % </label>
             </div>
         </div>
         <form id="form" method="POST" action="/feedback">

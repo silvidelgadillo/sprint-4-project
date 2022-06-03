@@ -2,6 +2,7 @@ import time
 import settings
 import redis
 import json
+import os
 from tensorflow.keras.applications import resnet50
 from tensorflow.keras.preprocessing import image
 import numpy as np
@@ -54,16 +55,16 @@ def predict(image_name):
         score as a number.
     """
     
-    image_name = image.load_img(settings.UPLOAD_FOLDER + image_name, target_size=(224, 224))
+    image_name = image.load_img(os.path.join(settings.UPLOAD_FOLDER, image_name), target_size=(224, 224))
     image_array = image.img_to_array(image_name)
     image_expand = np.expand_dims(image_array, axis=0)
     image_preproce = resnet50.preprocess_input(image_expand)
     preds_resnet50 = model.predict(image_preproce)
     preds_decode = resnet50.decode_predictions(preds_resnet50, top=1)
     class_name = preds_decode[0][0][1]
-    pred_probability = f'{preds_decode[0][0][2]:.2%}'
+    pred_probability = round(float(preds_decode[0][0][2]), 4)
     
-    return class_name, str(pred_probability)
+    return tuple([class_name, pred_probability])
     
 
 def classify_process():

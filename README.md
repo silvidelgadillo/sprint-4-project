@@ -22,6 +22,7 @@ You must have the full pipeline running and [requests](https://docs.python-reque
 
 ```
 $ python tests/test_integration.py
+/Users/Usuario/opt/anaconda3/bin/python tests/test_integration.py
 ```
 
 ### Modules

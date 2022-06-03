@@ -1,7 +1,7 @@
 from fileinput import filename
 import utils # módulo de la api
 import settings # módulo de la api
-import middleware # módulo de la api
+from middleware import model_predict # módulo de la api
 import os
 
 # Contains the API endpoints
@@ -86,14 +86,18 @@ def upload_image():
         #            service using Redis.
         #   4. Update `context` dict with the corresponding values
         
+            
         file_name = utils.get_file_hash(file) # 1
-        file.save(os.path.join(settings.UPLOAD_FOLDER, file_name)) # 2 
+        if not os.path.exists(os.path.join(settings.UPLOAD_FOLDER, file_name)):
+            file.save(os.path.join(settings.UPLOAD_FOLDER, file_name)) # 2 
         # Join two or more pathname components, inserting '/' as needed. 
         # If any component is an absolute path, all previous 
         # path components will be discarded.
         # An empty last part will result in a path that ends with a separator
 
-        predict, score = middleware.model_predict(file_name) # 3
+        predict, score = model_predict(file_name) # 3
+        predict = predict.replace("_"," ").title()
+        score = round(score*100, 2)
         context = {  # 4
             "prediction": predict,
             "score": score,
@@ -165,13 +169,18 @@ def predict():
     #   4. Update and return `rpse` dict with the corresponding values
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
-    
-    file = request.files["file"]
-    if file and utils.allowed_file(file.filename): # 1
-        file.save(os.path.join(settings.UPLOAD_FOLDER, filename)) # 2 
-    prediction, score = middleware.model_predict(file) # 3
-    rpse = {"success": True, "prediction": {prediction}, "score": {score}} # 4
+    if "file" in request.files:
+        file = request.files["file"]
+        if file and utils.allowed_file(file.filename):# 1
+            file_name = utils.get_file_hash(file)
+            if not os.path.exists(os.path.join(settings.UPLOAD_FOLDER, file_name)):
+                file.save(os.path.join(settings.UPLOAD_FOLDER, file_name)) # 2 
+            prediction, score = model_predict(file_name) # 3
+            rpse = {"success": True, "prediction": prediction, "score": score} # 4
 
+            return jsonify(rpse)
+    
+    rpse = {"success": False, "prediction": None, "score": None}
     return jsonify(rpse), 400
 
 @router.route("/feedback", methods=["GET", "POST"])
@@ -207,13 +216,10 @@ def feedback():
     # file without truncating it. Creates a new file if it does not exist.
         with open(settings.FEEDBACK_FILEPATH, "a") as feedback:
     # write: used to write into a file using the file object
-            report = feedback.write(f'Report:{report}/n')
+            report = feedback.write(str(report)+ '\n')
             
     return render_template("index.html")
     
-
-
-
 # FLASK RESPONSE
 # El objeto de respuesta que se usa de forma predeterminada en Flask
 # está configurado para tener un tipo MIME de HTML de forma predeterminada
