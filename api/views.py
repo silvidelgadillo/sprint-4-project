@@ -23,7 +23,7 @@ def index():
     return render_template("index.html")
 
 
-@router.route("/previous_version", methods=["POST"])
+@router.route("/", methods=["POST"])
 def upload_image():
     """
     Function used in our frontend so we can upload and show an image.
@@ -39,7 +39,7 @@ def upload_image():
         flash(result['error'])
         context = None
         if(result['redirect_home']):
-            return redirect(request.url)
+            return redirect('/previous_version')
     else:
         # In order to correctly display the image in the UI and get model
         # predictions you should implement the following:
