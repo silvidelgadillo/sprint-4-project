@@ -1,4 +1,3 @@
-from ast import Break
 import time
 import uuid
 import redis
@@ -59,7 +58,7 @@ def model_predict(image_name):
         settings.REDIS_QUEUE,
         msg_str
     )
-    
+
     # Loop until we received the response from our ML model
 
     while True:

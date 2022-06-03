@@ -1,3 +1,4 @@
+import os
 import time
 import json
 import redis
@@ -10,7 +11,7 @@ from tensorflow.keras.preprocessing import image
 db = redis.Redis(
     host = settings.REDIS_IP,
     port = settings.REDIS_PORT,
-    db = settings.REDIS_DB_ID
+    db   = settings.REDIS_DB_ID
 )
 
 model = resnet50.ResNet50(include_top=True, weights="imagenet")
@@ -32,7 +33,8 @@ def predict(image_name):
         score as a number.
     """
 
-    img = image.load_img(settings.UPLOAD_FOLDER + image_name, target_size=(224, 224))
+    path = os.path.join(settings.UPLOAD_FOLDER, image_name)
+    img = image.load_img(path, target_size=(224, 224))
     x = image.img_to_array(img)
     x = np.expand_dims(x, axis=0)
     x = resnet50.preprocess_input(x)
@@ -41,9 +43,9 @@ def predict(image_name):
     preds = resnet50.decode_predictions(preds, top=1)
 
     prediction = preds[0][0][1]
-    score = f"{preds[0][0][2]:.2%}"
+    score = round(float(preds[0][0][2]), 4)
 
-    return prediction, str(score)
+    return prediction, score
 
 
 def classify_process():

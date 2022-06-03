@@ -15,7 +15,7 @@ class TestIntegration(TestCase):
             data=json.dumps({"not_a_file": "blabla"}),
             content_type="application/json",
         )
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400)     
         data = json.loads(response.get_data(as_text=True))
         self.assertEqual(len(data.keys()), 3)
         self.assertEqual(data["success"], False)
@@ -30,7 +30,7 @@ class TestIntegration(TestCase):
         mock.return_value = (pred_class, pred_score)
         app.config["UPLOAD_FOLDER"] = "/tmp"
 
-        data = {
+        data = {    
             'file': (open("tests/dog.jpeg", "rb"), 'dog.jpeg')
         }
         response = self.client.post(

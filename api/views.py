@@ -5,6 +5,7 @@ from middleware import model_predict
 from flask import (
     Blueprint,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -63,7 +64,7 @@ def upload_image():
 
         #   4. Update `context` dict with the corresponding values
         context = {
-            "prediction": prediction[0],
+            "prediction": prediction[0].capitalize().replace("_", " "),
             "score": prediction[1],
             "filename": file_n,
         }
@@ -96,8 +97,7 @@ def predict():
 
     Parameters
     ----------
-    file : str
-        Input image we want to get predictions from.
+    file : str -> Input image we want to get predictions from.
 
     Returns
     -------
@@ -114,17 +114,44 @@ def predict():
         - "prediction" model predicted class as string.
         - "score" model confidence score for the predicted class as float.
     """
-    # To correctly implement this endpoint you should:
+
     #   1. Check a file was sent and that file is an image
+    # If user sends an invalid request (e.g. no file provided) this endpoint
+    # should return `rpse` dict with default values HTTP 400 Bad Request code
+    if "file" not in request.files:
+        return bad_request()
+    
+    if request.files["file"].filename == "":
+        return bad_request()
+
+    if not utils.allowed_file(request.files["file"].filename):
+        return bad_request()
+
     #   2. Store the image to disk
+    file = request.files["file"]
+    file_n = utils.get_file_hash(file)
+
+    file_path = settings.UPLOAD_FOLDER + file_n
+    if not os.path.exists(file_path):
+        file.save(file_path)
+        file.close()
+
     #   3. Send the file to be processed by the `model` service
     #      Hint: Use middleware.model_predict() for sending jobs to model
     #            service using Redis.
+    prediction = model_predict(file_n)
+
     #   4. Update and return `rpse` dict with the corresponding values
-    # If user sends an invalid request (e.g. no file provided) this endpoint
-    # should return `rpse` dict with default values HTTP 400 Bad Request code
-    # TODO
+    pred_class = prediction[0].title()
+    score_val = prediction[1]
+    rpse = {"success": True, "prediction": pred_class, "score": score_val}
+
+    return jsonify(rpse), 200
+
+
+def bad_request():
     rpse = {"success": False, "prediction": None, "score": None}
+    return jsonify(rpse), 400
 
 
 @router.route("/feedback", methods=["GET", "POST"])
@@ -134,7 +161,7 @@ def feedback():
 
     Parameters
     ----------
-    report : request.form
+    report: request.form
         Feedback given by the user with the following JSON format:
             {
                 "filename": str,
@@ -148,11 +175,14 @@ def feedback():
           incorrect.
         - "score" model confidence score for the predicted class as float.
     """
+
     # Get reported predictions from `report` key
     report = request.form.get("report")
 
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
-    # TODO
+    if report != None:
+        with open(settings.FEEDBACK_FILEPATH, "a") as f:
+            f.write(report + "\n")
 
     return render_template("index.html")
