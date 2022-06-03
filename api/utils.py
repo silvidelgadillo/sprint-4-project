@@ -1,5 +1,5 @@
 import os
-
+import hashlib #returns 128 bit hash value
 
 def allowed_file(filename):
     """
@@ -18,7 +18,16 @@ def allowed_file(filename):
     """
     # Current implementation will allow any kind of file.
     # TODO
-    return True
+
+    allowExt = {'.png', '.jpg', '.jpeg', '.gif'}
+
+    split_tup = os.path.splitext(filename)
+
+    file_extension = split_tup[1].lower()
+
+    valid = file_extension in allowExt
+
+    return valid
 
 
 def get_file_hash(file):
@@ -39,4 +48,21 @@ def get_file_hash(file):
     """
     # Current implementation will return the original file name.
     # TODO
-    return os.path.basename(file.filename)
+
+    content = file.read()
+    # md5_hash = hashlib. md5()
+    # md5_hash.update(content)
+
+    # digest = md5_hash.hexdigest()
+
+    newFilename = hashlib.md5(content).hexdigest()
+
+    split_tup = os.path.splitext(file.filename)
+    file_extension = split_tup[1].lower()
+
+    hashFilename = newFilename + file_extension
+
+    file.seek(0)
+
+    # return os.path.basename(file.filename) // This is current implementation
+    return hashFilename
