@@ -3,7 +3,7 @@ import subprocess as sp
 
 # Config parameters
 
-num_models_list = [4]
+num_models_list = [1]
 num_users_list = [100]
 spawn_rate_list = [3]
 run_time = "7m"

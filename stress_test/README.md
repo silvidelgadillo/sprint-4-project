@@ -68,4 +68,6 @@ Using them the issue regarding the VRAM when scaling the model was fixed. One mo
 
 I run the tests with 4 models and the API was able to easily handle 23 predictions/s. Now we're talking xD. The reports are inside ```reports/with_gpu```.
 
-**EDIT:** I implemented batch predicting, and run a test with batch size of 10, in the GPU, and with 4 models. The results were worse than in the case without using batches. The report is in ```reports/batch_10``` folder.  
+**EDIT:** I implemented batch predicting, and ran a test with batch size of 10, in the GPU, and with 4 models. The results were worse than in the case without using batches. The report is in ```reports/batch_10``` folder.  
+
+**EDIT 2:** I ran a test without scaling the model and using a batch size of 10, and the perfomance was very similar to that of the test scaling the model to 4, and without batch processing. So the improvement is very noticeable. Now we're talking x2 xD.
