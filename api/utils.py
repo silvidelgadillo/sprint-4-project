@@ -75,6 +75,9 @@ def process_file(request, file_request):
             'redirect_home': False, 'valid': False, 'file_name': False}
 
 def get_prediction(model_predict, file_name):
+    assert os.path.exists(os.path.join(settings.UPLOAD_FOLDER, file_name)), \
+                         f'The file {file_name} doesn\'t exists'
+
     # we see if the txt file with the prediction exist
     class_name, score = read_prediction_file(file_name)
     # if doesn't exist we call to the model and save the predic into txt file   
