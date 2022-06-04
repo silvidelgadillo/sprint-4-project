@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.98.0">
+    <title>Stress Test Report</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.2/examples/dashboard/">
+
+    <link href="./assets/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+
+      .b-example-divider {
+        height: 3rem;
+        background-color: rgba(0, 0, 0, .1);
+        border: solid rgba(0, 0, 0, .15);
+        border-width: 1px 0;
+        box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+      }
+
+      .b-example-vr {
+        flex-shrink: 0;
+        width: 1.5rem;
+        height: 100vh;
+      }
+
+      .bi {
+        vertical-align: -.125em;
+        fill: currentColor;
+      }
+
+      .nav-scroller {
+        position: relative;
+        z-index: 2;
+        height: 2.75rem;
+        overflow-y: hidden;
+      }
+
+      .nav-scroller .nav {
+        display: flex;
+        flex-wrap: nowrap;
+        padding-bottom: 1rem;
+        margin-top: -1px;
+        overflow-x: auto;
+        text-align: center;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+    </style>
+
+    
+    <!-- Custom styles for this template -->
+    <link href="./assets/dashboard.css" rel="stylesheet">
+  </head>
+  <body>
+
+
+<div class="container-fluid">
+  <div class="row">
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+      <div class="position-sticky pt-3">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="#home">
+              <span data-feather="home" class="align-text-bottom"></span>
+              Initial report
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#workers">
+              <span data-feather="file" class="align-text-bottom"></span>
+              Increase workers
+            </a>
+          </li>
+          
+          <li class="nav-item">
+            <a class="nav-link" href="#scale">
+              <span data-feather="bar-chart-2" class="align-text-bottom"></span>
+              Scale model
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="#optimization">
+              <span data-feather="bar-chart-2" class="align-text-bottom"></span>
+              Optimization
+            </a>
+          </li>
+    
+    
+        </ul>
+        
+      </div>
+    </nav>
+
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <h1 class="h1 mt-4">Stress Test Report</h1>
+
+      <h2 id="home" class="h2 mt-4">Initial Report</h2>
+      
+        <p>The initial configuration values:</p>
+
+        <ul>
+          <li>Number of users: 500</li>
+          <li>Spawn rate: 5</li>
+          <li>wait_time = between(1, 5)</li>
+          <li>Test duration: 10 minutes</li>
+        </ul>
+
+        <p>The total requests was <b>8697</b>, the total number of failures was <b>109 (2%)</b>  </p>
+
+        <p>Requests per second ranged from <b>10 to 20</b> (RPS)</p>
+
+        <img src="./assets/images/locust_stats_1.png" class="img-fluid mb-3" alt="">
+        <img src="./assets/images/locust_chart_1.png" class="img-fluid" alt="">
+
+
+        <h2 id="workers" class="h2 mt-4">Increase workers</h2>
+
+        <p>Gunicorn workers count increased to 20. No significant change seen</p>
+        <img src="./assets/images/locust_chart_2.png" class="img-fluid" alt="">
+        <h2 id="scale" class="h2 mt-4">Scale model </h2>
+        <p>A scaling of the model service to 2 was performed. The requests per second increased just a bit (RPS)</p>
+
+        <img src="./assets/images/locust_chart_3.png" class="img-fluid" alt="">
+        <h2 id="optimization" class="h2 mt-4">Optimization </h2>
+        <p>What has been done was to create a text file with the information received by the model. So if the prediction of the same image is requested later, we read the txt file without having to call the model again.</p>
+        <p>Requests per second incresed to aprox 160. <b>There were no failures</b></p>
+        <p>These results are predictable since now it is not necessary to call the model, which is where the bottleneck was generated.</p>
+        <img src="./assets/images/locust_chart_4.png" class="img-fluid mb-4" alt="">
+        <p>We know that it is not an optimal optimization for all cases, since it is unlikely that the same image will be repeated several times, but it can work in some cases.</p>
+
+
+    </main>
+  </div>
+</div>
+
+
+    <script src="./assets/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js" integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE" crossorigin="anonymous"></script>
+
+  </body>
+</html>

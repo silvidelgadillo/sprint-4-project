@@ -23,6 +23,6 @@ class WebsiteUser(HttpUser):
         n = random.randint(0,7)
 
         files = [
-            ("file", (images[n], open("images/"+images[n], "rb"), "image/jpeg"))
+            ("file", (images[n], open("./images/"+images[n], "rb"), "image/jpeg"))
         ]
         self.client.post("/predict", files=files)
