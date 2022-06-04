@@ -62,7 +62,8 @@ class TestUtils(TestCase):
         self.assertEqual(pred_score, score, score)
 
         # remove the file
-        os.remove(os.path.join(settings.UPLOAD_FOLDER, file_name_txt))
+        if os.path.exists(os.path.join(settings.UPLOAD_FOLDER, file_name_txt)):
+            os.remove(os.path.join(settings.UPLOAD_FOLDER, file_name_txt))
 
     def test_get_prediction(self):
         file_name = "0a7c757a80f2c5b13fa7a2a47a683593.jpeg"
@@ -89,19 +90,30 @@ class TestUtils(TestCase):
         self.assertEqual(pred_score, score, score)
 
         # remove the file
-        os.remove(os.path.join(settings.UPLOAD_FOLDER, file_name_txt))
+        if os.path.exists(os.path.join(settings.UPLOAD_FOLDER, file_name_txt)):
+            os.remove(os.path.join(settings.UPLOAD_FOLDER, file_name_txt))
 
     def test_process_file(self):
         request_mock = Mock()
         filename = "tests/dog.jpeg"
+        no_image = "tests/no_image.txt"
         md5_filename = "0a7c757a80f2c5b13fa7a2a47a683593.jpeg"
 
         request_mock.files = {}
         result = utils.process_file(request_mock, "file")
-        self.assertEqual(result["error"], "No file part")
+        self.assertEqual(result["error"], settings.ERROR_FILE_NOT_IN_REQUEST)
         self.assertEqual(result["redirect_home"], True)
         self.assertEqual(result["valid"], False)
         self.assertEqual(result["file_name"], False)
+
+        with open(no_image, "rb") as fp:
+            file = FileStorage(fp)
+            request_mock.files = {"file": file}
+            result = utils.process_file(request_mock, "file")
+            self.assertEqual(result["error"], settings.ERROR_ALLOWED_IMAGES)
+            self.assertEqual(result["redirect_home"], False)
+            self.assertEqual(result["valid"], False)
+            self.assertEqual(result["file_name"], False)
 
         with open(filename, "rb") as fp:
             file = FileStorage(fp)
@@ -120,7 +132,7 @@ class TestUtils(TestCase):
 
             result = utils.process_file(request_mock, "file")
 
-            self.assertEqual(result["error"], "No image selected for uploading")
+            self.assertEqual(result["error"], settings.ERROR_NO_FILENAME_PROVIDED)
             self.assertEqual(result["redirect_home"], True)
             self.assertEqual(result["valid"], False)
             self.assertEqual(result["file_name"], False)

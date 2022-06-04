@@ -23,3 +23,8 @@ REDIS_IP = "redis"
 # Sleep parameters which manages the
 # interval between requests to our redis queue
 API_SLEEP = 0.05
+
+# ERROR MESSASES
+ERROR_FILE_NOT_IN_REQUEST = "No file part"
+ERROR_NO_FILENAME_PROVIDED = "No image selected for uploading"
+ERROR_ALLOWED_IMAGES = "Allowed image types are -> png, jpg, jpeg, gif"

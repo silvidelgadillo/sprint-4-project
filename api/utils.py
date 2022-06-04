@@ -53,7 +53,7 @@ def process_file(request, file_request):
     # No file received, show basic UI
     if file_request not in request.files:
         return {
-            "error": "No file part",
+            "error": settings.ERROR_FILE_NOT_IN_REQUEST,
             "redirect_home": True,
             "valid": False,
             "file_name": False,
@@ -63,7 +63,7 @@ def process_file(request, file_request):
     file = request.files[file_request]
     if file.filename == "":
         return {
-            "error": "No image selected for uploading",
+            "error": settings.ERROR_NO_FILENAME_PROVIDED,
             "redirect_home": True,
             "valid": False,
             "file_name": False,
@@ -84,7 +84,7 @@ def process_file(request, file_request):
         }
 
     return {
-        "error": "Allowed image types are -> png, jpg, jpeg, gif",
+        "error": settings.ERROR_ALLOWED_IMAGES,
         "redirect_home": False,
         "valid": False,
         "file_name": False,
