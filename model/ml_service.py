@@ -1,16 +1,25 @@
 import time
-
+import redis
 import settings
+from tensorflow.keras.applications import resnet50
+from tensorflow.keras.preprocessing import image
+import os
+import json
+import numpy as np
 
 
 # TODO
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
-db = None
+db = redis.Redis(
+    host= settings.REDIS_IP, 
+    port= settings.REDIS_PORT, 
+    db= settings.REDIS_DB_ID
+)
 
 # TODO
 # Load your ML model and assign to variable `model`
-model = None
+model = resnet50.ResNet50(include_top=True, weights="imagenet")
 
 
 def predict(image_name):
@@ -30,8 +39,17 @@ def predict(image_name):
         score as a number.
     """
     # TODO
+    path = os.path.join(settings.UPLOAD_FOLDER, image_name)
+    img = image.load_img(path, target_size=(224, 224))
+    img = image.img_to_array(img)
+    img = np.expand_dims(img, axis=0)
+    preproc_img = resnet50.preprocess_input(img)
+    preds = model.predict(preproc_img)
+    prediction_array = resnet50.decode_predictions(preds, top=1)[0][0]
+    prediction = prediction_array[1].capitalize()
+    score = round(float(prediction_array[2]), 4)
 
-    return None, None
+    return prediction, score
 
 
 def classify_process():
@@ -60,6 +78,15 @@ def classify_process():
         # Hint: You should be able to successfully implement the communication
         #       code with Redis making use of functions `brpop()` and `set()`.
         # TODO
+        _,data = db.brpop(settings.REDIS_QUEUE)
+        data_dic = json.loads(data)
+        image_create = data_dic["image_name"]
+        predict_plus, plus_score = predict(image_create)
+        response_dic = {
+                "prediction": predict_plus,
+                 "score": plus_score,
+              }
+        db.set(data_dic["id"], json.dumps(response_dic))
 
         # Don't forget to sleep for a bit at the end
         time.sleep(settings.SERVER_SLEEP)

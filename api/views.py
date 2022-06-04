@@ -1,4 +1,7 @@
 import utils
+from middleware import model_predict
+import settings
+import os
 
 from flask import (
     Blueprint,
@@ -7,6 +10,7 @@ from flask import (
     render_template,
     request,
     url_for,
+    jsonify
 )
 
 router = Blueprint("app_router", __name__, template_folder="templates")
@@ -49,16 +53,22 @@ def upload_image():
         #            service using Redis.
         #   4. Update `context` dict with the corresponding values
         # TODO
+        unique_file = utils.get_file_hash(file)
+        path = os.path.join(settings.UPLOAD_FOLDER, unique_file)
+        if not os.path.exists(path):
+            file.save(path)
+        prediction, score = model_predict(unique_file)
         context = {
-            "prediction": None,
-            "score": None,
-            "filename": None,
+            "prediction": prediction,
+            "score": score,
+            "filename": unique_file,
         }
 
         # Update `render_template()` parameters as needed
         # TODO
+
         return render_template(
-            "index.html", filename=None, context=None
+            "index.html", filename=unique_file, context=context
         )
     # File received and but it isn't an image
     else:
@@ -112,7 +122,23 @@ def predict():
     # should return `rpse` dict with default values HTTP 400 Bad Request code
     # TODO
     rpse = {"success": False, "prediction": None, "score": None}
+    
+    if "file" not in request.files:
+        return jsonify(rpse), 400
 
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify(rpse), 400
+        
+    if file and utils.allowed_file(file.filename):
+        
+        unique_file = utils.get_file_hash(file)
+        path = os.path.join(settings.UPLOAD_FOLDER, unique_file)
+        if not os.path.exists(path):
+            file.save(path)
+        prediction, score = model_predict(unique_file)
+        rpse = {"success": True, "prediction": prediction, "score": score}
+        return jsonify(rpse), 200
 
 @router.route("/feedback", methods=["GET", "POST"])
 def feedback():
@@ -141,5 +167,7 @@ def feedback():
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
     # TODO
+    with open(str(settings.FEEDBACK_FILEPATH), 'a') as file:
+        file.write(str(report) + "\n")
 
     return render_template("index.html")

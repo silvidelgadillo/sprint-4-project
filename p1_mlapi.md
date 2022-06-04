@@ -38,28 +38,29 @@ Below is the full project structure:
 Let's take a quick overview on each module:
 
 - api: It has all the needed code to implement the communication interface between the users and our service. It uses Flask and Redis to queue tasks to be processed by our machine learning model.
-    - `api/app.py`: Setup and launch our Flask api.
-    - `api/views.py`: Contains the API endpoints. You must implement the following endpoints:
-        - *upload_image*: Displays a frontend in which the user can upload an image and get a prediction from our model.
-        - *predict*: POST method which receives an image and sends back the model prediction. This endpoint is useful for integration with other services and platforms given we can access it from any other programming language.
-        - *feedback*: Endpoint used to get feedback from users when the prediction from our model is incorrect.
-    - `api/utils.py`: Implements some extra functions used internally by our api.
-    - `api/settings.py`: It has all the API settings.
-    - `api/templates`: Here we put the .html files used in the frontend.
-    - `api/tests`: Test suite.
+  - `api/app.py`: Setup and launch our Flask api.
+  - `api/views.py`: Contains the API endpoints. You must implement the following endpoints:
+    - _upload_image_: Displays a frontend in which the user can upload an image and get a prediction from our model.
+    - _predict_: POST method which receives an image and sends back the model prediction. This endpoint is useful for integration with other services and platforms given we can access it from any other programming language.
+    - _feedback_: Endpoint used to get feedback from users when the prediction from our model is incorrect.
+  - `api/utils.py`: Implements some extra functions used internally by our api.
+  - `api/settings.py`: It has all the API settings.
+  - `api/templates`: Here we put the .html files used in the frontend.
+  - `api/tests`: Test suite.
 - model: Implements the logic to get jobs from Redis and process them with our Machine Learning model. When we get the predicted value from our model, we must encole it on Redis again so it can be delivered to the user.
-    - `model/ml_service.py`: Runs a thread in which it get jobs from Redis, process them with the model and returns the answers.
-    - `model/settings.py`: Settings for our ML model.
-    - `model/tests`: Test suite.
+  - `model/ml_service.py`: Runs a thread in which it get jobs from Redis, process them with the model and returns the answers.
+  - `model/settings.py`: Settings for our ML model.
+  - `model/tests`: Test suite.
 - tests: This module contains integration tests so we can properly check our system end-to-end behavior is the expected.
 
-The communication between our services (*api* and *model*) will be done using *Redis*. Every time *api* wants to process an image, it will store the image on disk and send the image name through Redis to the *model* service. *model* already knows in which folder images are being store, so it only has to use the file name to load it, get predictions and return the results back to *api*.
+The communication between our services (_api_ and _model_) will be done using _Redis_. Every time _api_ wants to process an image, it will store the image on disk and send the image name through Redis to the _model_ service. _model_ already knows in which folder images are being store, so it only has to use the file name to load it, get predictions and return the results back to _api_.
 
 Your task will be to complete with the corresponding code on those parts it's required across all the modules. You can validate it's working as expected using the already provided tests. We encourage you to also write extra test cases as needed.
 
-## Part 2 - Stress testing with *Locust*
+## Part 2 - Stress testing with _Locust_
 
 For this task, you must complete the file `locustfile.py` from `stress_test` folder. Make sure to create at least one test for:
+
 - `index` endpoint.
 - `predict` endpoint.
 
