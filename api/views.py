@@ -2,15 +2,7 @@ import utils
 from middleware import model_predict
 import settings
 
-from flask import (
-    Blueprint,
-    flash,
-    redirect,
-    render_template,
-    request,
-    url_for,
-    jsonify
-)
+from flask import Blueprint, flash, redirect, render_template, request, url_for, jsonify
 
 router = Blueprint("app_router", __name__, template_folder="templates")
 
@@ -31,39 +23,37 @@ def upload_image():
     get and display the predictions.
     """
     # In order to correctly display the image in the UI and get model
-     # predictions you should implement the following:
+    # predictions you should implement the following:
     #   1. Get an unique file name using utils.get_file_hash() function
-    #   2. Store the image to disk using the new name
-    #   3. Send the file to be processed by the `model` service
+    #   2. Store the image to disk using the new name
+    #   3. Send the file to be processed by the `model` service
     #   Hint: Use middleware.model_predict() for sending jobs to model
     #         service using Redis.
-    #   4. Update `context` dict with the corresponding values    
-    
+    #   4. Update `context` dict with the corresponding values
+
     # process file
     result = utils.process_file(request, "file")
 
-    file_name = result['file_name']
+    file_name = result["file_name"]
 
-    if not result['valid']:
-        flash(result['error'])
+    if not result["valid"]:
+        flash(result["error"])
         context = None
-        if(result['redirect_home']):
-            return redirect('/previous_version')
+        if result["redirect_home"]:
+            return redirect("/previous_version")
     else:
 
         # get prediction, class_name and score
-        class_name, score = utils.get_prediction(model_predict, file_name) 
+        class_name, score = utils.get_prediction(model_predict, file_name)
 
         context = {
             "prediction": class_name.replace("_", " "),
-            "score": f'{score:.2%}',
+            "score": f"{score:.2%}",
             "filename": file_name,
         }
 
-    # Update `render_template()` parameters as needed
-    return render_template(
-        "previous_version.html", filename=file_name, context=context
-    )
+    # Update `render_template()` parameters as needed
+    return render_template("previous_version.html", filename=file_name, context=context)
 
 
 @router.route("/previous_version")
@@ -71,7 +61,7 @@ def previous_version():
     """
     previous version endpoint, renders our HTML code.
     """
-    return render_template("previous_version.html")    
+    return render_template("previous_version.html")
 
 
 @router.route("/display/<filename>")
@@ -79,9 +69,7 @@ def display_image(filename):
     """
     Display uploaded image in our UI.
     """
-    return redirect(
-        url_for("static", filename="uploads/" + filename), code=301
-    )
+    return redirect(url_for("static", filename="uploads/" + filename), code=301)
 
 
 @router.route("/predict", methods=["POST"])
@@ -110,37 +98,37 @@ def predict():
         - "score" model confidence score for the predicted class as float.
     """
     # To correctly implement this endpoint you should:
-    #   1. Check a file was sent and that file is an image
+    #   1. Check a file was sent and that file is an image
     #   2. Store the image to disk
     #   3. Send the file to be processed by the `model` service
     #      Hint: Use middleware.model_predict() for sending jobs to model
     #            service using Redis.
     #   4. Update and return `rpse` dict with the corresponding values
     # If user sends an invalid request (e.g. no file provided) this endpoint
-    # should return `rpse` dict with default values HTTP 400 Bad Request code
-    # 
+    # should return `rpse` dict with default values HTTP 400 Bad Request code
+    #
 
     # process file
     result = utils.process_file(request, "file")
 
-    if not result['valid']:
+    if not result["valid"]:
         rpse = {"success": False, "prediction": None, "score": None}
         # if required by the frontpage
-        if ('front' in request.form):
-            rpse['error'] = result['error']
+        if "front" in request.form:
+            rpse["error"] = result["error"]
         return jsonify(rpse), 400
 
-    file_name = result['file_name']
+    file_name = result["file_name"]
 
     # get prediction, class_name and score
-    class_name, score = utils.get_prediction(model_predict, file_name) 
+    class_name, score = utils.get_prediction(model_predict, file_name)
 
     rpse = {"success": True, "prediction": class_name, "score": score}
 
     # if required by the frontpage
-    if ('front' in request.form):
-        rpse['file_name'] = file_name
-        
+    if "front" in request.form:
+        rpse["file_name"] = file_name
+
     return jsonify(rpse)
 
 
@@ -165,19 +153,19 @@ def feedback():
           incorrect.
         - "score" model confidence score for the predicted class as float.
     """
-    # Get reported predictions from `report` key
+    # Get reported predictions from `report` key
     report = request.form.get("report")
 
     # Store the reported data to a file on the corresponding path
-    # already provided in settings.py module
+    # already provided in settings.py module
 
-    if(report):
+    if report:
         with open(settings.FEEDBACK_FILEPATH, "a") as feedback:
             # Append feedback at the end of file
             feedback.write(str(report) + "\n")
 
     # if required by the frontpage
-    if ('front' in request.form):
-        return '1'
+    if "front" in request.form:
+        return "1"
 
     return render_template("previous_version.html")

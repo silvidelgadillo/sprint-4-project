@@ -11,9 +11,7 @@ import numpy as np
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
 db = redis.Redis(
-    host= settings.REDIS_IP, 
-    port= settings.REDIS_PORT, 
-    db= settings.REDIS_DB_ID
+    host=settings.REDIS_IP, port=settings.REDIS_PORT, db=settings.REDIS_DB_ID
 )
 
 assert db.ping, "Unable to connect to redis"
@@ -39,7 +37,9 @@ def predict(image_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-    img = image.load_img(os.path.join(settings.UPLOAD_FOLDER, image_name), target_size=(224, 224))
+    img = image.load_img(
+        os.path.join(settings.UPLOAD_FOLDER, image_name), target_size=(224, 224)
+    )
     x = image.img_to_array(img)
     x = np.expand_dims(x, axis=0)
     x = resnet50.preprocess_input(x)
@@ -66,31 +66,28 @@ def classify_process():
     """
     while True:
         # Inside this loop you should add the code to:
-        #   1. Take a new job from Redis
-        #   2. Run your ML model on the given data
-        #   3. Store model prediction in a dict with the following shape:
-        #      {
+        #   1. Take a new job from Redis
+        #   2. Run your ML model on the given data
+        #   3. Store model prediction in a dict with the following shape:
+        #      {
         #         "prediction": str,
         #         "score": float,
         #      }
-        #   4. Store the results on Redis using the original job ID as the key
+        #   4. Store the results on Redis using the original job ID as the key
         #      so the API can match the results it gets to the original job
         #      sent
         # Hint: You should be able to successfully implement the communication
         #       code with Redis making use of functions `brpop()` and `set()`.
 
-        _, job_data_json  = db.brpop(settings.REDIS_QUEUE)
+        _, job_data_json = db.brpop(settings.REDIS_QUEUE)
 
         job_data = json.loads(job_data_json)
 
-        class_name, score = predict(job_data['image_name'])
+        class_name, score = predict(job_data["image_name"])
 
-        prediction = {
-            'class_name': class_name,
-            'score': score
-        }
+        prediction = {"class_name": class_name, "score": score}
 
-        db.set(job_data['id'], json.dumps(prediction))
+        db.set(job_data["id"], json.dumps(prediction))
 
         # Don't forget to sleep for a bit at the end
         time.sleep(settings.SERVER_SLEEP)
