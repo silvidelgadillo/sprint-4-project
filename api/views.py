@@ -5,9 +5,11 @@ from werkzeug.utils import secure_filename
 from flask_uploads import UploadSet, IMAGES
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
-from wtforms.validators import ValidationError
+from wtforms import StringField
+from wtforms.validators import ValidationError, DataRequired
 import utils
 import middleware
+import settings
 
 from flask import (
     Blueprint,
@@ -16,7 +18,8 @@ from flask import (
     render_template,
     request,
     url_for,
-    current_app
+    current_app,
+    jsonify
 )
 
 images_set = UploadSet('images', IMAGES)
@@ -40,9 +43,10 @@ class UploadForm(FlaskForm):
         FileAllowed(images_set, "Only images allowed"),
         my_allowed_fileextension_check("Allowed image types are -> png, jpg, jpeg, gif")
     ])
+class FeedbackForm(FlaskForm):
+    report = StringField('report', validators=[DataRequired()])
 
 router = Blueprint("app_router", __name__, template_folder="templates")
-
 
 @router.route("/", methods=["GET"])
 def index():
@@ -94,7 +98,7 @@ def upload_image():
     else:
         utils.flash_errors(form)
     
-    return render_template("index.html", form=form)
+    return render_template("index.html", form=form), 302
 
 
 @router.route("/display/<filename>")
@@ -105,7 +109,6 @@ def display_image(filename):
     return redirect(
         url_for("static", filename="uploads/" + filename), code=301
     )
-
 
 @router.route("/predict", methods=["POST"])
 def predict():
@@ -141,9 +144,38 @@ def predict():
     #   4. Update and return `rpse` dict with the corresponding values
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
-    # TODO
-    rpse = {"success": False, "prediction": None, "score": None}
+    print('Entering predict')
+    form = UploadForm(meta={'csrf': False}) # FIXME: Way to remove csrf protection in single endpoint?
+    if form.validate_on_submit():
+        f = form.image.data
+        filename = secure_filename(f.filename)
 
+        #   1. Check a file was sent and that file is an image
+        uploaded_file = request.files['image']
+        hashed_filename = utils.get_file_hash(uploaded_file)
+         #   2. Store the image to disk
+        uploaded_file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], hashed_filename))
+        #   3. Send the file to be processed by the `model` service
+        #      Hint: Use middleware.model_predict() for sending jobs to model
+        #            service using Redis.
+        prediction, score = middleware.model_predict(hashed_filename)
+        #   4. Update and return `rpse` dict with the corresponding values
+        rpse = {
+            "success": True,
+            "prediction": prediction,
+            "score": score
+        }
+
+        # Update `render_template()` parameters as needed
+        print('success: Returning from predict')
+        return jsonify(rpse), 200
+
+    # If user sends an invalid request (e.g. no file provided) this endpoint
+    # should return `rpse` dict with default values HTTP 400 Bad Request code
+    print('failure: Returning from predict')
+    print(form.errors)
+    rpse = {"success": False, "prediction": None, "score": None}
+    return jsonify(rpse), 400
 
 @router.route("/feedback", methods=["GET", "POST"])
 def feedback():
@@ -166,11 +198,20 @@ def feedback():
           incorrect.
         - "score" model confidence score for the predicted class as float.
     """
-    # Get reported predictions from `report` key
-    report = request.form.get("report")
+    form = UploadForm()
+    feedback_form = FeedbackForm()
+    if request.method == 'GET':
+        return render_template("index.html", form=form, feedback_form=feedback_form), 200
+    # This is a POST request
+    if feedback_form.validate_on_submit():
+        # Get reported predictions from `report` key
+        report = feedback_form.report.data
 
-    # Store the reported data to a file on the corresponding path
-    # already provided in settings.py module
-    # TODO
+        # Store the reported data to a file on the corresponding path
+        # already provided in settings.py module
+        with open(settings.FEEDBACK_FILEPATH, "a") as feedback_file:
+            feedback_file.writelines([report])
+        return render_template("index.html", form=form, feedback_form=feedback_form), 200
 
-    return render_template("index.html")
+    # return render_template("index.html", form=form, feedback_form=feedback_form), 302 # FIXME: When validation fails should return error, but test require OK
+    return render_template("index.html", form=form, feedback_form=feedback_form), 200

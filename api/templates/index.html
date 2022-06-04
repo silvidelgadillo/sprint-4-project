@@ -34,12 +34,19 @@
     <dl>
         <p>
             <input type="file" name="image" autocomplete="off" required>
-            {% for error in form.image.errors %}
-                <small class="text-danger">{{ error }}</small>  
-            {% endfor %}
+            {% if form %}
+                {% for error in form.image.errors %}
+                    <small class="text-danger">{{ error }}</small>  
+                {% endfor %}
+            {% endif %}
         </p>
     </dl>
     <p>
         <input type="submit" value="Submit">
+        {% if form_feedback %}
+            {% for error in form_feedback.image.errors %}
+                    <small class="text-danger">{{ error }}</small>  
+            {% endfor %}
+        {% endif %}
     </p>
 </form>
