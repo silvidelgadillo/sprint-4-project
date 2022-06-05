@@ -2,6 +2,8 @@ from locust import HttpUser, TaskSet, task,between
 
 
 class UserBehavior(HttpUser):
+
+    wait_time = between(1,5)
     # Put your stress tests here
     @task(1)
     def index(self):
