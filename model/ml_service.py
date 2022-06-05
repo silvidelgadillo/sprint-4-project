@@ -44,7 +44,7 @@ def predict(image_name):
     ret = resnet50.decode_predictions(ret, top=1)[0][0]
     prediction = ret[1] # Get prediction description. See https://www.tensorflow.org/api_docs/python/tf/keras/applications/resnet50/decode_predictions
     score = ret[2]
-    return prediction, score
+    return prediction, round(score, 4)
 
 
 def classify_process():
