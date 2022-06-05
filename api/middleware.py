@@ -50,19 +50,34 @@ def model_predict(image_name):
     db.rpush(settings.REDIS_QUEUE, job_data_str)
 
     # Loop until we received the response from our ML model
+    #while True:
+    #    # Attempt to get model predictions using job_id
+    #    # Hint: Investigate how can we get a value using a key from Redis
+    #    if db.exists(job_id):
+    #        # Get job of redis queue
+    #        output_str = db.get(job_id)
+    #        # Don't forget to delete the job from Redis after we get the results!
+    #        # Then exit the loop
+    #        db.delete(job_id)
+    #        break
+    #    # Sleep some time waiting for model results
+    #    time.sleep(settings.API_SLEEP)
+    #
+    ## Load job as a dict
+    #output_dic = json.loads(output_str)
+    #return tuple([output_dic['prediction'],output_dic['score']])
+    
     while True:
         # Attempt to get model predictions using job_id
         # Hint: Investigate how can we get a value using a key from Redis
+        output= None
         if db.exists(job_id):
             # Get job of redis queue
-            output_str = db.get(job_id)
+            output = json.loads(db.get(job_id))
             # Don't forget to delete the job from Redis after we get the results!
             # Then exit the loop
             db.delete(job_id)
             break
         # Sleep some time waiting for model results
         time.sleep(settings.API_SLEEP)
-    
-    # Load job as a dict
-    output_dic = json.loads(output_str)
-    return tuple([output_dic['prediction'],output_dic['score']])
+    return tuple([output['prediction'],output['score']])

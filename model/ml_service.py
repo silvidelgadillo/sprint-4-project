@@ -65,24 +65,25 @@ def classify_process():
         # Inside this loop you should add the code to:
         #   1. Take a new job from Redis
         queue_name, msg = db.brpop(settings.REDIS_QUEUE)
-        msg = json.loads(msg)
-        #   2. Run your ML model on the given data
-        pred_class, pred_score = predict(msg["image_name"])
-        #   3. Store model prediction in a dict with the following shape:
-        #      {
-        #         "prediction": str,
-        #         "score": float,
-        #      }
-        output_msg = {
-            "prediction": pred_class,
-            "score": pred_score,
-        }
-        #   4. Store the results on Redis using the original job ID as the key
-        #      so the API can match the results it gets to the original job
-        #      sent
-        # Hint: You should be able to successfully implement the communication
-        #       code with Redis making use of functions `brpop()` and `set()`.
-        db.set(msg["id"],json.dumps(output_msg))
+        if msg:
+            msg = json.loads(msg)
+            #   2. Run your ML model on the given data
+            pred_class, pred_score = predict(msg["image_name"])
+            #   3. Store model prediction in a dict with the following shape:
+            #      {
+            #         "prediction": str,
+            #         "score": float,
+            #      }
+            output_msg = {
+                "prediction": pred_class,
+                "score": pred_score,
+            }
+            #   4. Store the results on Redis using the original job ID as the key
+            #      so the API can match the results it gets to the original job
+            #      sent
+            # Hint: You should be able to successfully implement the communication
+            #       code with Redis making use of functions `brpop()` and `set()`.
+            db.set(msg["id"],json.dumps(output_msg))
 
         #  Don't forget to sleep for a bit at the end
         time.sleep(settings.SERVER_SLEEP)

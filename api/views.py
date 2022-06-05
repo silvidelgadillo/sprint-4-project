@@ -56,7 +56,7 @@ def upload_image():
          # Check the file already exist
         if not os.path.exists(image_path): 
             file.save(image_path)
-
+        
         context = {
             "prediction": None,
             "score": None,
@@ -120,8 +120,6 @@ def predict():
         - "score" model confidence score for the predicted class as float.
     """
     # To correctly implement this endpoint you should:
-    rpse = {"success": False, "prediction": None, "score": None}
-    
     #   1. Check a file was sent and that file is an image
     if "file" in request.files:
         file = request.files["file"]
@@ -133,7 +131,7 @@ def predict():
      #   2. Store the image to disk if it does not exist
             if not os.path.exists(image_path): 
                 file.save(image_path)
-
+            
     #   3. Send the file to be processed by the `model` service
     #      Hint: Use middleware.model_predict() for sending jobs to model
     #            service using Redis.
@@ -142,9 +140,10 @@ def predict():
     #   4. Update and return `rpse` dict with the corresponding values
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
-            rpse.update ({"success": True, "prediction": pred_result[0], "score":pred_result[1]})
-            return jsonify(rpse)
-    #rpse = {"success": False, "prediction": None, "score": None}
+            rpse = {"success": True, "prediction": pred_result[0], "score":pred_result[1]}
+            return jsonify(rpse), 200
+    
+    rpse = {"success": False, "prediction": None, "score": None}
     return jsonify(rpse), 400
 
 @router.route("/feedback", methods=["GET", "POST"])
