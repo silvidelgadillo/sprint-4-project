@@ -1,4 +1,9 @@
+from genericpath import exists
 import utils
+import settings
+import os
+from middleware import model_predict
+import redis
 
 from flask import (
     Blueprint,
@@ -7,7 +12,9 @@ from flask import (
     render_template,
     request,
     url_for,
+    jsonify
 )
+import json
 
 router = Blueprint("app_router", __name__, template_folder="templates")
 
@@ -49,16 +56,23 @@ def upload_image():
         #            service using Redis.
         #   4. Update `context` dict with the corresponding values
         # TODO
+        unique_file_n = utils.get_file_hash(file)
+        image_path = os.path.join(settings.UPLOAD_FOLDER, unique_file_n)
+        if not os.path.exists(image_path):
+            file.save(image_path)
+
+        predict, score = model_predict(unique_file_n)
+
         context = {
-            "prediction": None,
-            "score": None,
-            "filename": None,
+            "prediction": predict,
+            "score": score,
+            "filename": unique_file_n,
         }
 
         # Update `render_template()` parameters as needed
         # TODO
         return render_template(
-            "index.html", filename=None, context=None
+            "index.html", filename=unique_file_n, context=context
         )
     # File received and but it isn't an image
     else:
@@ -110,8 +124,23 @@ def predict():
     #   4. Update and return `rpse` dict with the corresponding values
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
-    # TODO
+    # TODO corregir aca 
     rpse = {"success": False, "prediction": None, "score": None}
+    
+    rpse = {"success": False, "prediction": None, "score": None}
+    if 'file' in request.files:
+        file = request.files["file"]
+
+        if file and utils.allowed_file(file.filename):
+            unique_file_n = utils.get_file_hash(file)
+            file.save(settings.UPLOAD_FOLDER + unique_file_n)
+            predict, score = model_predict(unique_file_n) 
+
+            rpse = {"success": True, "prediction": predict, "score": score}
+            return jsonify(rpse)
+
+    rpse = {"success": False, "prediction": None, "score": None}
+    return jsonify(rpse), 400
 
 
 @router.route("/feedback", methods=["GET", "POST"])
@@ -141,5 +170,9 @@ def feedback():
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
     # TODO
+
+    feedback = open(settings.FEEDBACK_FILEPATH , 'a')
+    feedback.write(str(report) + '\n')
+    feedback = feedback.close()
 
     return render_template("index.html")
