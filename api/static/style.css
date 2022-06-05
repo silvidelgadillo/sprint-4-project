@@ -3,6 +3,8 @@
     text-align: center;
     margin-left: auto;
     margin-right: auto;
+    font-family: "Arial Narrow";
+    color: #7F7F7F
 }
 
 #text1 {
@@ -10,16 +12,22 @@
     font-family: "Arial Narrow";
 }
 
+#predict, score{
+
+    size: 600px;
+}
+
 
 #file {
-    color: #7F7F7F;
-    font-style: italic;
+    color: #ffffff;
+    font-weight: bold;
     cursor: pointer;
     padding: 5px;
     margin: 0 10px 20px 0;
-    border: 1px solid #EFF5FF;
-    background: #EFF5FF;
+    border: 1px solid #0A91F2;
+    background: #0A91F2;
     border-radius: 8px 8px 8px 8px;
+    width: 250px
 }
 
 #submit {
@@ -31,5 +39,17 @@
     border: 1px solid #0A91F2;
     background: #0A91F2;
     border-radius: 8px 8px 8px 8px;
+    width: 250px
 }
 
+#report{
+    color: #f60505;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 5px;
+    margin: 0 10px 20px 0;
+    border: 1px solid #edc6cd;
+    background: #edc6cd;
+    border-radius: 8px 8px 8px 8px;
+    width: 250px
+}

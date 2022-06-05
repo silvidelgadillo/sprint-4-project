@@ -3,13 +3,12 @@
 
 <head>
     <title>Micaela GC Mi First ML API</title>
-    <!--h2><u> AI IMAGE CLASSIFIER </u></h2-->
     <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
 </head>
 
 <body>
     <img src="{{ url_for('static', filename='coloinvertido.jpg')}}" width="400px" height="400px">
-    <p id="text1"><i> Upload your image and discover the magic of AI Image Classifier</i></p>
+    <p id="text1"><i><b> Upload your image and discover the magic of AI Image Classifier</i></b></p>
     <p>
     {% with messages = get_flashed_messages() %}
         {% if messages %}
@@ -28,12 +27,12 @@
     {% if context['prediction'] %}
         <div class="row">
             <div class="col-25">
-            <label for="subject" style="font-family: "Helvetica Neue";>Predicted class: {{ context['prediction'] }} </label><br>
-            <label for="subject" style="font-family: "Helvetica Neue";>Score: {{ context['score']}} % </label>
+           <b> <label id="predict" for="subject" style="font-family: "Helvetica Neue";>Predicted class: {{ context['prediction'] }} </label></b><br>
+           <b> <label id="score" for="subject" style="font-family: "Helvetica Neue";>Score: {{ context['score']}} % </label></b>
             </div>
         </div>
         <form id="form" method="POST" action="/feedback">
-           <center> <button type="submit">Report incorrect answer</button></center>
+           <br><center><button id="report" type="submit">Report incorrect answer</button></center></form></body></br>
             <input name="report" style="visibility: hidden;" value="{'filename': '{{ filename }}', 'prediction': '{{ context['prediction'] }}', 'score': {{ context['score'] }} }"/>
         </form>
     {% endif %}
@@ -46,7 +45,7 @@
         </p>
     </dl>
     <p>
-        <center>  <input id="submit" type="submit" value="Submit"></center>
+        <center>  <input id="submit" type="submit" value="SUBMIT"></center>
     </p>
     </form>
 
