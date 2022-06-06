@@ -131,3 +131,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+stress_test/locustfile_juli.py
