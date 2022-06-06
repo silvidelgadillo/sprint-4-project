@@ -11,6 +11,8 @@ from flask import (
     url_for,
     jsonify
 )
+from datetime import datetime
+
 
 router = Blueprint("app_router", __name__, template_folder="templates")
 
@@ -61,22 +63,29 @@ def upload_image():
             "prediction": None,
             "score": None,
             "filename": None,
+            "time": None,
         }
 
         #   3. Send the file to be processed by the `model` service
+        before = datetime.now()
         pred_result = model_predict(unique_filename)
-        
+        after = datetime.now()
+        time = after-before
+        print(f'model_predict_root_route took {time} seconds')
+
+
         #   4. Update `context` dict with the corresponding values
         context.update({
             "prediction": pred_result[0],
             "score": pred_result[1],
             "filename": unique_filename,
+            "time": time,
         })
 
         # Update `render_template()` parameters as needed       
 
         return render_template(
-            "index.html", filename=unique_filename, context=context
+            "index.html", filename=unique_filename, context=context 
         )
     # File received and but it isn't an image
     else:
@@ -135,8 +144,11 @@ def predict():
     #   3. Send the file to be processed by the `model` service
     #      Hint: Use middleware.model_predict() for sending jobs to model
     #            service using Redis.
+            before = datetime.now()
             pred_result = model_predict(unique_filename)
-   
+            after = datetime.now()
+            print(f'model_predict_predict_route took {after-before} seconds')
+            
     #   4. Update and return `rpse` dict with the corresponding values
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
