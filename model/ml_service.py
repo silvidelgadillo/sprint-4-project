@@ -66,6 +66,7 @@ def classify_process():
     received, then, run our ML model to get predictions.
     """
     while True:
+        time.sleep(settings.SERVER_SLEEP)
         # Inside this loop you should add the code to:
         #   1. Take a new job from Redis
         _, msg = db.brpop(settings.REDIS_QUEUE)
@@ -89,9 +90,6 @@ def classify_process():
             #       code with Redis making use of functions `brpop()` and `set()`.
             # TODO
             db.set(msg_dict['id'], json.dumps(prediction_dict)) 
-
-        # Don't forget to sleep for a bit at the end
-        time.sleep(settings.SERVER_SLEEP)
 
 
 if __name__ == "__main__":

@@ -61,6 +61,8 @@ def model_predict(image_name):
         # Attempt to get model predictions using job_id
         # Hint: Investigate how can we get a value using a key from Redis
         # TODO
+        # Sleep some time waiting for model results
+        time.sleep(settings.API_SLEEP)
         if (db.exists(job_id)):
             output = db.get(job_id) #obtengo de redis el resultado del modelo
             output_dict = json.loads(output)
@@ -71,7 +73,4 @@ def model_predict(image_name):
         # TODO
             db.delete(job_id)
             break
-        # Sleep some time waiting for model results
-        time.sleep(settings.API_SLEEP)
-
     return pred_class, pred_proba
