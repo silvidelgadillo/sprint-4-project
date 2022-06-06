@@ -31,7 +31,7 @@ Local Disk (Solid state disk - SSD) free space: 37.9 GB
 - Ping and first failures: __from 46 users at about 4 rps.__  
 - */predict* endpoint breakdown: __from 550 users at about 5 rps.__  
 
-![scale1](/stress_test/locust_report_scale1.png)
+![scale1](/stress_test/locust_report_scale1.PNG)
 
 ## Test 2
 #### 3 rounds tested with three ML_service deployed:
@@ -43,4 +43,4 @@ Local Disk (Solid state disk - SSD) free space: 37.9 GB
 - Ping and first failures: __from 77 users at about 5.3 rps.__  
 - */predict* endpoint breakdown: __from 615 users at about 6.2 rps.__
 
-![scale3](/stress_test/locust_report_scale3.png)
+![scale3](/stress_test/locust_report_scale3.PNG)
