@@ -54,7 +54,8 @@ def upload_image():
         #   2. Store the image to disk using the new name
 
         # funcion save built-in python - buscar
-        file.save(os.path.join(settings.UPLOAD_FOLDER, filename_hash))
+        if not os.path.exists(os.path.join(settings.UPLOAD_FOLDER, filename_hash)):
+            file.save(os.path.join(settings.UPLOAD_FOLDER, filename_hash))
 
         #   3. Send the file to be processed by the `model` service
         #      Hint: Use middleware.model_predict() for sending jobs to model
@@ -138,7 +139,9 @@ def predict():
             filename_hash = utils.get_file_hash(file)
 
             #   2. Store the image to disk
-            file.save(os.path.join(settings.UPLOAD_FOLDER, filename_hash))
+            #  usuarios que suben la misma foto
+            if not os.path.exists(os.path.join(settings.UPLOAD_FOLDER, filename_hash)):
+                file.save(os.path.join(settings.UPLOAD_FOLDER, filename_hash))
 
             #   3. Send the file to be processed by the `model` service
             #      Hint: Use middleware.model_predict() for sending jobs to model
