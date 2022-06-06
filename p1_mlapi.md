@@ -1,4 +1,4 @@
-# Sprint 6 final project
+# Sprint 4 
 
 ## Part 1 - Building the basic service
 
@@ -67,7 +67,15 @@ For this task, you must complete the file `locustfile.py` from `stress_test` fol
 
 You can easily launch more instances for a particular service using `--scale SERVICE=NUM` when running `docker-compose up` command (see [here](https://docs.docker.com/compose/reference/up/)). Scale `model` service to 2 or even more instances and check the performance with locust.
 
-Write a short report detailing the hardware specs from the server used to run the service and show a comparison in the results obtained for different number of users being simulated and instances deployed.
+Write a short report detailing the hardware specs from the server used to run the service and show a comparison in the results obtained for different number of users being simulated and instances deployed. 
+### docker-compose up --scale model = "numero de contenedores de ML"
+### docker-compose up --scale model=3
+
+[Answer]: The error rate increased when you had more than one ML model and the CPU consumption increased without an improvement in service.
+The more users, the worse the service.
+I achieved good results with 5 models and 50 users with an error rate of 1%.
+
+-------------------------------------------------------------------------------------------
 
 ### [Optional] Batch processing
 

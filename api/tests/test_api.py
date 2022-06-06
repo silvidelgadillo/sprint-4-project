@@ -1,8 +1,9 @@
 import json
 from unittest import TestCase
 from unittest.mock import patch
-
+#from middleware import model_predict
 from app import app
+
 
 
 class TestIntegration(TestCase):

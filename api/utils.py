@@ -5,7 +5,7 @@ import hashlib
 
 def allowed_file(filename):
 
-    '''Función para la validar la extencion del archivo'''
+    '''Function to validate the file extension'''
     
     ALLOWED_EXTENSIONS = {".png",".jpg",".JPG",".JPEG",".jpeg",".gif",".GIF",".PNG"}
     _, ext = os.path.splitext(filename)
@@ -17,7 +17,7 @@ def allowed_file(filename):
 
 def get_file_hash(file):
 
-    '''Función para devolver hash + extencion como string'''
+    '''Function to return hash + extension as string'''
 
     hash_file = hashlib.md5(file.read()).hexdigest()
     _, ext = os.path.splitext(file.filename)  
