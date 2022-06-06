@@ -11,12 +11,11 @@ import json
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
 db = redis.Redis(
-    host=settings.REDIS_IP, 
-    port=settings.REDIS_PORT, 
-    db=settings.REDIS_DB_ID
+    host=settings.REDIS_IP, port=settings.REDIS_PORT, db=settings.REDIS_DB_ID
 )
 # Load your ML model and assign to variable `model`
 model = resnet50.ResNet50(include_top=True, weights="imagenet")
+
 
 def predict(image_name):
     """
@@ -34,20 +33,20 @@ def predict(image_name):
         Model predicted class as a string and the corresponding confidence
         score as a number.
     """
-    #create image path from concatenation
+    # create image path from concatenation
     image_path = os.path.join(settings.UPLOAD_FOLDER, image_name)
-    #load image and resize
+    # load image and resize
     image_file = image.load_img(image_path, target_size=(224, 224))
-    #preprocess image
+    # preprocess image
     image_prepro = image.img_to_array(image_file)
     image_prepro = np.expand_dims(image_prepro, axis=0)
     image_prepro = resnet50.preprocess_input(image_prepro)
-    
-    #predictions with resnet50
+
+    # predictions with resnet50
     pred = model.predict(image_prepro)
     result = resnet50.decode_predictions(pred, top=1)[0][0]
 
-    return tuple([str(result[1]), round(float(result[2]),4)])
+    return tuple([str(result[1]), round(float(result[2]), 4)])
 
 
 def classify_process():
@@ -70,7 +69,7 @@ def classify_process():
             #   2. Run your ML model on the given data
             pred_class, pred_score = predict(msg["image_name"])
             #   3. Store model prediction in a dict with the following shape:
-            #      {
+            #      {
             #         "prediction": str,
             #         "score": float,
             #      }
@@ -78,12 +77,12 @@ def classify_process():
                 "prediction": pred_class,
                 "score": pred_score,
             }
-            #   4. Store the results on Redis using the original job ID as the key
+            #   4. Store the results on Redis using the original job ID as the key
             #      so the API can match the results it gets to the original job
             #      sent
             # Hint: You should be able to successfully implement the communication
             #       code with Redis making use of functions `brpop()` and `set()`.
-            db.set(msg["id"],json.dumps(output_msg))
+            db.set(msg["id"], json.dumps(output_msg))
 
         #  Don't forget to sleep for a bit at the end
         time.sleep(settings.SERVER_SLEEP)

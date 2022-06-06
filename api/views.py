@@ -1,7 +1,7 @@
 import utils
 import os
 import settings
-from middleware import model_predict 
+from middleware import model_predict
 from flask import (
     Blueprint,
     flash,
@@ -9,7 +9,7 @@ from flask import (
     render_template,
     request,
     url_for,
-    jsonify
+    jsonify,
 )
 from datetime import datetime
 
@@ -42,23 +42,22 @@ def upload_image():
     if file.filename == "":
         flash("No image selected for uploading")
         return redirect(request.url)
-    
 
     # File received and it's an image, we must show it and get predictions
     if file and utils.allowed_file(file.filename):
         # In order to correctly display the image in the UI and get model
         # predictions you should implement the following:
-        
+
         #   1. Get an unique file name
         unique_filename = utils.get_file_hash(file)
-        
-        #   2. Store the image to disk using the new name
+
+        #   2. Store the image to disk using the new name
         image_path = os.path.join(settings.UPLOAD_FOLDER, unique_filename)
-        
-         # Check the file already exist
-        if not os.path.exists(image_path): 
+
+        # Check the file already exist
+        if not os.path.exists(image_path):
             file.save(image_path)
-        
+
         context = {
             "prediction": None,
             "score": None,
@@ -70,22 +69,23 @@ def upload_image():
         before = datetime.now()
         pred_result = model_predict(unique_filename)
         after = datetime.now()
-        time = after-before
-        print(f'model_predict_root_route took {time} seconds')
+        time = after - before
+        print(f"model_predict_root_route took {time} seconds")
 
+        #   4. Update `context` dict with the corresponding values
+        context.update(
+            {
+                "prediction": pred_result[0],
+                "score": pred_result[1],
+                "filename": unique_filename,
+                "time": time,
+            }
+        )
 
-        #   4. Update `context` dict with the corresponding values
-        context.update({
-            "prediction": pred_result[0],
-            "score": pred_result[1],
-            "filename": unique_filename,
-            "time": time,
-        })
-
-        # Update `render_template()` parameters as needed       
+        # Update `render_template()` parameters as needed
 
         return render_template(
-            "index.html", filename=unique_filename, context=context 
+            "index.html", filename=unique_filename, context=context
         )
     # File received and but it isn't an image
     else:
@@ -129,7 +129,7 @@ def predict():
         - "score" model confidence score for the predicted class as float.
     """
     # To correctly implement this endpoint you should:
-    #   1. Check a file was sent and that file is an image
+    #   1. Check a file was sent and that file is an image
     if "file" in request.files:
         file = request.files["file"]
 
@@ -137,26 +137,31 @@ def predict():
             unique_filename = utils.get_file_hash(file)
             image_path = os.path.join(settings.UPLOAD_FOLDER, unique_filename)
 
-     #   2. Store the image to disk if it does not exist
-            if not os.path.exists(image_path): 
+            #   2. Store the image to disk if it does not exist
+            if not os.path.exists(image_path):
                 file.save(image_path)
-            
-    #   3. Send the file to be processed by the `model` service
-    #      Hint: Use middleware.model_predict() for sending jobs to model
-    #            service using Redis.
+
+            #   3. Send the file to be processed by the `model` service
+            #      Hint: Use middleware.model_predict() for sending jobs to model
+            #            service using Redis.
             before = datetime.now()
             pred_result = model_predict(unique_filename)
             after = datetime.now()
-            print(f'model_predict_predict_route took {after-before} seconds')
-            
-    #   4. Update and return `rpse` dict with the corresponding values
-    # If user sends an invalid request (e.g. no file provided) this endpoint
-    # should return `rpse` dict with default values HTTP 400 Bad Request code
-            rpse = {"success": True, "prediction": pred_result[0], "score":pred_result[1]}
+            print(f"model_predict_predict_route took {after-before} seconds")
+
+            #   4. Update and return `rpse` dict with the corresponding values
+            # If user sends an invalid request (e.g. no file provided) this endpoint
+            # should return `rpse` dict with default values HTTP 400 Bad Request code
+            rpse = {
+                "success": True,
+                "prediction": pred_result[0],
+                "score": pred_result[1],
+            }
             return jsonify(rpse), 200
-    
+
     rpse = {"success": False, "prediction": None, "score": None}
     return jsonify(rpse), 400
+
 
 @router.route("/feedback", methods=["GET", "POST"])
 def feedback():
@@ -179,14 +184,14 @@ def feedback():
           incorrect.
         - "score" model confidence score for the predicted class as float.
     """
-    # Get reported predictions from `report` key
+    # Get reported predictions from `report` key
     report = request.form.get("report")
     # Store the reported data to a file on the corresponding path
-    # already provided in settings.py module
-    feedback_path =  settings.FEEDBACK_FILEPATH
-    #create file
+    # already provided in settings.py module
+    feedback_path = settings.FEEDBACK_FILEPATH
+    # create file
     with open(feedback_path, "a+") as f:
-        f.write(f'{report}\n')
-        flash('Thanks for your feedback')
+        f.write(f"{report}\n")
+        flash("Thanks for your feedback")
 
     return render_template("index.html")
