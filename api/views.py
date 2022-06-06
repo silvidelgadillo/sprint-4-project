@@ -42,22 +42,21 @@ def upload_image():
         flash("No image selected for uploading")
         return redirect(request.url)
 
-
     # File received and it's an image, we must show it and get predictions
     if file and utils.allowed_file(file.filename):
 
         # In order to correctly display the image in the UI and get model
         # predictions you should implement the following:
-        
+
         #   1. Get an unique file name using utils.get_file_hash() function
         filename_hash = utils.get_file_hash(file)
 
-        #   2. Store the image to disk using the new name
-        
-        # funcion save built-in python - buscar
-        file.save(os.path.join(settings.UPLOAD_FOLDER, filename_hash)) 
+        #   2. Store the image to disk using the new name
 
-        #   3. Send the file to be processed by the `model` service
+        # funcion save built-in python - buscar
+        file.save(os.path.join(settings.UPLOAD_FOLDER, filename_hash))
+
+        #   3. Send the file to be processed by the `model` service
         #      Hint: Use middleware.model_predict() for sending jobs to model
         #            service using Redis.
 
@@ -66,11 +65,11 @@ def upload_image():
         # prediction   = result_tuple[0]
         # score        = result_tuple[1]
 
-        #   4. Update `context` dict with the corresponding values
+        #   4. Update `context` dict with the corresponding values
 
         # format for properly view in the UI
-        prediction = prediction.capitalize() # separar guiones
-        score = round(score*100,2)
+        prediction = prediction.capitalize()  # separar guiones
+        score = round(score * 100, 2)
 
         context = {
             "prediction": prediction,
@@ -78,13 +77,11 @@ def upload_image():
             "filename": filename_hash,
         }
 
-        # Update `render_template()` parameters as needed
+        # Update `render_template()` parameters as needed
         # https://flask.palletsprojects.com/en/2.1.x/quickstart/#rendering-templates
 
         return render_template(
-            "index.html",
-            filename = filename_hash,
-            context  = context
+            "index.html", filename=filename_hash, context=context
         )
 
     # File received and but it isn't an image
@@ -129,23 +126,23 @@ def predict():
         - "score" model confidence score for the predicted class as float.
     """
     # To correctly implement this endpoint you should:
-    #   1. Check a file was sent and that file is an image
+    #   1. Check a file was sent and that file is an image
 
     if "file" in request.files:
-    # if file.filename == "":
- 
+        # if file.filename == "":
+
         file = request.files["file"]
 
         if file and utils.allowed_file(file.filename):
-        
+
             filename_hash = utils.get_file_hash(file)
 
-    #   2. Store the image to disk
+            #   2. Store the image to disk
             file.save(os.path.join(settings.UPLOAD_FOLDER, filename_hash))
 
-    #   3. Send the file to be processed by the `model` service
-    #      Hint: Use middleware.model_predict() for sending jobs to model
-    #            service using Redis.
+            #   3. Send the file to be processed by the `model` service
+            #      Hint: Use middleware.model_predict() for sending jobs to model
+            #            service using Redis.
 
             prediction, score = model_predict(filename_hash)
 
@@ -158,14 +155,10 @@ def predict():
 
     #   4. Update and return `rpse` dict with the corresponding values
     # If user sends an invalid request (e.g. no file provided) this endpoint
-    # should return `rpse` dict with default values HTTP 400 Bad Request code
+    # should return `rpse` dict with default values HTTP 400 Bad Request code
 
-    rpse = {
-        "success": False,
-        "prediction": None,
-        "score": None
-    }
-    
+    rpse = {"success": False, "prediction": None, "score": None}
+
     return jsonify(rpse), 400
 
 
@@ -190,22 +183,19 @@ def feedback():
           incorrect.
         - "score" model confidence score for the predicted class as float.
     """
-    # Get reported predictions from `report` key
+    # Get reported predictions from `report` key
     report = request.form.get("report")
 
     # Store the reported data to a file on the corresponding path
-    # already provided in settings.py module
+    # already provided in settings.py module
 
     with open(settings.FEEDBACK_FILEPATH, "a+") as feedback:
         # parametro 'a+' - (a) si no existe el archivo, lo crea. si existe lo abre y lo lee
-        feedback.write(str(report) + '\n')
-    
+        feedback.write(str(report) + "\n")
+
     # Alan
     # feedback = open(settings.FEEDBACK_FILEPATH, "a+")
     # feedback.write(str(report) + '\n')
     # feedback.close()
 
     return render_template("index.html")
-
-
-

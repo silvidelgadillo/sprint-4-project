@@ -8,11 +8,12 @@ import json
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
 db = redis.Redis(
-    host=settings.REDIS_HOST_NAME, 
+    host=settings.REDIS_HOST_NAME,
     port=settings.REDIS_PORT,
-    db=settings.REDIS_DB_ID
+    db=settings.REDIS_DB_ID,
 )
 # assert db.ping()  # api connection checkpoint
+
 
 def model_predict(image_name):
     """
@@ -39,26 +40,27 @@ def model_predict(image_name):
     # Create a dict with the job data we will send through Redis having the
     # following shape:
 
-    job_data = {
-        "id": job_id ,
-        "image_name": image_name
-    }
+    job_data = {"id": job_id, "image_name": image_name}
 
-    # Send the job to the model service using Redis
+    # Send the job to the model service using Redis
     # Hint: Using Redis `rpush()` function should be enough to accomplish this.
 
-    job_data_str = json.dumps(job_data) # transform pair of id-name dict into json because rpush only admits str
-    db.rpush(settings.REDIS_QUEUE, job_data_str) # rpush(queue_name, message) > we include pair id-name in message
-    
+    job_data_str = json.dumps(
+        job_data
+    )  # transform pair of id-name dict into json because rpush only admits str
+    db.rpush(
+        settings.REDIS_QUEUE, job_data_str
+    )  # rpush(queue_name, message) > we include pair id-name in message
+
     # Loop until we received the response from our ML model
     while True:
         # Attempt to get model predictions using job_id
-        # Hint: Investigate how can we get a value using a key from Redis
+        # Hint: Investigate how can we get a value using a key from Redis
 
-        if db.get(job_id): # check if predict exists
+        if db.get(job_id):  # check if predict exists
 
             output = json.loads(db.get(job_id))
-            
+
             # Don't forget to delete the job from Redis after we get the results!
             # Then exit the loop
 
@@ -68,5 +70,5 @@ def model_predict(image_name):
         # Sleep some time waiting for model results
         time.sleep(settings.API_SLEEP)
 
-    return output['prediction'], output['score']
+    return output["prediction"], output["score"]
     # tuple([output['prediction'], output['score']])

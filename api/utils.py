@@ -1,8 +1,9 @@
 import os
 import hashlib
 
+
 def allowed_file(filename):
-    
+
     """
     Checks if the format for the file received is acceptable. For this
     particular case, we must accept only image files.
@@ -22,7 +23,7 @@ def allowed_file(filename):
     # https://tedboy.github.io/flask/generated/generated/werkzeug.FileStorage.html
 
     ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif"}
-    file_ext = os.path.splitext(filename)[1].lower() # return two variables
+    file_ext = os.path.splitext(filename)[1].lower()  # return two variables
 
     if file_ext in ALLOWED_EXTENSIONS:
         check_allowed_file = True
@@ -30,6 +31,8 @@ def allowed_file(filename):
         check_allowed_file = False
 
     return check_allowed_file
+
+
 def get_file_hash(file):
     """
     Returns a new filename based on the file content using MD5 hashing.
@@ -47,9 +50,9 @@ def get_file_hash(file):
         New filename based in md5 file hash.
     """
     file_hash = hashlib.md5(file.read()).hexdigest()
-    _ , file_ext = os.path.splitext(file.filename)
+    _, file_ext = os.path.splitext(file.filename)
     file_ext = file_ext.lower()
-    file_hash_name = f'{file_hash}{file_ext}'
-    file.seek(0) # return memory pointer to genesis
-    
+    file_hash_name = f"{file_hash}{file_ext}"
+    file.seek(0)  # return memory pointer to genesis
+
     return file_hash_name
