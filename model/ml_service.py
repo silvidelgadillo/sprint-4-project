@@ -8,6 +8,7 @@ import settings
 import json
 
 
+
 # TODO
 # Connect to Redis and assign to variable `db``
 # Make use of settings.py module to get Redis settings like host, port, etc.
