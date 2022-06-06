@@ -18,7 +18,6 @@ def allowed_file(filename):
         True if the file is an image, False otherwise.
     """
     # Current implementation will allow any kind of file.
-    # TODO
 
     allowed_ext = {".png", ".jpg", ".jpeg", ".gif"}
 
@@ -48,11 +47,13 @@ def get_file_hash(file):
         New filename based in md5 file hash.
     """
     # Current implementation will return the original file name.
-    # TODO
 
     hash_name = hashlib.md5(file.read())
-    ext = file.filename.rsplit('.',1)[1].lower()
-    hashed_file = hash_name.hexdigest()+'.'+ext
+
+    _, ext = os.path.splitext(file.filename)
+    ext = ext.lower()
+
+    hashed_file = hash_name.hexdigest() + ext
 
     file.seek(0) # in order to return to first point in memory, so we can read it later
 

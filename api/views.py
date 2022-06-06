@@ -3,6 +3,7 @@ from os import path
 import settings
 from middleware import model_predict
 from asyncio import FastChildWatcher
+from werkzeug.utils import secure_filename
 
 
 from flask import (
@@ -39,6 +40,7 @@ def upload_image():
         return redirect(request.url)
 
     # File received but no filename is provided, show basic UI
+    
     file = request.files["file"]
     if file.filename == "":
         flash("No image selected for uploading")
@@ -53,17 +55,22 @@ def upload_image():
         #   1. Get an unique file name using utils.get_file_hash() function
 
         new_name = utils.get_file_hash(file)
+        file.filename = new_name
+        filename_sec = secure_filename(file.filename)
 
         #   2. Store the image to disk using the new name
 
-        file.save(path.join(settings.UPLOAD_FOLDER, new_name))
+        already_exist = path.exists(path.join(settings.UPLOAD_FOLDER, filename_sec))
+
+        if already_exist == False:
+            file.save(path.join(settings.UPLOAD_FOLDER, filename_sec))
 
         #   3. Send the file to be processed by the `model` service
 
         #      Hint: Use middleware.model_predict() for sending jobs to model
         #      service using Redis.
 
-        predictions, score = model_predict(file)
+        predictions, score = model_predict(new_name)
 
         #   4. Update `context` dict with the corresponding values
 
@@ -123,34 +130,32 @@ def predict():
     # To correctly implement this endpoint you should:
     #   1. Check a file was sent and that file is an image
 
-    file = request.files["file"]
-    file_not_null = (request.form["not_a_file"] is not None)
-    return jsonify({"success": False, "prediction": None, "score": None}), 400
+    if "file" in request.files:
+        file = request.files["file"]
 
-    # file_is_allowed = (utils.allowed_file(request.form["not_a_file"].filename))
-    
-    #if file_not_null and file_is_allowed:
+        if file and utils.allowed_file(file.filename):
+            the_file_name = utils.get_file_hash(file)
 
     #   2. Store the image to disk
 
-        #file.save(path.join(settings.UPLOAD_FOLDER))  # ask if we need to specifiy a new name, or use the current one
+        file.save(settings.UPLOAD_FOLDER + the_file_name)
 
     #   3. Send the file to be processed by the `model` service
     #       Hint: Use middleware.model_predict() for sending jobs to model
     #       service using Redis.
 
-        #predictions, score = model_predict(file)
+        predictions, score = model_predict(the_file_name)
 
     #   4. Update and return `rpse` dict with the corresponding values
     # If user sends an invalid request (e.g. no file provided) this endpoint
     # should return `rpse` dict with default values HTTP 400 Bad Request code
 
-        #rpse = {"success": True, "prediction": predictions, "score": score}
+        rpse = {"success": True, "prediction": predictions, "score": score}
+        return jsonify(rpse)
 
-    #else:
-        #rpse = {"success": False, "prediction": None, "score": None}
-        #return jsonify(rpse), 400
-
+    else:
+        rpse = {"success": False, "prediction": None, "score": None}
+        return jsonify(rpse), 400
 
 
 @router.route("/feedback", methods=["GET", "POST"])
@@ -179,6 +184,9 @@ def feedback():
 
     # Store the reported data to a file on the corresponding path
     # already provided in settings.py module
-    # TODO
+
+    with open(settings.FEEDBACK_FILEPATH , 'a') as file:
+            file.write(str(report) + '\n')
 
     return render_template("index.html")
+    
