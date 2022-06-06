@@ -5,10 +5,16 @@ import requests
 
 class TestIntegration(unittest.TestCase):
     def test_index(self):
-        response = requests.request("GET", "http://localhost/",)
+        response = requests.request(
+            "GET",
+            "http://localhost/",
+        )
         self.assertEqual(response.status_code, 200)
 
-        response = requests.request("POST", "http://localhost/",)
+        response = requests.request(
+            "POST",
+            "http://localhost/",
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_predict(self):

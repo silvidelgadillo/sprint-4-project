@@ -1,5 +1,6 @@
 from locust import HttpUser, task, between
 
+
 class UserBehavior(HttpUser):
     wait_time = between(0.5, 1)
 
@@ -16,7 +17,7 @@ class UserBehavior(HttpUser):
         ]
         self.client.post(
             "http://localhost/predict",
-            headers = header,
-            data = data,
-            files = files,
+            headers=header,
+            data=data,
+            files=files,
         )
