@@ -50,8 +50,11 @@ def upload_image():
         filename_hashed = utils.get_file_hash(file)
         #   2. Store the image to disk using the new name
         path_to_save = settings.UPLOAD_FOLDER
-        if os.path.exists(filename_hashed) == False:
-            file.save(os.path.join(path_to_save, filename_hashed))
+        path_and_file_hashed = os.path.join(path_to_save, filename_hashed)
+
+        #   2. Store the image to disk
+        if os.path.exists(path_and_file_hashed) == False:
+            file.save(path_and_file_hashed)
             print('File saved in the upload folder')
         #   3. Send the file to be processed by the `model` service
         #      Hint: Use middleware.model_predict() for sending jobs to model
@@ -129,9 +132,11 @@ def predict():
 
         filename_hashed = utils.get_file_hash(file)
         path_to_save = settings.UPLOAD_FOLDER
+        path_and_file_hashed = os.path.join(path_to_save, filename_hashed)
+
         #   2. Store the image to disk
-        if os.path.exists(filename_hashed) == False:
-            file.save(os.path.join(path_to_save, filename_hashed))
+        if os.path.exists(path_and_file_hashed) == False:
+            file.save(path_and_file_hashed)
 
     #   3. Send the file to be processed by the `model` service
     #      Hint: Use middleware.model_predict() for sending jobs to model
