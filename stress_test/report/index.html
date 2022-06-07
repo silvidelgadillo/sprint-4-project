@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .container iframe {
+            height: 400px;
+        }
+        .container img {
+            max-width: 50%; height: auto;
+        }
+        </style>
+</head>
+<body>
+    <h1>Stress Test Report</h1>
+    <h2>Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz   1.80 GH. 8.00 GB. No GPU</h2>
+    <div class="container">
+        <p>First a simple test was made using only the '/predict' endpoint and invoking only 10 users.</p>
+        <iframe src="report_onlypredict_10users_nofix.html" title="description"></iframe>
+        <p>As it can be seen, the server stops responding after 2 minutes.</p>
+        <img src="report_onlypredict_10users_nofix.jpg">
+        <p>Taking a look at the logs, it is evident that the error that caused the server to stop was a corrupted image file, caused by concurrent writes and reads.</p>
+        <p>The problem is fixed by first checking if the file already exists, everytime a file is intended to be created.</p>
+        <p>Testing with the same conditions as before, a better result is yield.</p>
+        <iframe src="report_onlypredict_10users_filefix.html" title="description"></iframe>
+        <p>A normal behaviour is seen and no errors are reported.</p>
+        <img src="report_onlypredict_10users_filefix.jpg">
+        <p>The CLI yields the logs of the normal procedure of the containers processing the images.</p>
+        <img src="report_onlypredict_10users_filefix_queue.jpg">
+        <p>As it can be seen, the queue size keeps in 7, even after long periods of time, which indicates that the jobs are not being continously accumulated into the queue.</p>
+        <p>Taking the test further in terms of stress, a new one is carried on with 1000 users and ramp up of 10 per second.</p>
+        <iframe src="report_onlypredict_1000users_filefix.html" title="description"></iframe>
+        <p>After a couple minutes locust starts to fail. The service keeps processing request with no problems though</p>
+        <img src="report_onlypredict_1000users_filefix_errorlog_locust.jpg">
+        <p>As it can be seen, the locust client is not able to open any more files to send to the server. Its an OS limitation</p>
+        <p>The open files limitation is solved by editing /etc/security/limits.config in the host. The tests are run again.</p>
+        <iframe src="report_onlypredict_1000users_filefix_ulimitfix.html" title="description"></iframe>
+        <p>The request start to fail again after a while.</p>
+        <img src="report_onlypredict_1000users_filefix_ulimitfix_errorlog_locust_container_error.jpg">
+        <p>As can be seen, now the locust client doesnt fail, but the server does. The cause is the same as before, open file limits but in the server this time.</p>
+    </div>
+</body>
+</html>

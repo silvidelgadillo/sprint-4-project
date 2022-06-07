@@ -22,7 +22,8 @@ class TestIntegration(TestCase):
         self.assertEqual(data["prediction"], None)
         self.assertEqual(data["score"], None)
 
-    @patch('views.model_predict')
+    #@patch('views.model_predict') # FIXME: Should be middleware.model_predict instead?
+    @patch('middleware.model_predict')
     def test_predict_ok(self, mock):
         # Mocks
         pred_class = "Eskimo_dog"
@@ -31,12 +32,14 @@ class TestIntegration(TestCase):
         app.config["UPLOAD_FOLDER"] = "/tmp"
 
         data = {
-            'file': (open("tests/dog.jpeg", "rb"), 'dog.jpeg')
+            # 'file': (open("tests/dog.jpeg", "rb"), 'dog.jpeg') # Modify field name to reuse form validator
+            'image': (open("tests/dog.jpeg", "rb"), 'dog.jpeg') # Modify field name to reuse form validator
         }
         response = self.client.post(
             "/predict",
             data=data,
         )
+        print(response.get_data(as_text=True))
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.get_data(as_text=True))
         self.assertEqual(len(data.keys()), 3)

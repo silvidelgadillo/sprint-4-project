@@ -1,5 +1,7 @@
 # Flask ML API
-
+# README
+# STRESS TEST REPORT
+[STRESS TEST REPORT LINK](https://htmlpreview.github.io/?https://github.com/marcosbz/sprint-4-project/blob/ZIEGLERMARCOS-assignment/stress_test/report/index.html "Stress test report")
 ## Install and run
 
 To run the services using compose:
