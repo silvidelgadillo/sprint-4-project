@@ -1,10 +1,7 @@
-from locust import HttpUser, between, task
+from locust import HttpUser, TaskSet, task, between
 
-
-
-class WebsiteUser(HttpUser):
-    wait_time = between(5, 15)
-    
+class UserBehavior(TaskSet):
+       
       
     @task
     def index(self):
@@ -16,3 +13,8 @@ class WebsiteUser(HttpUser):
         files= [("file", ("dog.jpeg", open("dog.jpeg", "rb"), "image/jpeg"))]
         self.client.post("http://localhost/predict", headers={}, data={}, files=files)
 
+class APIUser(HttpUser):
+    tasks = [UserBehavior]
+    wait_time = between(
+        1, 5
+    )

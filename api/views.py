@@ -88,6 +88,7 @@ def display_image(filename):
 
 @router.route("/predict", methods=["POST"])
 def predict():
+   
     """
     Endpoint used to get predictions without need to access the UI.
 
@@ -134,12 +135,15 @@ def predict():
         
         unique_file = utils.get_file_hash(file)
         path = os.path.join(settings.UPLOAD_FOLDER, unique_file)
+
         if not os.path.exists(path):
             file.save(path)
         prediction, score = model_predict(unique_file)
         rpse = {"success": True, "prediction": prediction, "score": score}
         return jsonify(rpse), 200
-
+    else:
+        return jsonify(rpse), 400
+        
 @router.route("/feedback", methods=["GET", "POST"])
 def feedback():
     """
