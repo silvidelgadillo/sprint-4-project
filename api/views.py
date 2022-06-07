@@ -153,8 +153,10 @@ def predict():
         #   1. Check a file was sent and that file is an image
         uploaded_file = request.files['image']
         hashed_filename = utils.get_file_hash(uploaded_file)
-         #   2. Store the image to disk
-        uploaded_file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], hashed_filename))
+        #   2. Store the image to disk
+        save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], hashed_filename)
+        if os.path.exists(save_path) is False:
+            uploaded_file.save(save_path)
         #   3. Send the file to be processed by the `model` service
         #      Hint: Use middleware.model_predict() for sending jobs to model
         #            service using Redis.
