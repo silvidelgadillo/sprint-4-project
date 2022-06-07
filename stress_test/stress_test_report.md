@@ -37,4 +37,9 @@ $ exit
 
 <img src="locust_index.jpg" alt="locust_index" width="600"/>
 
+<img src="locust_model_scale_5.jpg" alt="locust_indexd" width="1500"/>
+
 2. Check 
+
+
+Llega al tope de RPS debido a capacidad del modelo y al incrementar la cantidad de usuarios se observa que aumenta el tiempo de respuesta en consecuencia. Escalando, aumenta el RPS hasta su nuevo límite y se manifiesta el mismo comportamiento.
