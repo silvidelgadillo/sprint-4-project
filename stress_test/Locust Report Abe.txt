@@ -1,0 +1,25 @@
+1 model
+
+10 Users:
+100 Predict Requests 0% Failure RPS 3.4
+
+20 Users:
+75 Predict Requests 25% Failure RPS 0.5
+
+30 Users:
+50 Predict Requests 37% Failure RPS 0.7 
+
+
+3 models
+
+10 Users:
+150 Predict Requests 1% Failure RPS 3.1 aprox.
+
+20 Users:
+30 Predict Requests 100% Failure RPS 0.2
+
+30 Users:
+30 Predict Requests 100% Failure RPS 0.5
+
+Intel i3 2.10 GHZ 2 cores
+
