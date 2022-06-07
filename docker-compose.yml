@@ -19,8 +19,8 @@ services:
     volumes:
       - ./feedback:/src/feedback
       - ./uploads:/src/static/uploads
-      - ./api:/src
-    command: --reload
+      #- ./api:/src # Used in development to edit files live
+    # command: --reload # Used in development to reload on every change
     networks:
     - sprint4-net
 

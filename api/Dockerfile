@@ -5,7 +5,8 @@ RUN pip3 install -r requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/src/
 
-#ADD ./ /src/ # Added as volume for development
+# Should comment if using volume for development
+ADD ./ /src/
 
 WORKDIR /src
 
