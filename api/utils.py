@@ -1,6 +1,7 @@
 import os
 import hashlib
 
+
 def allowed_file(filename):
     """
     Checks if the format for the file received is acceptable. For this
@@ -16,12 +17,17 @@ def allowed_file(filename):
     bool
         True if the file is an image, False otherwise.
     """
-    # Current implementation will allow any kind of file.
+    #  Current implementation will allow any kind of file.
     # TODO
     try:
-        images_ext = {'.gif', '.jpeg', '.jpg', '.png'} #set para que sea mas rapido recorrerlo
-        _, img_check = os.path.splitext(filename)    #como me devuelve un tupple ignoro la primer variable con _,
-        img_check = img_check.lower()                  #todas las extensiones en minuscula
+        images_ext = {
+            ".gif",
+            ".jpeg",
+            ".jpg",
+            ".png",
+        }
+        _, img_check = os.path.splitext(filename)
+        img_check = img_check.lower()
 
     except IOError:
         print("===========Error fetching file format")
@@ -44,11 +50,11 @@ def get_file_hash(file):
     str
         New filename based in md5 file hash.
     """
-    # Current implementation will return the original file name.
+    #  Current implementation will return the original file name.
     # TODO
     _, split_file = os.path.splitext(file.filename)
     data = file.read()
     md5hash = hashlib.md5(data).hexdigest()
-    file.seek(0)                #vuelvo el puntero para poder leerlo despues
+    file.seek(0)
 
     return str(md5hash) + str(split_file)

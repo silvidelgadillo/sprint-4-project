@@ -22,7 +22,7 @@ class TestIntegration(TestCase):
         self.assertEqual(data["prediction"], None)
         self.assertEqual(data["score"], None)
 
-    @patch('views.model_predict')
+    @patch("views.model_predict")
     def test_predict_ok(self, mock):
         # Mocks
         pred_class = "Eskimo_dog"
@@ -30,13 +30,8 @@ class TestIntegration(TestCase):
         mock.return_value = (pred_class, pred_score)
         app.config["UPLOAD_FOLDER"] = "/tmp"
 
-        data = {
-            'file': (open("tests/dog.jpeg", "rb"), 'dog.jpeg')
-        }
-        response = self.client.post(
-            "/predict",
-            data=data,
-        )
+        data = {"file": (open("tests/dog.jpeg", "rb"), "dog.jpeg")}
+        response = self.client.post("/predict", data=data,)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.get_data(as_text=True))
         self.assertEqual(len(data.keys()), 3)
@@ -47,29 +42,31 @@ class TestIntegration(TestCase):
     def test_feedback(self):
         import os
         import settings
+
         # Check current status for feedback folder
         if os.path.exists(settings.FEEDBACK_FILEPATH):
-            curr_feedback_lines = len(open(settings.FEEDBACK_FILEPATH).read().splitlines())
+            curr_feedback_lines = len(
+                open(settings.FEEDBACK_FILEPATH).read().splitlines()
+            )
         else:
             curr_feedback_lines = 0
 
         data = {
-            'report': "{'filename': 'test', 'prediction': 'test-pred', 'score': 1. }"
+            "report": "{'filename': 'test', 'prediction': 'test-pred', 'score': 1. }"
         }
-        response = self.client.post(
-            "/feedback",
-            data=data,
-        )
+        response = self.client.post("/feedback", data=data,)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(os.path.exists(settings.FEEDBACK_FILEPATH))
 
         # Check the feedback file was written
-        new_feedback_lines = len(open(settings.FEEDBACK_FILEPATH).read().splitlines())
+        new_feedback_lines = len(
+            open(settings.FEEDBACK_FILEPATH).read().splitlines()
+        )
         self.assertEqual(curr_feedback_lines + 1, new_feedback_lines)
 
         # Check the content is correct
         new_line = open(settings.FEEDBACK_FILEPATH).read().splitlines()[-1]
-        self.assertEqual(data['report'], new_line)
+        self.assertEqual(data["report"], new_line)
 
 
 class TestEnpointsAvailability(TestCase):
