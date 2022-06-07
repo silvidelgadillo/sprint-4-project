@@ -86,4 +86,5 @@ def classify_process():
 if __name__ == "__main__":
     # Now launch process
     print("Launching ML service...")
+    db.flushall()
     classify_process()
