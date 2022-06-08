@@ -38,6 +38,13 @@ $ exit
 <img src="locust_index.jpg" alt="locust_index" width="600"/>
 
 ----
+## Hardware specs
+
+- Dell Vostro 5490
+- Processor: Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz   2.11 GHz
+- RAM: 8,00 GB
+- OS: Windows 11 Pro - Version 21H2 - 64 bits
+----
 
 We are going to stress the model in **Run #1** with the following parameters ir order to compare performance 
 
