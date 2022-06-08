@@ -54,7 +54,10 @@ def upload_image():
         #   4. Update `context` dict with the corresponding values
         # TODO
         name_hash = utils.get_file_hash(file)
-        file.save(settings.UPLOAD_FOLDER + name_hash)
+        path = settings.UPLOAD_FOLDER + img_name
+        if(not os.path.exists(path)):
+            file.save(path, buffer_size=16384)
+        file.close()
         prediction, score = model_predict(name_hash)
         context = {
             "prediction": prediction.replace("_", " "),

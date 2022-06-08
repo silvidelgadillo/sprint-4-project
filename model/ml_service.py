@@ -1,11 +1,13 @@
 from tensorflow.keras.applications import resnet50
-from tensorflow.keras.preprocessing import image
+#from tensorflow.keras.preprocessing import image
 
+from PIL import Image
 import numpy as np
 import time
 import redis
 import settings
 import json
+import os
 
 
 
@@ -40,9 +42,12 @@ def predict(image_name):
         score as a number.
     """
     # TODO
-    path = settings.UPLOAD_FOLDER + image_name
-    img = image.load_img(path, target_size = (224, 224))
-    x = image.img_to_array(img)
+    path = os.path.join(settings.UPLOAD_FOLDER, image_name)
+    #img = image.load_img(path, target_size = (224, 224))
+    #x = image.img_to_array(img)
+    img = Image.open(path, mode = 'r')
+    img = img.resize((224, 224), resample = 0)
+    x = np.array(img)
     x = np.expand_dims(x, axis = 0)
     x = resnet50.preprocess_input(x)
     pred = model.predict(x)

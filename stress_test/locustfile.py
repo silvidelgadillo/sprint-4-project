@@ -1,9 +1,8 @@
-from locust import HttpUser, task
+from locust import HttpUser, task, between
 
 
 class UserBehavior(HttpUser):
-  max_wait = 5000
-  min_wait = 1000
+  wait_time = between(1,5)
 
     # Put your stress tests here
     # TODO
@@ -13,5 +12,6 @@ class UserBehavior(HttpUser):
   
   @task(2)
   def predict(self):
-    file = [("file", ("dog.jpeg", open("dog.jpeg", "rb"), "image/jpeg"))]
-    self.client.post("http://localhost/predict", headers = {}, data = {}, files = file)
+    with open("dog.jpeg", "rb") as img:
+      file = {"file": img}
+      self.client.post("http://localhost/predict", headers = {}, data = {}, files = file)

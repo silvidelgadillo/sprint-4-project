@@ -1,0 +1,32 @@
+Hardware and OS specifications
+- Intel Core i5-6500 CPU @ 3.20GHz
+- RAM 16 GB(15.9 GB usable)
+- 64-bit operating system 
+- Windows 10 Pro
+
+For testing:
+- Time of test: 5 minutes
+
+** 1 model running, 10 users and 1 spawn rate
+| Average time (ms) | RPS ratio | % Failures |
+|-------------------|-----------|------------|
+|       1294        |    2.3    |     0.1    |
+
+** 1 model running, 10 users and 3 spawn rate (Failed at 2:30 minutes)
+| Average time (ms) | RPS ratio | % Failures |
+|-------------------|-----------|------------|
+|        3537       |    0.7    |     0.1    |
+
+** 1 model running, 50 users and 1 spawn rate (Failed at less than 1:30 minutes)
+| Average time (ms) |     RPS ratio      | % Failures |
+|-------------------|--------------------|------------|
+|       2325        | 7.4 before failing |     0.1    |
+
+** 2 models running, 10 users and 1 spawn rate (Failed at 4:30 minutes)
+| Average time (ms) |     RPS ratio      | % Failures |
+|-------------------|--------------------|------------|
+|        585        |  3 before failing  |     0.1    |
+
+There was an error wich caused a remote disconnection and from that point locust won't have any response.
+It seems that the error is in the PIL library where in a point the image gets truncated i tried to use another library but i only got other errors related to
+PIL library and bytes error. Every test is passed.
