@@ -1,30 +1,18 @@
-from email.mime import image
-import time
-from wsgiref import headers
-from locust import TaskSet, task, HttpUser, between
+from locust import HttpUser, task, between
+# locust: an open source load-testing tool 
 
-
-class UserBehavior(TaskSet):
-    # se define la estategia de interacción de los usuarios
-    @task(1) # el 1 es que dará prio al index contra el predict de 1 a 3 veces
-    def index(self):
-        self.client.get("http://localhost/") #simple get
-
-    @task(3)
-    def predict(self): # le enviamos un archivo por metodo post 
-    # Put your stress tests here
-        files = [
-            ("file",("dog.jpeg", open("dog.jpeg", "rb"), "image/jpeg"))
+class UserBehavior(HttpUser):
+# Put your stress tests here 
+    wait_time = between(0.5, 1)
+    @task(2)
+    def index_locus(self):
+        self.client.get('/')  
+   
+    @task(5)
+    def predict_locus(self):
+        image_test = [
+            ("file", ("dog.jpeg", open("dog.jpeg", "rb"), "image/jpeg"))
         ]
-        header = {}
-        payload = {}
-        self.client.post(
-            "http://localhost/predict/",
-            headers=headers,
-            data=payload,
-            files=files,
-        )
-# antes que el usuario se conecta al endpoint tiene que esperar min wait, y el usuario  tiene que esperar max wait para un nuevo  request 
-class APIUser(HttpUser):
-    tasks = [UserBehavior]
-    wait_time = between(1,10)
+        
+        self.client.post("/predict", files=image_test)
+        
