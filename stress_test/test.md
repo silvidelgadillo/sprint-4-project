@@ -11,3 +11,4 @@
 
 ### Test run with **TWO MODELS** instances and **users**:100 **Spawn rate**:20.
  
+![First test](/stress_test/images/3.png)  
