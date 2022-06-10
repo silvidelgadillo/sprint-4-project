@@ -59,7 +59,6 @@ def upload_image():
         #            service using Redis.
         model_pred, model_score = model_predict(newfile)        
         #   4. Update `context` dict with the corresponding values
-        model_pred = predict.replace("_"," ").title()
         model_score = round(model_score*100, 2)
         context = {
             "prediction": model_pred,
