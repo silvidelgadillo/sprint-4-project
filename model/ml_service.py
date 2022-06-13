@@ -7,6 +7,7 @@ import time
 import redis
 import settings
 import json
+import os
 
 
 # TODO
@@ -40,7 +41,7 @@ def predict(image_name):
         score as a number.
     """
     # TODO
-    path = settings.UPLOAD_FOLDER + image_name
+    path = os.path.join(settings.UPLOAD_FOLDER, image_name)
     img = Image.open(path).resize((224, 224), resample = 0)
     img = np.array(img)
     img = np.expand_dims(img, axis = 0)
