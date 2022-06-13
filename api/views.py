@@ -170,7 +170,7 @@ def feedback():
 
     if report!=None:
 
-        with open(settings.FEEDBACK_FILEPATH, 'w') as fp:
-            fp.write(report)
+        with open(f"{settings.FEEDBACK_FILEPATH}.txt", 'a+') as fp:
+            fp.write(str(report) + "\n")
 
     return render_template("index.html")
